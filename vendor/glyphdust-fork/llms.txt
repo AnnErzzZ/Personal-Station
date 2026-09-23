@@ -1,0 +1,101 @@
+# glyphdust
+
+> Scroll/agent-driven **text → particles → glyph → real-text resolve** for the web (WebGL/three.js).
+> Also forms particles into any **SVG path shape** (icons, logos, symbols) via shape keyframes.
+> You animate everything from a single progress `0 → 1`, through one entry point:
+> the **`<GlyphDust>`** react-three-fiber component. MIT. npm package: `glyphdust`.
+
+Designed for AI agents / codegen: minimal required config, safe defaults, and one `progress 0→1`
+you can drive from anything — scroll, a timer, an AI agent, audio, sensor data. Copy an example
+below and change the text; it works as-is.
+
+Current version: 0.12.0. (The former React-free `glyphText()` one-call API and the CDN build
+were removed in 0.10.0 — use 0.9.x if you need them.)
+
+## Install
+
+`npm i glyphdust three @react-three/fiber react react-dom`
+(`three`, `@react-three/fiber`, `react`, `react-dom` are peerDependencies.)
+
+## `<GlyphDust>` — React (react-three-fiber) component
+
+Render it in your layout and pass `keyframes`. Scroll-driven by default. `resolveToDom` is a
+**per-keyframe** flag (on the text keyframe), alongside `domSelector`.
+```tsx
+import { GlyphDust } from "glyphdust";
+<GlyphDust
+  keyframes={[
+    { type: "text",    text: "Hello", domSelector: "#headline" },
+    { type: "scatter", spread: 1 },
+    { type: "text",    text: "WORLD", dense: true, resolveToDom: true },
+  ]}
+/>
+```
+
+`resolveToDom` works on **any** text keyframe with a `domSelector`, not just the last one:
+while the journey stays on that keyframe, particles melt into the real DOM text
+(crossfade + blur→focus), and melt back into particles when the journey moves on.
+Consecutive keyframes with the same `domSelector` (form → hold) count as one stop.
+The first stop starts as real text (visible from progress 0); the final stop stays as
+real text. Do NOT drive those elements' opacity yourself — the library owns it.
+
+## Props
+
+- `keyframes: Keyframe[]` (required) — the timeline; typically `text → scatter → text`.
+- `driver` — progress source (default `{ type: "scroll" }`):
+  - `{ type: "scroll", triggerHeight? }` — full-screen sticky hero; `triggerHeight` ×100vh (default 2).
+  - `{ type: "manual", progress }` — you supply `0..1` (scroll math, GSAP, an AI agent, anything).
+  - `{ type: "autoplay", duration?, delay?, loop?, pingpong?, playOnView? }` — time-based; fills its parent box.
+- `preset`: `"default" | "minimal" | "lively" | "glow"` · `style` — per-field overrides
+  (`size`, `blend`, `drift`, `sparkle`, …). `style` always wins over `preset`.
+- `bloomComponent` — optional bloom renderer. To enable bloom, install
+  `@react-three/postprocessing`, import `BloomEffect` from `glyphdust/bloom`, and pass it here.
+  Without it, bloom is not rendered and the optional peer stays outside the app's module graph.
+- `colors`: `{ ink?, accent?, accentRatio? }` (defaults `#1b2330` / `#0055ff` / `0.18`).
+- `count`: `{ desktop: 11000, mobile: 5200 }` · `timing`: `number[]` (normalized `0..1` per keyframe)
+  · `camera`: `{ z: 7, fov: 42 }` · `dpr`: `[1, 1.75]`.
+- `fallback: ReactNode` — rendered on reduced-motion / no-WebGL (never a blank screen).
+- `resampleSignal: number` — change the value to re-sample `domSelector` targets while keeping
+  the same WebGL context (for targets that drift from their initially-sampled position).
+- `paused: boolean` — freeze the render loop without unmounting (WebGL context stays alive).
+  Use for persistent multi-instance pools: keep every instance mounted, pause the idle ones.
+
+### Bloom / glow preset
+
+```tsx
+import { GlyphDust } from "glyphdust";
+import BloomEffect from "glyphdust/bloom";
+
+<GlyphDust
+  preset="glow"
+  bloomComponent={BloomEffect}
+  keyframes={[/* … */]}
+/>
+```
+
+Importing `glyphdust/bloom` is what opts the app into the optional post-processing dependency.
+If `bloomComponent` is omitted, `glow` keeps its other visual settings but renders no bloom.
+
+## Keyframe types
+- `{ type: "text", text, dense?, domSelector?, resolveToDom?, font?, segments?, worldW?, offsetX?, offsetY? }`
+- `{ type: "scatter", spread? }`
+- `{ type: "shape", path, viewBox?, fillRule?, worldW?, offsetX?, offsetY? }` — form particles
+  into any **SVG path** (icon/logo/symbol). `path` = the `d` attribute (`string | string[]`,
+  array = multi-`<path>` icon, all filled together). `viewBox` `[x,y,w,h]` optional
+  (auto-measured); `fillRule` `"nonzero"|"evenodd"` (try `"evenodd"` if a hole gets filled);
+  `worldW` = world width of the shape's bounding box (aspect preserved; tall shapes
+  auto-shrink to stay visible when omitted). Shapes settle/hold like text glyphs but never
+  resolve to DOM text.
+
+Progress `0→1` auto-distributes across keyframes; a final text/shape keyframe forms by ~0.85 and holds.
+
+## Gotchas
+- **three.js / @react-three/fiber / react are required** — all peer dependencies.
+- **`resolveToDom` needs a real DOM element per text keyframe** (`domSelector`). Without it the word
+  stays as particles.
+- **Accessibility / resilience**: `prefers-reduced-motion` or no-WebGL → renders `fallback`.
+
+## Links
+- README: https://github.com/linno-inc/glyphdust#readme
+- npm: https://www.npmjs.com/package/glyphdust
+- Repo: https://github.com/linno-inc/glyphdust

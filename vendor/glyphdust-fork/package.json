@@ -1,0 +1,89 @@
+{
+  "name": "glyphdust-fork",
+  "version": "0.12.0-fork.1",
+  "description": "Text → particles → glyph → real-text resolve. One React-three-fiber component: <GlyphDust>.",
+  "type": "module",
+  "license": "MIT",
+  "author": "LINNO (NOGUCHILin)",
+  "homepage": "https://github.com/linno-inc/glyphdust#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/linno-inc/glyphdust.git"
+  },
+  "bugs": {
+    "url": "https://github.com/linno-inc/glyphdust/issues"
+  },
+  "keywords": [
+    "particles",
+    "text-animation",
+    "scroll",
+    "three",
+    "three.js",
+    "react-three-fiber",
+    "r3f",
+    "webgl",
+    "glyph",
+    "morph",
+    "hero",
+    "shader"
+  ],
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./bloom": {
+      "types": "./dist/bloom.d.ts",
+      "import": "./dist/bloom.js",
+      "require": "./dist/bloom.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "llms.txt"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm run typecheck && pnpm run build"
+  },
+  "peerDependencies": {
+    "@react-three/fiber": ">=8",
+    "@react-three/postprocessing": ">=3",
+    "react": ">=18",
+    "react-dom": ">=18",
+    "three": ">=0.160"
+  },
+  "devDependencies": {
+    "@react-three/fiber": "^9.6.1",
+    "@react-three/postprocessing": "^3.0.4",
+    "@types/react": "^19.0.0",
+    "@types/three": "^0.184.1",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "three": "^0.184.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependenciesMeta": {
+    "@react-three/postprocessing": {
+      "optional": true
+    }
+  }
+}
