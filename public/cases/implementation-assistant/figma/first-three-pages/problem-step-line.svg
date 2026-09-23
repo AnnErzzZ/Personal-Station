@@ -1,0 +1,16 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="16" height="32" viewBox="0 0 16 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Frame 24">
+<g clip-path="url(#clip0_0_75)">
+<path id="Vector 1" d="M8 0V32" stroke="url(#paint0_linear_0_75)" stroke-linecap="round"/>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_75" x1="8.5" y1="0" x2="8.5" y2="32" gradientUnits="userSpaceOnUse">
+<stop stop-color="#696E77"/>
+<stop offset="1" stop-color="#696E77" stop-opacity="0"/>
+</linearGradient>
+<clipPath id="clip0_0_75">
+<path d="M0 8C0 3.58172 3.58172 0 8 0V0C12.4183 0 16 3.58172 16 8V24C16 28.4183 12.4183 32 8 32V32C3.58172 32 0 28.4183 0 24V8Z" fill="white"/>
+</clipPath>
+</defs>
+</svg>

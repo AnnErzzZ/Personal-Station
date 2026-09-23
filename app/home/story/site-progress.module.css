@@ -1,0 +1,231 @@
+/* 全站阅读进度条（Site Progress）—— 唯一 DOM 实例，fixed 钉在视口底部。
+ * 视觉语言与旧 bio chrome / endProgress 同一套 editorial HUD：
+ * 左章节 / 1px 细轨道 / 右页码，颜色只有 #1C2024 与灰阶，
+ * 无渐变、无阴影卡片、无圆角容器。节点（tick）= 细竖线，
+ * 当前阅读位置 = 圆点，两者严格区分。 */
+
+.siteProgress {
+  position: fixed;
+  right: var(--page-padding-x, 72px);
+  bottom: 28px;
+  left: var(--page-padding-x, 72px);
+  z-index: 8;
+  display: flex;
+  gap: 28px;
+  align-items: center;
+  height: 20px;
+  /* 容器给 UI Latin（`ABOUT` / `01 / 04` 这类拉丁标签），
+     编号与中文各自在下面覆盖 —— 本行是混排节点，不对整节点强制 DINPro，
+     否则 `关于` 会掉进 DINPro 的中文兜底。Site Progress 逻辑不动。 */
+  font-family: var(--font-ui, "DINPro", sans-serif);
+  pointer-events: none;
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition:
+    opacity 200ms ease-out,
+    transform 200ms ease-out,
+    visibility 0s linear 0s;
+}
+
+/* Selected Work 沉浸浏览态：直接复用文件夹的既有 phase。
+   opening 开始淡出，expanded / closing 全程保持隐藏；直到共享元素回程结束、
+   phase 真正回到 closed，本规则才解除并恢复整套 Site Progress。 */
+html:has([data-work-folder][data-folder-phase="opening"]) .siteProgress,
+html:has([data-work-folder][data-folder-phase="expanded"]) .siteProgress,
+html:has([data-work-folder][data-folder-phase="closing"]) .siteProgress {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(4px);
+  transition:
+    opacity 200ms ease-out,
+    transform 200ms ease-out,
+    visibility 0s linear 200ms;
+}
+
+/* ---- 左：当前章节信息。固定宽度，切换 Section 时轨道不抖 ---- */
+
+.info {
+  position: relative;
+  flex: 0 0 auto;
+  width: 208px;
+  height: 14px;
+}
+
+.infoItem {
+  position: absolute;
+  inset: 0 auto 0 0;
+  display: flex;
+  gap: 9px;
+  align-items: baseline;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.055em;
+  color: var(--text, #1c2024);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(2px);
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease;
+}
+
+.infoIndex {
+  font-family: var(--font-number);
+  color: var(--text, #1c2024);
+}
+
+.infoSep {
+  color: var(--text-meta, #73777f);
+}
+
+.infoLabel {
+  text-transform: uppercase;
+}
+
+.infoZh {
+  margin-left: 3px;
+  font-family: var(--font-cn);
+  color: var(--text-meta, #73777f);
+}
+
+/* 当前 Section 的信息块显形（其余保持隐藏，120ms 轻淡入换字） */
+.siteProgress[data-section="hero"] .infoItem[data-item="hero"],
+.siteProgress[data-section="about"] .infoItem[data-item="about"],
+.siteProgress[data-section="work"] .infoItem[data-item="work"],
+.siteProgress[data-section="contact"] .infoItem[data-item="contact"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---- 中：全站轨道（1px 底线 + 已阅读深线 + Section 节点 + 当前圆点）---- */
+
+.track {
+  position: relative;
+  flex: 1 1 auto;
+  height: 9px;
+}
+
+.trackLine {
+  position: absolute;
+  top: 4px;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: rgb(28 32 36 / 16%);
+}
+
+.trackFill {
+  position: absolute;
+  top: 4px;
+  left: 0;
+  width: calc(var(--sp-progress, 0) * 100%);
+  height: 1px;
+  background: var(--text, #1c2024);
+}
+
+/* Section 节点：非常细的小竖线，垂直居中穿过轨道。
+   一圈极淡的浅色描边让它在压到柴犬深色衣裤时仍可辨认（白底上不可见）。 */
+.tick {
+  position: absolute;
+  top: 1px;
+  width: 1px;
+  height: 7px;
+  background: rgb(28 32 36 / 22%);
+  box-shadow: 0 0 0 1px rgb(250 249 252 / 40%);
+  transform: translateX(-50%);
+}
+
+.tick[data-state="passed"] {
+  background: rgb(28 32 36 / 55%);
+}
+
+.tick[data-state="current"] {
+  background: var(--text, #1c2024);
+}
+
+/* 当前阅读位置：小实心圆点（浅色描边从深底上把它抠出来，同旧 chromeDot）。 */
+.dot {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--sp-progress, 0) * 100%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--text, #1c2024);
+  box-shadow: 0 0 0 2px rgb(250 249 252 / 88%);
+  transform: translate(-50%, -50%);
+}
+
+/* ---- 右：全站页码 + 状态。固定宽度，数字变化不挤轨道 ---- */
+
+.meta {
+  position: relative;
+  flex: 0 0 auto;
+  width: 150px;
+  height: 14px;
+}
+
+.metaItem {
+  position: absolute;
+  inset: 0 0 0 auto;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  align-items: baseline;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  color: var(--text-meta, #73777f);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(2px);
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease;
+}
+
+.metaPage {
+  text-transform: uppercase;
+}
+
+.siteProgress[data-section="hero"] .metaItem[data-item="hero"],
+.siteProgress[data-section="about"] .metaItem[data-item="about"],
+.siteProgress[data-section="work"] .metaItem[data-item="work"],
+.siteProgress[data-section="contact"] .metaItem[data-item="contact"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* 压到柴犬深色衣裤（窄视口 / work 坐姿）→ 反白，与 chromeAside 同一套约定 */
+.siteProgress[data-sp-on-dark="true"] .metaItem {
+  color: var(--dark-subtle, #b0b4ba);
+}
+
+/* ---- 移动端：左编号 / 轨道 / 右页码，长名称让位 ---- */
+
+@media (max-width: 720px) {
+  .siteProgress {
+    bottom: 18px;
+    gap: 16px;
+    height: 16px;
+  }
+
+  .info {
+    width: 24px;
+    height: 12px;
+  }
+
+  .infoSep,
+  .infoLabel,
+  .infoZh {
+    display: none;
+  }
+
+  .meta {
+    width: 52px;
+  }
+
+  .metaHint {
+    display: none;
+  }
+}

@@ -1,0 +1,56 @@
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 20px;
+  border: 1px solid rgb(17 17 19 / 32%);
+  border-radius: 999px;
+  background: transparent;
+  font-family: var(--font-cn);
+  font-size: 13.5px;
+  letter-spacing: 0.1em;
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    background-color 200ms ease,
+    color 200ms ease,
+    border-color 200ms ease,
+    transform 200ms ease;
+}
+
+.cta:hover,
+.cta:focus-visible {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+
+.cta:active {
+  transform: scale(0.97);
+}
+
+.arrow {
+  font-size: 14px;
+  line-height: 1;
+  transition: transform 200ms ease;
+}
+
+.cta:hover .arrow {
+  transform: translate(1.5px, -1.5px);
+}
+
+/* 竖屏手机：按钮沉到柴犬卫衣（深色）区域，反白保证可读。 */
+@media (max-width: 720px) {
+  .cta {
+    border-color: transparent;
+    background: rgb(255 255 255 / 92%);
+    color: var(--ink);
+  }
+
+  .cta:hover,
+  .cta:focus-visible {
+    background: #fff;
+    border-color: #fff;
+    color: var(--ink);
+  }
+}

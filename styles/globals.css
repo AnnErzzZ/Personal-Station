@@ -1,0 +1,56 @@
+:root {
+  --color-background: #ffffff;
+  --color-foreground: #171717;
+  --color-muted: #666666;
+
+  /* ── 全站字体三档（与 app/home.module.css 的 .page/.home 保持同一套）──
+     首页由 .home / .page 提供同名变量；此处是**未进入首页容器**的页面
+     （案例页等）的兜底定义，值必须一致，否则同一段文案在两条路径下字形不同。
+     字体实测见 artifacts/tmp/probe-font-availability.mjs。
+     2026-09-23 降噪轮：中文栈把 Noto Sans SC（VF，wght 100–900）提到最前——
+     本机思源黑体只有 400/500/700 静态字面，600 声明会落到 Bold 造成中文
+     笔画粘连；Noto Sans SC 与思源黑体同源设计，VF 下 400/500/600 均为
+     真实字面，SemiBold 标题不再渲染成 Bold。 */
+  --font-display: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+  --font-number: "DINPro", "DIN Pro", Arial, sans-serif;
+  --font-cn: "Noto Sans SC", "Source Han Sans CN", "Source Han Sans SC",
+    "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-ui: Arial, "Source Han Sans CN", "PingFang SC", "Microsoft YaHei",
+    sans-serif;
+  /* 旧别名：保留兼容，值指向新三档。body 的默认字体 = 中文栈（正文以中文为主）。 */
+  --display: var(--font-display);
+  --body: var(--font-cn);
+  --meta-font: var(--font-number);
+  --font-sans: var(--font-cn);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--color-background);
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  color: var(--color-foreground);
+  background: var(--color-background);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+}
+
+main > section[id] {
+  scroll-margin-top: 84px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

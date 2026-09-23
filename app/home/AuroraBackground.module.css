@@ -1,0 +1,87 @@
+/* Aceternity UI「Aurora Background」的样式移植：
+   原组件用 Tailwind 任意值类 + shadcn 的 animate-aurora 主题变量表达，
+   这里改写成本项目的 CSS Module，视觉定义（渐变、mask、blur、mix-blend、关键帧）保持一致。 */
+
+.aurora {
+  position: absolute;
+  overflow: hidden;
+  pointer-events: none;
+  inset: 0;
+
+  --aurora: repeating-linear-gradient(
+    100deg,
+    var(--blue-500) 10%,
+    var(--indigo-300) 15%,
+    var(--blue-300) 20%,
+    var(--violet-200) 25%,
+    var(--blue-400) 30%
+  );
+  --white-gradient: repeating-linear-gradient(
+    100deg,
+    var(--white) 0%,
+    var(--white) 7%,
+    var(--transparent) 10%,
+    var(--transparent) 12%,
+    var(--white) 16%
+  );
+
+  --blue-300: #93c5fd;
+  --blue-400: #60a5fa;
+  --blue-500: #3b82f6;
+  --indigo-300: #a5b4fc;
+  --violet-200: #ddd6fe;
+  --black: #000;
+  --white: #fff;
+  --transparent: transparent;
+}
+
+.layer {
+  position: absolute;
+  filter: blur(9px) invert(100%);
+  inset: -10px;
+  background-image: var(--white-gradient), var(--aurora);
+  background-position:
+    50% 50%,
+    50% 50%;
+  background-size:
+    300%,
+    200%;
+  opacity: 0.62;
+  will-change: transform;
+}
+
+.layer::after {
+  position: absolute;
+  background-attachment: fixed;
+  background-image: var(--white-gradient), var(--aurora);
+  background-size:
+    200%,
+    100%;
+  content: "";
+  inset: 0;
+  mix-blend-mode: difference;
+  animation: aurora 60s linear infinite;
+}
+
+.radial {
+  mask-image: radial-gradient(ellipse at 100% 0%, black 12%, var(--transparent) 78%);
+}
+
+@keyframes aurora {
+  from {
+    background-position:
+      50% 50%,
+      50% 50%;
+  }
+  to {
+    background-position:
+      350% 50%,
+      350% 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .layer::after {
+    animation: none;
+  }
+}

@@ -1,0 +1,241 @@
+.container {
+  position: relative;
+  z-index: 1;
+  width: max-content;
+}
+
+.nav {
+  --nav-h: 42px;
+  --pill-pad-x: 18px;
+  --pill-gap: 3px;
+
+  display: flex;
+  width: max-content;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.navItems {
+  position: relative;
+  display: flex;
+  height: var(--nav-h);
+  align-items: center;
+  border-radius: 9999px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.logo {
+  display: inline-flex;
+  overflow: hidden;
+  width: var(--nav-h);
+  height: var(--nav-h);
+  padding: 8px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--base, #111113);
+}
+
+.logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.list {
+  display: flex;
+  height: 100%;
+  padding: 3px;
+  margin: 0;
+  align-items: stretch;
+  gap: var(--pill-gap);
+  list-style: none;
+}
+
+.list > li {
+  display: flex;
+  height: 100%;
+}
+
+.pill {
+  position: relative;
+  display: inline-flex;
+  overflow: hidden;
+  height: 100%;
+  padding: 0 var(--pill-pad-x);
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: var(--pill-bg, #fff);
+  box-sizing: border-box;
+  color: var(--pill-text, var(--base, #111113));
+  cursor: pointer;
+  font-family: var(--font-cn);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.hoverCircle {
+  position: absolute;
+  z-index: 1;
+  bottom: 0;
+  left: 50%;
+  display: block;
+  border-radius: 50%;
+  background: var(--base, #111113);
+  pointer-events: none;
+  will-change: transform;
+}
+
+.labelStack {
+  position: relative;
+  z-index: 2;
+  display: inline-block;
+  line-height: 1;
+}
+
+.label,
+.hoverLabel {
+  display: inline-block;
+  line-height: 1;
+  will-change: transform;
+}
+
+.hoverLabel {
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  left: 0;
+  color: var(--hover-text, #fff);
+  will-change: transform, opacity;
+}
+
+.pill.active::after {
+  position: absolute;
+  z-index: 4;
+  bottom: 4px;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--base, #111113);
+  content: "";
+  transform: translateX(-50%);
+}
+
+.desktopOnly {
+  display: flex;
+}
+
+.mobileOnly {
+  display: none;
+}
+
+.mobileMenuButton {
+  position: relative;
+  width: var(--nav-h);
+  height: var(--nav-h);
+  padding: 0;
+  border: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--base, #111113);
+  cursor: pointer;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hamburgerLine {
+  width: 16px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--pill-bg, #fff);
+  transform-origin: center;
+}
+
+.mobileMenuPopover {
+  position: fixed;
+  z-index: 998;
+  top: 66px;
+  right: var(--page-padding-x);
+  left: var(--page-padding-x);
+  border-radius: 24px;
+  background: var(--base, #111113);
+  box-shadow: 0 16px 48px rgb(17 17 19 / 20%);
+  opacity: 0;
+  transform-origin: top center;
+  visibility: hidden;
+}
+
+.mobileMenuList {
+  display: flex;
+  padding: 4px;
+  margin: 0;
+  flex-direction: column;
+  gap: 4px;
+  list-style: none;
+}
+
+.mobileMenuLink {
+  display: block;
+  padding: 14px 18px;
+  border-radius: 9999px;
+  background: var(--pill-bg, #fff);
+  color: var(--pill-text, #111113);
+  font-family: var(--font-cn);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.mobileMenuLink:hover,
+.mobileMenuLink:focus-visible,
+.mobileMenuLink.active {
+  background: var(--base, #111113);
+  color: var(--hover-text, #fff);
+  outline: 1px solid rgb(255 255 255 / 24%);
+}
+
+@media (max-width: 720px) {
+  .desktopOnly {
+    display: none;
+  }
+
+  .mobileOnly {
+    display: flex;
+  }
+
+  .mobileMenuPopover {
+    display: block;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pill:hover,
+  .pill:focus-visible {
+    background: var(--base, #111113);
+    color: var(--hover-text, #fff);
+  }
+
+  .hoverCircle,
+  .hoverLabel {
+    display: none;
+  }
+
+  .mobileMenuLink {
+    transition: none;
+  }
+}

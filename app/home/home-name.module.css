@@ -1,0 +1,91 @@
+/* Hero 左侧堆叠大标题。
+   GlyphDust 按 #hero-name 的行盒逐行采样（见 vendor 补丁与 home-sections.ts 的
+   dustTitle），这里的字号 / 行高 / letter-spacing 就是粒子字形的排版真值，
+   改动时粒子断行必须同步。 */
+
+.wrap {
+  position: relative;
+  max-width: 640px;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  /* 字号由「柴犬居中后还剩多少横向净空」反推，不是拍脑袋的视口比例：
+       帽檐左尖在视口里的位置 = 50vw − 0.352 × 100vh
+       （基准帧主体剪影左界在帧宽 30.2%，cover 后帧宽 = 1.7778 × 视口高），
+     减去左 gutter（60/72px）与 20px 呼吸，就是标题能占用的宽度；
+     除以「COMPLEX. 每 1px 字号占 3.9px 宽」得到字号。
+
+     ⚠ 2026-09-21 字体统一后：--display 由 PuHuiTi 换成 Impact，
+     实测 COMPLEX. 的字宽系数从 4.77 降到 3.66 px/px字号（窄约 23%，
+     见 artifacts/tmp/probe-font-metrics.mjs）。也就是说这个 3.9 常量
+     现在**偏保守**（真实占用更窄）→ 标题只会留更多净空，不会溢出。
+     按用户规则「只换 family、不碰字号」：**此处刻意保留 3.9 不动**，
+     不因变窄而放大标题。若将来要按新字宽重推，把 3.9 换成 3.66 即可，
+     但那是改 font-size，属于另一件事。
+     实测（scripts/preview-qa/probe-hero-framing.js）：
+       1440×900 → 83px（净空 +25/+23）  1600×900 → 103px（+25/+10）  1920×1080 → 上限 112px（+79/+79）
+     把柴犬集中在视口中轴，代价只能是标题让位——反过来（保住标题）就得把柴犬推右，
+     这正是 2026-09-19 上一版被否掉的做法。详见 docs/HOME_DESIGN_RULES.md §7.5。
+     竖屏 / ≤720 由下方媒体查询重新定义。 */
+  font-size: clamp(48px, calc((50vw - 35.2vh - 90px) / 3.9), 112px);
+  font-weight: 700;
+  line-height: 0.98;
+  /* 2026-09-21 晚：Impact 侧边距极窄，负字距会让墨迹贴死（用户实测反馈粘连）。
+     统一放宽到 +0.02em。COMPLEX. 的实际字宽系数 3.66 + 8字×0.02em ≈ 3.82，
+     仍 < 3.9，字号公式的保守性不变。 */
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.line {
+  display: block;
+  clip-path: inset(-10% -2% 105% -2%);
+}
+
+:global([data-ui-motion="entering"]) [data-ui-group="hero-title"] .line {
+  animation: lineReveal 480ms cubic-bezier(0.22, 1, 0.36, 1) 100ms forwards;
+}
+
+:global([data-ui-motion="entering"]) [data-ui-group="hero-title"] .lineSecond {
+  animation-delay: 190ms;
+}
+
+:global([data-ui-motion="entering"]) [data-ui-group="hero-title"] .lineThird {
+  animation-delay: 280ms;
+}
+
+:global([data-ui-motion="entered"]) [data-ui-group="hero-title"] .line {
+  clip-path: inset(-10% -2% -12% -2%);
+}
+
+@keyframes lineReveal {
+  from {
+    clip-path: inset(-10% -2% 105% -2%);
+  }
+  to {
+    clip-path: inset(-10% -2% -12% -2%);
+  }
+}
+
+/* 入场动画只动 clip-path、不动字形位置，transitionChrome 的隐藏态 / 粒子采样
+   的 range 矩形在动画全程都是稳定的。 */
+
+@media (max-width: 720px) {
+  .wrap {
+    max-width: 100%;
+  }
+
+  .title {
+    font-size: clamp(46px, 12.5vw, 64px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .line {
+    animation: none;
+    clip-path: none;
+  }
+}

@@ -1,0 +1,1256 @@
+.page {
+  --gutter: max(24px, calc(50% - 660px));
+  /* Hero 专属宽屏边距：≥1441px 时不再跟随 1320px 居中容器，
+     左右安全边距固定在 48–72px，内容横向吃满视口（见 .hero 的宽屏媒体查询）。 */
+  --hero-gutter: clamp(48px, 3.75vw, 72px);
+  --page-padding-x: var(--gutter);
+  --ink: #111113;
+  --text: #1c2024;
+  --text-subtle: #60646c;
+  --text-meta: #5f6268;
+  --line: rgb(28 32 36 / 14%);
+  --dark-text: #edeef0;
+  --dark-subtle: #b0b4ba;
+  --dark-meta: #8b8f98;
+
+  /* ── 全站字体三档（唯一事实，2026-09-21 统一）─────────────────────────
+     只分三类职责，不再让每个 Section 各写一套 family：
+
+       --font-display  英文视觉大标题（Hero / ABOUT / SELECTED WORK / Ending /
+                       章节内大型英文宣言 / 展开态标题）
+       --font-number   非正文独立数字（Section 编号 01-04、年份区间
+                       2023.12–2026.07、Site Progress 页码、时间/序号）
+       --font-cn       所有中文（正文、标签、辅助说明）
+       --font-ui       普通英文 UI / 正文（导航、按钮、标签、描述、Tools 列表）
+
+     ⚠ 本机字体实测（artifacts/tmp/probe-font-availability.mjs + 字体目录）：
+       Impact ✅ 系统自带       DINPro ✅ 全套字重       Source Han Sans CN ✅ 全字重
+       PingFang SC ✅ / Alibaba PuHuiTi ✅ / Bahnschrift ✅
+       Alimama ShuHeiTi ❌ 未安装     Anton ❌ 未安装
+     Impact 优先用系统字体，无需 @font-face。
+     2026-09-23 降噪轮：中文栈把 Noto Sans SC（VF，wght 100–900）提到最前——
+     本机思源黑体只有 400/500/700 静态字面，600 声明会落到 Bold 造成中文
+     笔画粘连；Noto Sans SC 与思源黑体同源设计，VF 下 400/500/600 均为
+     真实字面（与 styles/globals.css 保持一致）。 */
+  --font-display: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+  --font-number: "DINPro", "DIN Pro", Arial, sans-serif;
+  --font-cn: "Noto Sans SC", "Source Han Sans CN", "Source Han Sans SC",
+    "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-ui: Arial, "Source Han Sans CN", "PingFang SC", "Microsoft YaHei",
+    sans-serif;
+  /* 以下三个是既有语义别名，保留以免其它文件引用点失效；值指向新三档。 */
+  --display: var(--font-display);
+  --body: var(--font-cn);
+  --meta-font: var(--font-number);
+
+  position: fixed;
+  overflow: hidden;
+  inset: 0;
+  width: 100%;
+  height: 100svh;
+  color: var(--text);
+  font-family: var(--body);
+  overscroll-behavior: none;
+  touch-action: none;
+  transition: background-color 720ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* 自然滚动版首页根节点：token 与 .page 完全一致，但回到正常文档流，
+   支撑 sticky 视觉舞台与长滚动叙事。SiteNav 也挂在它下面以继承 token。 */
+.home {
+  --gutter: max(24px, calc(50% - 660px));
+  --hero-gutter: clamp(48px, 3.75vw, 72px);
+  /* 全站统一横向页面安全边距（唯一事实）= 首屏实际使用的规则。
+     1440 及以下 = 1320px 居中容器（1440 → 60px）；≥1441 = 48–72px 展开式边距；
+     ≤720 = 20px（见文件末的 responsive 段）。首屏、后续三个 Section 与顶部导航
+     都只引用这一个变量，页面纵向滚动时左右内容起始线完全重合。 */
+  --page-padding-x: var(--gutter);
+  --ink: #111113;
+  --text: #1c2024;
+  --text-subtle: #60646c;
+  --text-meta: #5f6268;
+  --line: rgb(28 32 36 / 14%);
+  /* 与 .page 完全同一套字体三档（见上方 .page 的完整说明）。
+     两个块必须逐字一致 —— 它们是同一个首屏在「分页版 / 滚动版」下的两种根节点。 */
+  --font-display: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+  --font-number: "DINPro", "DIN Pro", Arial, sans-serif;
+  --font-cn: "Source Han Sans CN", "Source Han Sans SC", "Noto Sans SC",
+    "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-ui: Arial, "Source Han Sans CN", "PingFang SC", "Microsoft YaHei",
+    sans-serif;
+  --display: var(--font-display);
+  --body: var(--font-cn);
+  --meta-font: var(--font-number);
+
+  position: relative;
+  width: 100%;
+  color: var(--text);
+  font-family: var(--body);
+  background: #ffffff;
+}
+
+.home :where(h1, h2, h3, p, ul, ol, figure, figcaption) {
+  margin: 0;
+}
+
+.home :where(ul, ol) {
+  padding: 0;
+  list-style: none;
+}
+
+.home a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+
+.page :where(h1, h2, h3, p, ul, ol, figure, figcaption) {
+  margin: 0;
+}
+
+.page :where(ul, ol) {
+  padding: 0;
+  list-style: none;
+}
+
+.page a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+
+.deck {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.homeSection {
+  position: absolute;
+  overflow: hidden;
+  inset: 0;
+  width: 100%;
+  height: 100svh;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.homeSection[data-section-state="active"],
+.homeSection[data-section-state="outgoing"],
+.homeSection[data-section-state="incoming"] {
+  visibility: visible;
+}
+
+.homeSection[data-section-state="active"] {
+  z-index: 2;
+  pointer-events: auto;
+}
+
+.homeSection[data-section-state="outgoing"] {
+  z-index: 1;
+}
+
+.homeSection[data-section-state="incoming"] {
+  z-index: 2;
+}
+
+.transitionChrome,
+.transitionBody,
+.sectionEyebrow,
+.heroAurora {
+  opacity: 1;
+  filter: blur(0);
+  transform: translateY(0);
+  transition:
+    opacity 360ms cubic-bezier(0.4, 0, 1, 1),
+    filter 420ms cubic-bezier(0.4, 0, 1, 1),
+    transform 420ms cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* hidden 与 incoming 共用同一组隐藏值：新 Section 第一次进 DOM、第一次变可见时
+   就已经是 opacity 0 + blur，不存在"先完整显示一帧、再由 transition 收起"的中间态。
+   两个状态之间没有任何值变化，因此进入 incoming 不会触发 transition。 */
+.homeSection[data-section-state="hidden"] :is(.transitionChrome, .transitionBody, .sectionEyebrow),
+.homeSection[data-section-state="incoming"] :is(.transitionChrome, .transitionBody, .sectionEyebrow),
+.homeSection[data-section-state="hidden"] .heroAurora,
+.homeSection[data-section-state="incoming"] .heroAurora {
+  opacity: 0;
+  filter: blur(18px);
+  transform: translateY(12px);
+}
+
+/* 进入隐藏态必须瞬间生效：此刻元素不可见，动画只会把"隐藏"这一帧拉成可见的退场。 */
+.homeSection[data-section-state="hidden"] :is(.transitionChrome, .transitionBody, .sectionEyebrow),
+.homeSection[data-section-state="hidden"] .heroAurora {
+  transition: none;
+}
+
+/* 标题的可见性由 GlyphDust 写 inline opacity 接管（见 §7.3），这里只保证它第一次
+   出现时就是不可见的：在库写下第一帧之前，隐藏态与 incoming 都按住 0。 */
+.homeSection[data-section-state="hidden"] .sectionTitleDisplay,
+.homeSection[data-section-state="incoming"] .sectionTitleDisplay,
+.homeSection[data-section-state="hidden"] :global(#hero-name),
+.homeSection[data-section-state="incoming"] :global(#hero-name) {
+  opacity: 0;
+}
+
+.homeSection[data-section-state="outgoing"] :is(.transitionChrome, .transitionBody, .sectionEyebrow),
+.homeSection[data-section-state="outgoing"] .heroAurora {
+  opacity: 0;
+  filter: blur(14px);
+  transform: translateY(-10px);
+}
+
+.page[data-transition-phase="preparing"]
+  .homeSection[data-section-state="incoming"]
+  :is(.transitionChrome, .transitionBody, .sectionEyebrow),
+.page[data-transition-phase="preparing"]
+  .homeSection[data-section-state="incoming"]
+  .heroAurora {
+  opacity: 0;
+  filter: blur(18px);
+  transform: translateY(12px);
+  transition: none;
+}
+
+.page[data-transition-phase="entering"]
+  .homeSection[data-section-state="incoming"]
+  :is(.transitionChrome, .transitionBody, .sectionEyebrow),
+.page[data-transition-phase="entering"]
+  .homeSection[data-section-state="incoming"]
+  .heroAurora {
+  opacity: 1;
+  filter: blur(0);
+  transform: translateY(0);
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  transition-duration: 340ms;
+}
+
+/* ---------------------------------------------------------------- hero */
+/* 版式参考作品集 Hero Banner 的信息分区：左侧堆叠大标题、中右角色主体、
+   右侧辅助文案、底部信息行。顶部品牌 / 导航 / 身份在 SiteNav（常驻）。 */
+
+.hero {
+  display: flex;
+  /* 自然滚动版：普通文档流块，占满一屏；视频与内部绝对定位层都以它为容器。 */
+  position: relative;
+  min-height: 100svh;
+  overflow: hidden;
+  /* 顶部留出固定导航（62px）的高度；底部 62px 给 fixed 的全站进度条
+     （SiteProgress，bottom 28 + 高 20）让出条带，heroFoot 不再与它交叠 */
+  padding: 92px var(--page-padding-x) 62px;
+}
+
+.heroAurora {
+  z-index: 0;
+}
+
+/* 底部不再有任何白色渐变 / 雾化 / 遮罩层（2026-09-19 删除）：
+   旧版的 .hero::after 是一条 170px 高的向上白色渐变，用来把柴犬右移后
+   压在深色卫衣上的底部信息行"救"成可读——代价是画面底部被一层白雾糊住。
+   现在柴犬居中、底部信息行按左右/中分别落在白底与深色卫衣上（中间的
+   Scroll hint 走反白，见 .scrollHint），画面底部就是干净的页面白。 */
+
+.heroInner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.heroMain {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  align-items: center;
+  gap: 32px;
+}
+
+.heroTitleBlock {
+  display: flex;
+  /* 左侧文案列约 420–480px（宽屏由 .hero 的宽屏媒体查询进一步锁定）；
+     大标题单行字形（COMPLEX.）按字号自然超出到中带，列宽只约束 eyebrow/简介/CTA。 */
+  max-width: min(46vw, 480px);
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.heroEyebrow {
+  font-family: var(--meta-font);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-meta);
+}
+
+.heroEyebrow + a,
+.heroEyebrow + h1 {
+  margin-top: 18px;
+}
+
+.heroIntroRow {
+  margin-top: 24px;
+}
+
+.heroIntro {
+  max-width: 400px;
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--text-subtle);
+}
+
+.heroCtaRow {
+  margin-top: 24px;
+}
+
+/* 角色右侧辅助文案：与左侧大标题呼应，保持轻量。
+   位置在垂直居中带上——柴犬右移后这是帽檐与肩部之间唯一的白色净空带，
+   偏上会撞帽檐右尖、偏下会撞肩袖，验收时三档宽度都要复核。 */
+.heroAside {
+  max-width: 240px;
+  margin-left: auto;
+  padding-right: 8px;
+}
+
+.asideHead {
+  /* 19px 小节标签（下方紧跟 14px 中文说明）—— 不是「大型英文宣言」，
+     归普通 UI 拉丁。用 Impact 会与中文正文风格割裂（2026-09-21 实测确认）。 */
+  font-family: var(--font-ui);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.asideBody {
+  margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-subtle);
+}
+
+/* 底部信息行：左（自我说明）/ 中（滚动提示）/ 右（与柴犬互动的提示）。 */
+.heroFoot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.footNote {
+  /* 宽度跟着「柴犬居中后左侧还剩多宽」走（与标题字号同一道几何题，见 home-name.module.css）：
+     单行 24 个汉字会顶到柴犬左肩（1440 时肩线在 x≈344），所以收窄折行；
+     窄桌面（≤1180）主体占比更大，再按同一算式收下去，160px 兜底避免折成多行。
+     底部行高由右侧 Hello, woof. 决定，折两行不会撑高。 */
+  max-width: clamp(160px, calc(50vw - 35.2vh - 80px), 240px);
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-meta);
+}
+
+.scrollHint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--meta-font);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  /* 柴犬居中后，视口中轴下半段整片是他的深色卫衣（帧底 94% 处主体横跨
+     视口 24%–77%），居中的 Scroll hint 必然落在深色上——和竖屏一样改反白。
+     左右两侧的 footNote / footWatch 仍在页面白底上，保持深色不变。
+     fallback 不是装饰：自然滚动版首页的根节点是 .home，深色 token（--dark-*）
+     只定义在 .page 上，用裸 var() 会退化成继承色（实测对比度 1.18:1）。 */
+  color: var(--dark-subtle, #b0b4ba);
+}
+
+/* 滚动提示标记：鼠标滚轮 icon + 双箭头，竖排（替换旧的「icon + ↓」横排）。
+   父级 .scrollHint 是列容器且 align-items: center，整列天然水平居中；
+   图形走 currentColor，跟随上面的反白文字色（--dark-subtle），不单独调色。
+   动画只碰 transform / opacity（合成器路径，不触发 layout / paint），
+   元素都是十几像素的小图层，不会影响页面其他部分的渲染；
+   prefers-reduced-motion 时全部静止为静态图标。 */
+.scrollHintMark {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.scrollMouse {
+  display: block;
+  width: 18px;
+  height: 28px;
+  color: inherit;
+}
+
+/* 滚轮点：胶囊内自上而下滚动，末段淡出，循环 1.8s（与双箭头同周期）。 */
+.scrollWheelDot {
+  animation: wheelRoll 1.8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+
+@keyframes wheelRoll {
+  0% { transform: translateY(0); opacity: 0; }
+  18% { opacity: 1; }
+  62% { transform: translateY(9px); opacity: 1; }
+  78%, 100% { transform: translateY(9px); opacity: 0; }
+}
+
+.scrollChevrons {
+  display: block;
+  width: 11px;
+  height: 11px;
+  color: inherit;
+}
+
+/* 双箭头：同一条呼吸曲线错峰 0.3s，形成向下流动感。 */
+.scrollChevron {
+  animation: chevronFlow 1.8s ease-in-out infinite;
+}
+
+.scrollChevron:nth-of-type(2) {
+  animation-delay: 0.3s;
+}
+
+@keyframes chevronFlow {
+  0%, 100% { opacity: 0.15; transform: translateY(-0.5px); }
+  45% { opacity: 1; transform: translateY(0.5px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrollWheelDot,
+  .scrollChevron {
+    animation: none;
+  }
+}
+
+.footWatch {
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 700;
+  text-align: right;
+  color: var(--ink);
+}
+
+.footWatch span {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--body);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-meta);
+}
+
+/* 入场：文案块延迟淡入（标题行有自己的 clip-path 揭示）。
+   只用 backwards：动画结束后不残留动画层 opacity，转场时由状态规则接管。 */
+.hero .transitionChrome {
+  animation: metaIn 720ms ease 480ms backwards;
+}
+
+.hero .heroAside {
+  animation-delay: 620ms;
+}
+
+.hero .heroFoot {
+  animation-delay: 720ms;
+}
+
+@keyframes metaIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ------------------------------------------------------------- sections */
+
+.section {
+  display: flex;
+  padding: clamp(70px, 9svh, 92px) var(--gutter) clamp(30px, 5svh, 48px);
+  flex-direction: column;
+}
+
+.sectionHeadDisplay {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: clamp(14px, 2.1svh, 22px);
+}
+
+.sectionEyebrow {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+
+.sectionIndex {
+  font-family: var(--meta-font);
+  font-size: 12.5px;
+  letter-spacing: 0.14em;
+  color: var(--text-meta);
+}
+
+.sectionRule {
+  height: 1px;
+  flex: 1 1 auto;
+  background: var(--line);
+}
+
+.sectionTitleDisplay {
+  font-family: var(--font-display);
+  font-size: clamp(46px, 6.5vw, 92px);
+  font-weight: 700;
+  line-height: 1.4;
+  /* Impact 统一 +0.02em：超窄体叠负字距会粘连（2026-09-21 用户反馈后统一放宽）。 */
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+
+.sectionHeadDisplay[data-dark="true"] .sectionIndex {
+  color: var(--dark-meta);
+}
+
+.sectionHeadDisplay[data-dark="true"] .sectionRule {
+  background: rgb(255 255 255 / 16%);
+}
+
+.sectionHeadDisplay[data-dark="true"] .sectionTitleDisplay {
+  color: var(--dark-text);
+}
+
+.transitionBody {
+  position: relative;
+  z-index: 1;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+/* ---------------------------------------------------------------- about */
+
+.aboutIntro {
+  margin-top: clamp(16px, 2.4svh, 26px);
+}
+
+.lead {
+  max-width: 940px;
+  font-family: var(--font-display);
+  font-size: clamp(23px, 2.15vw, 31px);
+  font-weight: 500;
+  line-height: 1.42;
+  /* Impact 统一 +0.02em（见 .sectionTitleDisplay 的注）。 */
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+
+.body {
+  max-width: 880px;
+  margin-top: clamp(10px, 1.5svh, 16px);
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--text-subtle);
+}
+
+.flow {
+  display: flex;
+  margin-top: clamp(18px, 2.7svh, 28px);
+  padding-block: 14px;
+  flex-wrap: wrap;
+  gap: 8px 0;
+  border-block: 1px solid var(--line);
+}
+
+.flow li {
+  display: flex;
+  align-items: center;
+  font-family: var(--meta-font);
+  font-size: 12.5px;
+  letter-spacing: 0.06em;
+  color: var(--text);
+}
+
+.flowArrow {
+  margin: 0 16px;
+  color: var(--text-meta);
+}
+
+.capabilities {
+  display: grid;
+  margin-top: clamp(22px, 3.8svh, 38px);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--line);
+}
+
+.capability {
+  padding: clamp(18px, 2.7svh, 26px) 34px 0 0;
+}
+
+.capability + .capability {
+  padding-left: 34px;
+  border-left: 1px solid var(--line);
+}
+
+.capabilityIndex,
+.toolsLabel {
+  display: block;
+  font-family: var(--meta-font);
+  font-size: 11.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-meta);
+}
+
+.capabilityTitle {
+  margin-top: 9px;
+  font-family: var(--font-ui);
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.capabilityBody {
+  max-width: 31em;
+  margin-top: 8px;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--text-subtle);
+}
+
+.tools {
+  display: flex;
+  margin-top: clamp(18px, 3svh, 30px);
+  padding-top: 14px;
+  gap: 24px;
+  align-items: baseline;
+  border-top: 1px solid var(--line);
+  font-family: var(--meta-font);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--text-subtle);
+}
+
+.toolsLabel {
+  min-width: 56px;
+}
+
+/* ----------------------------------------------------------------- work */
+
+/* 首页滚动叙事版（2026-09-20）：项目卡排在高 ≈630px 的左栏里（右边界收在视口中轴之前，
+   见 story.module.css 的 .zoneWork），所以卡宽从旧版的 644px 降到 ≈300px。
+   卡件的结构一律不动 —— 封面 16:9 且完整可见、36px 圆角、1px 描边、hover 整卡抬起、
+   箭头圆圈换位动画全部保留；只有卡内字级按卡宽的缩放比整体收了一档
+   （标题 20→17、正文 14→12.5、标签 14→11、内边距 27/26/26→18/18/16）。 */
+.workList {
+  display: grid;
+  margin-top: clamp(16px, 2.4svh, 24px);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* 行高 = 卡片内容高度（最多不超过整块可用高度），再用 align-content 把这一行居中：
+     卡片不再被撑满整屏，图与文案之间有意义的间距之外不留空档。 */
+  align-content: center;
+  gap: clamp(18px, 2vw, 28px);
+  min-height: 0;
+}
+
+.workCard {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid rgb(28 32 36 / 10%);
+  border-radius: 36px;
+  background: #fff;
+  transition:
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 320ms ease;
+}
+
+/* hover（以及键盘 Tab 聚焦到卡内链接）时整张卡抬起：位移 + 阴影 + 描边同时加深。
+   默认态仍然只有 1px 描边，不叠静态阴影。 */
+.workCard:hover {
+  border-color: rgb(28 32 36 / 16%);
+  box-shadow:
+    0 22px 48px rgb(9 20 50 / 14%),
+    0 3px 10px rgb(9 20 50 / 8%);
+  transform: translateY(-4px);
+}
+
+/* :has() 单独一条规则，不支持该选择器的浏览器只会丢掉这一条，不影响上面的 hover。 */
+.workCard:has(.workCardLink:focus-visible) {
+  border-color: rgb(28 32 36 / 16%);
+  box-shadow:
+    0 22px 48px rgb(9 20 50 / 14%),
+    0 3px 10px rgb(9 20 50 / 8%);
+  transform: translateY(-4px);
+}
+
+.workCardLink {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+  text-decoration: none;
+}
+
+.workVisual {
+  position: relative;
+  /* 封面用自己的 16:9 定高（flex-basis = 比例高度），文案吃掉剩下的空间。
+     空间不够时封面先被压缩（flex-shrink），object-fit: contain 保证它被等比
+     缩小而不是裁切——卡片比例不再反过来决定封面盒。 */
+  flex: 0 1 auto;
+  width: 100%;
+  min-height: 0;
+  aspect-ratio: 1672 / 941;
+  overflow: hidden;
+  background: transparent;
+}
+
+.workVisualImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.workCardLink:hover .workVisualImage,
+.workCardLink:focus-visible .workVisualImage {
+  transform: scale(1.025);
+}
+
+.workCopy {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  /* 旧版卡 644×211 时内边距是上 27 / 左右 26 / 下 26（Figma 345:2282）；
+     卡宽收到 ≈300px 后按同一缩放比收一档，否则文案区比例失衡。 */
+  padding: 18px 18px 16px;
+  flex-direction: column;
+}
+
+.workTitle {
+  font-family: var(--font-ui);
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.workBody {
+  display: flex;
+  margin-top: 14px;
+  margin-bottom: 14px;
+  flex-direction: column;
+}
+
+.workPositioning {
+  font-family: var(--font-number);
+  font-size: 12.5px;
+  line-height: 19px;
+  color: var(--text-subtle);
+}
+
+.workSummary {
+  display: -webkit-box;
+  overflow: hidden;
+  font-family: var(--body);
+  font-size: 12.5px;
+  line-height: 19px;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: var(--text-subtle);
+  text-wrap: pretty;
+}
+
+/* 页脚用 grid 而不是 flex-wrap：卡片收窄后「4 个标签 + 箭头圆圈」恰好卡在
+   250px 的行宽上，flex-wrap 会把箭头挤到第二行（旧版 644px 宽时不会发生）。
+   minmax(0,1fr) 让标签自己换行，箭头永远钉在右下角。 */
+.workFooter {
+  display: grid;
+  margin-top: auto;
+  gap: 6px 12px;
+  min-height: 26px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.workMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 8px;
+  font-family: var(--meta-font);
+  font-size: 10px;
+  line-height: 14px;
+  /* 全大写短标签给一点字距 */
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+}
+
+/* 右下角箭头圆圈（Figma 345:2537）：旧版 32×32、内部 18×18 箭头，
+   随卡宽一起收到 26×26 / 15×15。图标用遮罩着色，hover 只改 currentColor。 */
+.workArrow {
+  position: relative;
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  border: 1px solid rgb(28 32 36 / 10%);
+  border-radius: 50%;
+  color: var(--text-subtle);
+  transition:
+    background-color 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.workArrowBox {
+  position: absolute;
+  overflow: hidden;
+  inset: 5px;
+}
+
+.workArrowGlyph {
+  position: absolute;
+  inset: 0;
+  background-color: currentColor;
+  mask: var(--arrow-icon) center / 15px 15px no-repeat;
+  -webkit-mask: var(--arrow-icon) center / 15px 15px no-repeat;
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* 第二枚箭头在左下待命，hover 时第一枚往右上走出去、它补位进来。 */
+.workArrowGlyph + .workArrowGlyph {
+  transform: translate(-100%, 100%);
+}
+
+.workCardLink:hover .workArrow,
+.workCardLink:focus-visible .workArrow {
+  border-color: var(--ink);
+  background-color: var(--ink);
+  color: #fff;
+}
+
+.workCardLink:hover .workArrowGlyph,
+.workCardLink:focus-visible .workArrowGlyph {
+  transform: translate(100%, -100%);
+}
+
+.workCardLink:hover .workArrowGlyph + .workArrowGlyph,
+.workCardLink:focus-visible .workArrowGlyph + .workArrowGlyph {
+  transform: translate(0, 0);
+}
+
+/* -------------------------------------------------------------- contact */
+
+.contact {
+  color: var(--dark-text);
+}
+
+.contactBody {
+  display: flex;
+  flex-direction: column;
+}
+
+.contactFoot {
+  display: grid;
+  margin-top: auto;
+  padding-top: 22px;
+  grid-template-columns: 1fr auto auto;
+  gap: 40px;
+  align-items: end;
+  border-top: 1px solid rgb(255 255 255 / 16%);
+  font-family: var(--meta-font);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dark-subtle);
+}
+
+.contactIdentity {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.contactIdentity span:first-child {
+  color: var(--dark-text);
+}
+
+.contactLinks {
+  display: flex;
+  gap: 28px;
+}
+
+.contactLinks a {
+  padding-bottom: 3px;
+  border-bottom: 1px solid rgb(255 255 255 / 32%);
+  text-decoration: none;
+  color: var(--dark-text);
+  transition: border-color 200ms ease;
+}
+
+.contactLinks a:hover,
+.contactLinks a:focus-visible {
+  border-color: var(--dark-text);
+}
+
+.pageStatus {
+  position: fixed;
+  z-index: 15;
+  top: 50%;
+  right: 7px;
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  flex-direction: column;
+  font-family: var(--meta-font);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  color: #fff;
+  mix-blend-mode: difference;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.statusLabel {
+  display: none;
+}
+
+/* ----------------------------------------------------------- responsive */
+
+/* 宽屏（≥1441px）：脱离 1320px 居中容器，左右安全边距 48–72px，内容横向吃满视口。
+   Hero / 后续 Section / 导航都从这里拿到同一个值 —— 只改这一次，三处同时生效。 */
+@media (min-width: 1441px) {
+  .home,
+  .page {
+    --page-padding-x: var(--hero-gutter);
+  }
+}
+
+@media (max-width: 1180px) {
+  /* 窄桌面：右侧辅助文案让位给角色主体，避免与标题挤压柴犬。 */
+  .heroAside {
+    display: none;
+  }
+
+  .heroTitleBlock {
+    max-width: min(58vw, 520px);
+  }
+}
+
+@media (max-width: 900px) {
+  .section {
+    padding-top: 74px;
+  }
+
+  .capability,
+  .capability + .capability {
+    padding-right: 20px;
+    padding-left: 20px;
+  }
+
+  .capability:first-child {
+    padding-left: 0;
+  }
+
+  .capability:last-child {
+    padding-right: 0;
+  }
+
+}
+
+/* 矮窗口（≤700px 高，例如 1440×600 的横屏笔记本）：摘要与标签让位，
+   保证「Section 标题 + 两张卡」仍然压在同一个 100svh 停留区内。
+   放在 ≤720 段之前 —— 手机竖屏同时命中两条时，由后面那条把两者放回来。 */
+@media (max-height: 700px) {
+  .workSummary,
+  .workMeta {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .home,
+  .page {
+    /* 移动端专用 page padding：全站只有这一个值，首屏与后续 Section 共用。
+       取 24px 是为了「以首屏为准」——首屏在 ≤720 的实际值就是 --gutter = max(24px, …) = 24px
+       （.page 上那句 20px 只作用于已经退役的分页版根节点，首页实际根节点是 .home）。
+       24px 也让 720 ↔ 721px 连续：居中容器公式在 ≤1320px 本来就压到 24px 下限。 */
+    --page-padding-x: 24px;
+  }
+
+  .hero {
+    padding: 76px var(--page-padding-x) 46px;
+  }
+
+  .heroMain {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* 竖屏：标题贴顶，介绍 + CTA 沉到底部卫衣区，中间完整让给柴犬的脸。 */
+  .heroTitleBlock {
+    flex: 1;
+    max-width: 100%;
+  }
+
+  .heroIntroRow {
+    margin-top: auto;
+  }
+
+  .heroAside {
+    display: none;
+  }
+
+  .heroIntro {
+    max-width: 320px;
+    font-size: 13px;
+    color: var(--dark-text);
+  }
+
+  .heroCtaRow {
+    margin-top: 16px;
+  }
+
+  .heroFoot {
+    padding-top: 14px;
+    border-top-color: rgb(255 255 255 / 22%);
+  }
+
+  .footNote,
+  .footWatch {
+    display: none;
+  }
+
+  .scrollHint {
+    margin-inline: auto;
+    color: var(--dark-subtle);
+  }
+
+  .section {
+    padding: 64px var(--gutter) 28px;
+  }
+
+  .sectionHeadDisplay {
+    gap: 10px;
+  }
+
+  .sectionTitleDisplay {
+    font-size: clamp(36px, 11vw, 54px);
+  }
+
+  .aboutIntro {
+    margin-top: 12px;
+  }
+
+  .lead {
+    font-size: 20px;
+  }
+
+  .body {
+    margin-top: 8px;
+    font-size: 12.5px;
+    line-height: 1.6;
+  }
+
+  .flow {
+    margin-top: 14px;
+    padding-block: 10px;
+  }
+
+  .flow li {
+    font-size: 10.5px;
+  }
+
+  .flowArrow {
+    margin-inline: 8px;
+  }
+
+  .capabilities {
+    margin-top: 14px;
+    grid-template-columns: minmax(0, 1fr);
+    border-top: 0;
+  }
+
+  .capability,
+  .capability + .capability,
+  .capability:first-child,
+  .capability:last-child {
+    display: grid;
+    padding: 9px 0;
+    grid-template-columns: 34px 118px minmax(0, 1fr);
+    gap: 8px;
+    align-items: baseline;
+    border-top: 1px solid var(--line);
+    border-left: 0;
+  }
+
+  .capabilityTitle,
+  .capabilityBody {
+    margin-top: 0;
+  }
+
+  .capabilityTitle {
+    font-size: 13px;
+  }
+
+  .capabilityBody {
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  .tools {
+    margin-top: 10px;
+    padding-top: 10px;
+    font-size: 10.5px;
+  }
+
+  .workList {
+    margin-top: 12px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .workCopy {
+    padding: 14px 16px 16px;
+  }
+
+  .workTitle {
+    font-size: 18px;
+  }
+
+  .workBody {
+    margin-top: 12px;
+    margin-bottom: 14px;
+  }
+
+  .workPositioning {
+    font-size: 13px;
+    line-height: 20px;
+  }
+
+  /* 旧版在 ≤720 隐藏摘要与标签 —— 那是 644px 宽、封面上文案下的并排竖卡时代的取舍。
+     现在移动端是「封面在左 / 文案在右」的单列横卡，竖向空间充足（内容 ≈510 / 可用 ≈744），
+     两者都放回来（同时压过上面的 max-height: 700px 让位规则）。 */
+  .workSummary {
+    display: -webkit-box;
+  }
+
+  .workMeta {
+    display: flex;
+  }
+
+  .workFooter {
+    gap: 8px;
+  }
+
+  .workArrow {
+    width: 28px;
+    height: 28px;
+  }
+
+  .workArrowBox {
+    inset: 5px;
+  }
+
+  .contactFoot {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+    font-size: 10.5px;
+  }
+
+  .pageStatus {
+    display: none;
+  }
+
+}
+
+/* 横屏小窗口（宽 > 高）：保持两列，卡片虽矮但封面仍按宽度定尺寸。 */
+@media (max-width: 720px) and (orientation: landscape) {
+  .workList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-height: 720px) {
+  .section {
+    padding-top: 58px;
+    padding-bottom: 24px;
+  }
+
+  .sectionTitleDisplay {
+    font-size: clamp(34px, 5.4vw, 62px);
+  }
+
+  .aboutIntro,
+  .flow,
+  .capabilities,
+  .tools,
+  .workList {
+    margin-top: 10px;
+  }
+
+  .capability {
+    padding-top: 12px;
+  }
+}
+
+@media (max-height: 560px) {
+  .body,
+  .capabilityBody,
+  .tools,
+  .workSummary,
+  .workMeta {
+    display: none;
+  }
+
+  .capabilities {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-top: 1px solid var(--line);
+  }
+
+  .capability,
+  .capability + .capability,
+  .capability:first-child,
+  .capability:last-child {
+    display: block;
+    padding: 10px 12px 0;
+    border-top: 0;
+    border-left: 1px solid var(--line);
+  }
+
+  .capability:first-child {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page,
+  .transitionChrome,
+  .transitionBody,
+  .sectionEyebrow,
+  .heroAurora,
+  .workVisualImage,
+  .workCard,
+  .workArrow,
+  .workArrowGlyph,
+  .contactLinks a {
+    transition: none;
+  }
+
+  /* 不做位移动画时用阴影表达 hover，避免瞬时跳 4px。 */
+  .workCard:hover,
+  .workCard:has(.workCardLink:focus-visible) {
+    transform: none;
+  }
+
+  .hero .transitionChrome {
+    animation: none;
+  }
+}

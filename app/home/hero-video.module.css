@@ -1,0 +1,47 @@
+/* Hero 柴犬视频：铺满 Hero、不吃指针事件。
+   层级与分页转场行为由调用处传入的 className（home.module.css 的 .heroAurora
+   同一组规则）负责：z-index: 0，且随 Section hidden/incoming/outgoing 一起淡入淡出。 */
+
+.stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  /* 兜底底色与页面同白：视频/海报未就绪时也不可能出现黑框。 */
+  background: #ffffff;
+}
+
+.video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* 柴犬居中的取景：cover 之后画面以视口中轴为基准裁切。
+     基准帧里主体（帽子+身体）的剪影包围盒是帧宽的 25.3%–75.9%，
+     中心 50.6% —— 也就是说「帧中心 ≈ 主体中心」，把画面居中就是把人居中，
+     不需要任何 translateX 修正（旧版的右移修正已删除，见 docs §7.4）。
+     竖屏 / 横屏矮窗口由下方媒体查询单独覆盖取景。 */
+  object-position: 50% center;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+/* 竖屏（手机）横向裁切余量极大，保持居中取景。 */
+@media (max-width: 900px) and (orientation: portrait) {
+  .video {
+    object-position: 50% center;
+  }
+}
+
+/* loadeddata 之后才亮出来：白底 → 白底淡入，无闪跳。 */
+.stage[data-ready="true"] .video {
+  opacity: 1;
+}
+
+/* 横屏矮窗口（含手机横屏）cover 会上下裁切：稍微上移取景，
+   保住牛仔帽和脸。竖屏（390/430 宽）没有竖向裁切余量，此规则不影响。 */
+@media (max-width: 900px) and (orientation: landscape) {
+  .video {
+    object-position: 50% 38%;
+  }
+}

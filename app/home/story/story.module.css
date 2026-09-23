@@ -1,0 +1,1231 @@
+/* 首页滚动叙事：长滚动容器 + 100svh sticky 视觉舞台。
+   视频与静态图叠放在同一个 16:9 盒内（盒 = 视频帧坐标系），
+   静态图的对齐参数（story-config.ts）以该盒为基准。 */
+
+.container {
+  position: relative;
+  /* height 由组件内联写入：calc(100svh + 总段长 vh) */
+}
+
+/* ------------------------------------------------------------- 舞台 */
+
+.stage {
+  position: sticky;
+  top: 0;
+  z-index: 0;
+  overflow: hidden;
+  height: 100svh;
+  /* 兜底底色 = 视频帧背景色（实测 rgb(250,249,252)）：
+     视频/海报未就绪时也不出现黑框或「纯白闪一下」。 */
+  background: rgb(250, 249, 252);
+}
+
+/* 16:9 舞台盒：按 cover 逻辑铺满视口（宽或高取大），
+   视频 object-fit: fill 时帧坐标 = 盒坐标，静态图对齐在盒内进行。 */
+.stageBox {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100vw, calc(100svh * 16 / 9));
+  height: max(100svh, calc(100vw * 9 / 16));
+  transform: translate(-50%, -50%);
+}
+
+.video {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  /* Hero↔主视频 crossfade 由引擎写 inline opacity（140ms）；
+     类里保持 0 = 未交接时主视频永远藏在 Hero 视频下面。 */
+  opacity: 0;
+  transition: opacity 140ms ease;
+  will-change: opacity;
+}
+
+/* 静态帧接管时**不再**给主视频加 filter / transform。
+   抠图时代主视频要退成「模糊 + 暗化 + scale(1.12)」的氛围底，理由是新素材
+   是 1:1 透明抠图、姿态与视频帧不同源，不糊掉会双影。
+   现在静态帧就是关键帧本身（同源同构图），透明区不存在、也无需遮盖；
+   而 filter 与 scale 都会破坏「视频与静态帧共用一套几何」这条不变量
+   （scale 更会让两层在交接瞬间错位）。data-blurred 仍由引擎写，
+   这里刻意不提供任何样式 —— 留着这条注释是为了防止有人再把模糊加回来。 */
+
+/* Hero 视频：舞台盒底层。object-fit: fill + 16:9 盒 = 与旧版 cover 取景逐像素等价。 */
+.heroVideo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.stage[data-ready="true"] .heroVideo {
+  opacity: 1;
+}
+
+/* 静态图层：履历 / 作品 / 结尾三处都用。
+   **全幅 16:9 帧**，与主视频共用同一个舞台盒坐标系 —— 接管时只动 opacity，
+   不做任何位移 / 缩放（2026-09-20 晚：抠图那套「按视口定位人物」的模型已整体退役，
+   见下方 .pose 的说明）。 */
+.poseLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: transparent;
+  opacity: 0;
+  transition: opacity 110ms ease;
+  will-change: opacity;
+}
+
+.poseLayer[data-visible="true"] {
+  opacity: 1;
+}
+
+/* 画布 = 舞台盒（16:9），与视频帧坐标系完全重合。
+   静态图与视频同为 16:9，所以「铺满盒」就是满帧，不需要任何取景参数。
+   裁切只在这一层做（overflow: hidden）。 */
+.poseCanvas {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* 静态帧：满帧几何与主视频同规格（width / height / object-fit 同档，
+   同处 .stageBox 坐标系内）；对齐全不变量补偿（STATIC_ALIGNMENT，
+   素材固有 ~1.9% 取景差的唯一修正点）由组件写在 img 的 inline transform 上，
+   本文件刻意不放 —— 两层内容逐位重合后，接管只切 opacity。
+
+   为什么是 object-fit: fill 而不是 cover：盒与素材同为 16:9，fill 与 cover
+   等价（都不裁切、不变形）；但竖屏下 .stageBox 会变成正方形，此时视频是 fill、
+   静态图若写 cover 就会与视频取景错开 —— 交接瞬间画面会跳。fill 让两者
+   恒等地承受同一套拉伸，任何视口形状下都严丝合缝。
+
+   ⚠ 素材与视频关键帧之间有系统性 ~1.9% 取景缩放差（align_poses_v3.py 实测，
+   「同一套渲染」也消不掉）：不补 STATIC_ALIGNMENT，接管瞬间内容错位 ~2%，
+   就是用户看到的「切换微小位移」。换素材后重解算，别手调。 */
+.pose {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  object-position: 50% 50%;
+  pointer-events: none;
+}
+
+/* 竖屏（手机）：舞台盒会变成正方形，静态帧与视频共用 cover 取景（见上方 900 查询）。
+   ≤720 曾有一套「按视口宽定人物尺寸 + 压到下三分之一 + 整层压暗 0.88」的规则，
+   那是抠图模型的产物 —— 全幅帧自身已按构图摆好人物，再改尺寸/透明度只会
+   让静态帧与视频帧对不上。整段删除。 */
+
+/* ready 之前全部按住透明：杜绝底色上闪现未对齐的图层。 */
+.stage:not([data-ready="true"]) :is(.video, .heroVideo, .poseLayer) {
+  opacity: 0;
+  transition: none;
+}
+
+/* 对齐调试（?pose-align=resume|work|ending，旧的 ?work-align 仍认）：
+   该静态图以 50% 不透明度叠在冻结于对应关键帧的视频上，两层重合度肉眼可查。
+   只在开发核对时用，不影响正常接管（正常是 0 → 1）。 */
+.container[data-align-debug="true"][data-align-pose="resume"] .poseLayer[data-pose="resume"],
+.container[data-align-debug="true"][data-align-pose="work"] .poseLayer[data-pose="work"],
+.container[data-align-debug="true"][data-align-pose="ending"] .poseLayer[data-pose="ending"] {
+  opacity: 0.5;
+}
+
+/* 竖屏（手机）：舞台盒改为正方形（100vw × 100vw，垂直居中），
+   两路视频与静态帧都按 50% 居中 cover（取景完全一致，交接无缝）。
+   静态帧不需要第二套参数：画布本来就等于舞台盒，
+   而 .pose 在桌面就是 width/height 100% + fill —— 这里换成 cover 只是
+   让静止帧与视频一起「裁」而不是一起「拉」。两者必须同档，见 .pose 的说明。 */
+@media (max-width: 900px) and (orientation: portrait) {
+  .stageBox {
+    width: 100vw;
+    height: 100vw;
+  }
+
+  .video,
+  .heroVideo,
+  .pose {
+    object-fit: cover;
+    object-position: 50% 50%;
+  }
+}
+
+/* 横屏矮窗口（含手机横屏）：Hero 视频时代 object-position 50% 38% 的
+   上移取景，改由舞台盒整体上移实现——视频与静态图一起动，对齐关系不变。
+   偏移量 = 0.24 × 盒溢出高的一半（0.38 取景 → 相对居中差 0.12 × 溢出总量）。 */
+@media (max-width: 900px) and (orientation: landscape) {
+  .stageBox {
+    transform: translate(-50%, calc(-50% - 0.24 * max(0px, ((100vw * 9 / 16) - 100svh) / 2)));
+  }
+}
+
+/* ------------------------------------------------------------ 内容层 */
+
+.heroZone {
+  pointer-events: auto;
+}
+
+/* 内容层只负责「提供滚动高度」：绝对铺满整条叙事容器，本身不画任何东西。
+   真正的视觉层全部搬进 .overlay —— 这样滚动只推进状态，不搬运画面。 */
+.content {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* 单一 sticky 内容舞台：与 .stage 同一套钉法（top: 0 / 100svh）。
+   四个 Section 作为它的绝对子层叠在里面 —— 视觉上只有一个舞台在不断换幕。
+   钉住行程 = 叙事容器高 − 100svh = 总段长 vh，刚好覆盖整条时间轴，
+   所以从页首滚到页尾，内容都不会被容器底边「顶」出去。 */
+.overlay {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  pointer-events: none;
+}
+
+/* 每个 Section = 舞台上的一个绝对图层：inset: 0，四个图层几何完全一致。
+   进场 / 退场只切 opacity（引擎写在 .zoneFade 上）、visibility、pointer-events，
+   任何滚动位置都不做 translate —— 没有「上一屏向上滚出视口」这回事。 */
+.container .zone {
+  position: absolute;
+  inset: 0;
+}
+
+/* 引擎接管之前（SSR / JS 未就绪）：三个 Section 按住不可见，只留首屏文案，
+   避免四个图层在同一帧叠印。可见性由引擎写的 data-state 接管，见下。 */
+.zone:not(.heroZone) {
+  visibility: hidden;
+}
+
+/* 三态由断点动画控制器直接发出：
+   off  = 已离场，不可见、不可点、不在 tab 序列里；
+   fade = 正在淡入或淡出，可见但不能交互（半透明时不该点得到）；
+   on   = 已就位，可交互。 */
+.container[data-story-ready="true"] .zone[data-state="off"] {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.container[data-story-ready="true"] .zone[data-state="fade"] {
+  visibility: visible;
+  pointer-events: none;
+}
+
+.container[data-story-ready="true"] .zone[data-state="on"] {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* 每层的排版框：四边留白与首屏完全一致（四个 Section 的左起始线由此重合）。
+   命中权统一由 .zone 的 data-state 管，这里不再单独开 pointer-events
+   —— 否则「父层已离场、子层还能点」，等于给隐藏内容留了后门。 */
+.zoneInner {
+  display: flex;
+  height: 100%;
+  padding: 92px var(--page-padding-x) 34px;
+  flex-direction: column;
+}
+
+/* Work 文件夹展开时不再缩放舞台盒。
+   旧做法是 scale(0.72) + 右移 18vw 把盒整体缩小让位，但盒缩了之后
+   底缘会悬空（1440×900 下盒底 828 < 900），视频内容在盒边缘截断，
+   页脚就露出一条叠边的硬线（Anner 截图图2）。
+   现在改为「盒不动，只把 work 抠图人物收进右下角」（见下），
+   靠的是「舞台盒恒溢出视口（W≥100vw 且 H≥100svh）」这条性质：
+   盒不动 = 永远没有白边。 */
+.stageBox {
+  transition: opacity 420ms ease;
+}
+
+.container[data-projects-open="true"] .stageBox {
+  opacity: 0.72;
+}
+
+/* 展开态曾把 work 抠图单独收到视口右下角（height/left/top 三件套 + 620ms 过渡）。
+   全幅帧模型下这条规则不成立：静态帧与视频必须共用一套几何，给它单独派一套
+   坐标就等于「切换时改 top/left/width」，重新引入跳动。
+   现在展开态只压暗整屏（上面那条 opacity），卡片浮在上面。 */
+
+/* 文字层排版载体；动画由子级 data-ui-group 的 CSS 时间线负责。 */
+.zoneFade {
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+/* Section UI is driven by discrete data-ui-motion phases. Scroll only selects
+   the phase; elapsed time, easing, and stagger live entirely in CSS. */
+.zone [data-ui-group] {
+  --ui-delay: 0ms;
+  --ui-duration: 560ms;
+  --ui-y: 12px;
+  --ui-scale: 1;
+
+  opacity: 0;
+  filter: none;
+  transform: translateY(var(--ui-y)) scale(var(--ui-scale));
+  transition:
+    opacity var(--ui-duration) cubic-bezier(0.22, 1, 0.36, 1),
+    transform var(--ui-duration) cubic-bezier(0.22, 1, 0.36, 1),
+    filter var(--ui-duration) cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: 0ms;
+  will-change: opacity, transform;
+}
+
+.zone[data-ui-motion="entering"] [data-ui-group],
+.zone[data-ui-motion="entered"] [data-ui-group] {
+  opacity: 1;
+  filter: none;
+  transform: translateY(0) scale(1);
+}
+
+.zone[data-ui-motion="entering"] [data-ui-group] {
+  transition-delay: var(--ui-delay);
+}
+
+.zone[data-ui-motion="entered"] [data-ui-group] {
+  transition-delay: 0ms;
+}
+
+.zone[data-ui-motion="exiting"] [data-ui-group] {
+  opacity: 0;
+  transform: translateY(-8px) scale(1);
+  transition-duration: 220ms;
+  transition-delay: 0ms;
+}
+
+.zone [data-ui-group$="-label"],
+.zone [data-ui-group="hero-eyebrow"] {
+  --ui-y: 6px;
+  --ui-duration: 360ms;
+}
+
+.zone [data-ui-group$="-title"],
+.zone [data-ui-group="hero-title"] {
+  --ui-y: 16px;
+  --ui-duration: 480ms;
+}
+
+.heroZone [data-ui-group="hero-eyebrow"] { --ui-delay: 0ms; }
+.heroZone [data-ui-group="hero-title"] { --ui-delay: 100ms; }
+.heroZone [data-ui-group="hero-intro"] { --ui-delay: 260ms; --ui-duration: 560ms; }
+.heroZone [data-ui-group="hero-aside"] { --ui-delay: 400ms; --ui-duration: 520ms; }
+.heroZone [data-ui-group="hero-footer"] { --ui-delay: 520ms; --ui-duration: 500ms; }
+
+.container .heroVideo[data-ui-group="hero-visual"] {
+  opacity: 0;
+  transition:
+    opacity 500ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 460ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: 0ms;
+}
+
+.container[data-hero-ui-motion="entering"] .heroVideo[data-ui-group="hero-visual"],
+.container[data-hero-ui-motion="entered"] .heroVideo[data-ui-group="hero-visual"] {
+  opacity: 1;
+  transition-delay: 640ms;
+}
+
+.container[data-hero-ui-motion="exiting"] .heroVideo[data-ui-group="hero-visual"] {
+  opacity: 0;
+  transition-delay: 0ms;
+}
+
+/* [data-hero-video-hold] —— crossfade 白场消除（2026-09-21）。
+   白场根因：hero 区退场（上一条 exiting 规则）会立刻把 heroVideo 淡出 500ms，
+   而主视频要等 hero 平滑 seek 到正面端点才淡入（侧面姿态最远 ~700ms），
+   中间舞台裸奔，露出 .stage 兜底底色 rgb(250,249,252)。
+   引擎在主视频尚未盖住舞台期间写 data-hero-video-hold="true" 把 heroVideo
+   按在 opacity:1 —— 主视频在 z-index 1 淡入盖住它之后才放行上面的退场淡出
+   （被盖住的淡出不可见）= 真 crossfade（探针 probe-hero-flash：正向空窗
+   769ms → 0）。transition:none 同时服务反向回滚：主视频 140ms 淡出揭 hero
+   时，heroVideo 若还在 640ms 入场延迟里同样是空窗（实测 722ms → 0）。
+   必须放在 exiting 规则之后：同为 (0,4,0) 特异性，靠源顺序取胜。
+   首屏入场不受影响：第一次离开 hero 段之前引擎不会写这个属性。 */
+.container[data-hero-video-hold="true"] .heroVideo[data-ui-group="hero-visual"] {
+  opacity: 1;
+  transition: none;
+}
+
+.zone [data-ui-group="bio-label"] { --ui-delay: 0ms; --ui-duration: 360ms; }
+.zone [data-ui-group="bio-title"] { --ui-delay: 100ms; --ui-duration: 480ms; }
+.zone [data-ui-group="bio-identity"] { --ui-delay: 240ms; --ui-duration: 500ms; }
+.zone [data-ui-group="bio-cap-0"] { --ui-delay: 400ms; --ui-duration: 360ms; }
+.zone [data-ui-group="bio-cap-1"] { --ui-delay: 480ms; --ui-duration: 360ms; }
+.zone [data-ui-group="bio-cap-2"] { --ui-delay: 560ms; --ui-duration: 360ms; }
+.zone [data-ui-group="bio-years"] { --ui-delay: 420ms; --ui-duration: 420ms; }
+.zone [data-ui-group="bio-company"] { --ui-delay: 560ms; --ui-duration: 340ms; }
+.zone [data-ui-group^="bio-rule-"] { --ui-y: 0; }
+.zone [data-ui-group="bio-rule-identity"] { --ui-delay: 360ms; --ui-duration: 320ms; }
+.zone [data-ui-group="bio-rule-capabilities"] { --ui-delay: 620ms; --ui-duration: 260ms; }
+.zone [data-ui-group="bio-rule-projects"] { --ui-delay: 700ms; --ui-duration: 220ms; }
+.zone [data-ui-group="bio-tools"] { --ui-delay: 660ms; --ui-duration: 260ms; }
+.zone [data-ui-group="bio-duties"] { --ui-delay: 700ms; --ui-duration: 220ms; }
+.zone [data-ui-group="bio-projects"] { --ui-delay: 720ms; --ui-duration: 220ms; }
+.zone [data-ui-group="bio-chrome"] { --ui-delay: 700ms; --ui-duration: 220ms; --ui-y: 0; }
+
+.zone [data-ui-group="work-label"] { --ui-delay: 0ms; --ui-duration: 360ms; }
+.zone [data-ui-group="work-title"] { --ui-delay: 100ms; --ui-duration: 480ms; }
+
+.zone [data-ui-group="ending-label"] { --ui-delay: 0ms; --ui-duration: 360ms; }
+.zone [data-ui-group="ending-title"] { --ui-delay: 140ms; --ui-duration: 440ms; }
+.zone [data-ui-group="ending-manifesto-title"] { --ui-delay: 340ms; --ui-duration: 380ms; }
+.zone [data-ui-group="ending-manifesto-body"] { --ui-delay: 460ms; --ui-duration: 420ms; }
+.zone [data-ui-group="ending-aside"] { --ui-delay: 580ms; --ui-duration: 360ms; --ui-y: 0; }
+.zone [data-ui-group="ending-action-0"] { --ui-delay: 680ms; --ui-duration: 160ms; --ui-y: 12px; }
+.zone [data-ui-group="ending-action-1"] { --ui-delay: 750ms; --ui-duration: 160ms; --ui-y: 12px; }
+.zone [data-ui-group="ending-action-2"] { --ui-delay: 820ms; --ui-duration: 160ms; --ui-y: 12px; }
+
+.zone [data-ui-group^="ending-action"] {
+  transition-property:
+    opacity,
+    transform,
+    filter,
+    color,
+    background-color,
+    border-color,
+    box-shadow;
+}
+
+.zone[data-ui-motion="entered"] .endAction:hover {
+  transform: translateY(-1px) scale(1);
+}
+
+/* 首屏文案的淡入淡出载体：.heroInner 靠 flex: 1 吃满整屏，这里把 flex 链续上。 */
+.heroFade {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.zoneCopy {
+  display: flex;
+  max-width: min(30vw, 560px);
+  min-height: 0;
+  flex-direction: column;
+}
+
+/* ---------------------------------------- 章节标题系统（全站统一）
+   about / work 共用同一套标题结构：编号 + 英文/中文 label + 贯穿细线，
+   主标题超大黑体（海报化：lh 1.05、字距收紧）。
+   位置统一钉在 zoneInner 顶部（92px padding 之下，section 3 的摆放逻辑），
+   样式沿用履历区原来的 editorial 风格（section 2 的样式）——
+   一个页面一套逻辑，不再各写各的。 */
+.storyHead {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 1.8svh, 18px);
+}
+
+.storyHeadEyebrow {
+  display: flex;
+  gap: 12px;
+  line-height: 1;
+  align-items: baseline;
+}
+
+.storyHeadIndex {
+  font-family: var(--font-number);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.storyHeadLabel {
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+  color: var(--text-subtle);
+}
+
+/* Section 2 / 3 的标题栏不再显示横向装饰线，也不为它保留布局空间。 */
+.storyHeadRule {
+  display: none;
+}
+
+.storyHeadTitle {
+  font-family: var(--font-display);
+  font-size: clamp(46px, 6.5vw, 92px);
+  font-weight: 700;
+  line-height: 1.05;
+  /* Impact 统一 +0.02em：超窄体叠负字距会粘连（2026-09-21 用户反馈后统一放宽）。 */
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+
+/* ---------------------------------------- 履历（BIOGRAPHY）文字区
+   设计基准：Figma 1920×1080 桌面稿（node 372-11174）。
+   文字区 left 72 / top 92 / width 824 —— 左缘就是全站 page padding（1920 → 72px），
+   上缘就是 .zoneInner 的 92px，所以这里只管「宽度」和内部左右两列；
+   右侧柴犬、主视频、静态图、sticky 全都不动。
+   两列在稿里各 372px 且左右顶满（右列 x = 452 = 824 − 372），
+   所以用 space-between + 各 372px：窄视口整块按同一比例收缩，字号不动。 */
+
+.bio {
+  /* 柴犬在 4.0s 关键帧里伸出的手指尖：x = 0.4602 × 帧宽
+     （artifacts/tmp/resume-safe-zone.py 实测，与 story-config 的 RESUME_SILHOUETTE 同源）。
+     舞台盒按 cover 铺满视口，盒宽 = max(100vw, 100svh × 16/9)，
+     盒内 x 换算到视口 = 0.4602 × box − (box − 100vw) / 2 = 50vw − 0.0398 × box。
+     50% 按 .zoneFade 的宽解析（= 视口宽 − 2×page padding），所以
+     50% − 0.0398×box 正好等于「指尖x − 左padding」，不用再引 padding 变量。
+     文字区右缘允许压过指尖（稿里就是这么画的，最长的项目行够不到那里），
+     但「右列左缘 + 最长项目行（≈220px）」必须留在指尖左侧 —— 这是 +130 的来历。 */
+  --bio-box: max(100vw, 100svh * 16 / 9);
+
+  display: flex;
+  width: min(824px, calc(50% - 0.0398 * var(--bio-box) + 130px));
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+/* 标题字号已由 .storyHeadTitle 统一接管；本列只承担正文排版。 */
+.bioLeft {
+  width: min(372px, calc(100% - 396px));
+}
+
+/* 右列 = 履历的固定视口（resume viewport）：高度定死、overflow 裁掉滚出窗口的内容，
+   边缘渐淡用 mask。里面只有一层 .resumeContent —— 整列履历（年份 → 公司 → 说明 →
+   参与项目）是**同一个运动对象**，由引擎按 Biography hold 段的本地进度写
+   translate3d 上移；这里没有 scroll container、没有 wheel 拦截，页面滚动就是唯一驱动。
+   渐淡窗口（--resume-fade-top/bottom，px）由引擎随行程动态写：
+   初始顶 fade = 0（年份标题在窗口顶部时完整可见）、结束底 fade = 0（最后一项完整）。 */
+.bioRight {
+  display: flex;
+  width: min(372px, 100%);
+  height: clamp(540px, 64svh, 660px);
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+  --resume-fade-top: 0px;
+  --resume-fade-bottom: 44px;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 var(--resume-fade-top),
+    #000 calc(100% - var(--resume-fade-bottom)),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 var(--resume-fade-top),
+    #000 calc(100% - var(--resume-fade-bottom)),
+    transparent 100%
+  );
+}
+
+/* 整列内容的运动载体：引擎逐帧只写 transform（translate3d），不碰 top/margin。
+   travel 用这里的 offsetHeight 与视口 clientHeight 的差实测（都是未变换布局值，
+   transform 不影响测量）。 */
+.resumeContent {
+  will-change: transform;
+}
+
+/* 垂直节奏（桌面档）：标题钉在顶部（storyHead 在 flex 列首），.bio 跟在其下
+   一个舒展的间距之后，不再整块垂直居中 —— 标题位置与作品 Section 同一逻辑，
+   上方是视觉锚点、下方靠内容自身收尾（SiteProgress 兜底）。
+   只开在 >900：≤900 收单列后内容超高被视口裁切，顶部对齐保证首屏可读。 */
+@media (min-width: 901px) {
+  .zoneFade[data-fade="about"] {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .zoneFade[data-fade="about"] .bio {
+    margin-top: clamp(24px, 4svh, 44px);
+  }
+}
+
+.bioIntro {
+  padding-bottom: 24px;
+}
+
+.bioHello {
+  margin-top: 0;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.bioIntroLine {
+  margin-top: 8px;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text-subtle);
+}
+
+.bioRule {
+  height: 1px;
+  background: var(--line);
+}
+
+.bioCaps {
+  display: grid;
+  padding-top: 24px;
+  padding-bottom: 24px;
+  gap: 24px;
+}
+
+.bioCapTitle {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.bioCapBody {
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text-subtle);
+}
+
+.bioTools {
+  display: flex;
+  gap: 40px;
+  /* 字体度量差：清单实际渲染 ≈292px，比 Figma 稿的 285 宽，41+40+292 恰好比
+     372 列多 1px —— 放宽 8px 让 1920 稿的「一行 TOOLS」成立；列变窄时
+     仍由 flex-wrap 接管整段换行。 */
+  margin-right: -8px;
+  /* 列被压缩、一行放不下时整段换行（label 一行、清单一行），
+     不让清单在「即梦」中间断开。 */
+  flex-wrap: wrap;
+  row-gap: 8px;
+  align-items: baseline;
+  padding-top: 24px;
+}
+
+.bioToolsLabel {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  letter-spacing: 1.38px;
+  text-transform: uppercase;
+  color: var(--text-meta);
+}
+
+/* 清单自身不断行：1920 稿里「label + 40 + 清单」正好占满 372（清单 ≈291px）。
+   列变窄后由上面的 flex-wrap 接管，而不是把最后一个词折下来。 */
+.bioToolsList {
+  white-space: nowrap;
+  font-size: 14px;
+  letter-spacing: 0.4px;
+  color: var(--text-subtle);
+}
+
+/* 右列（工作经历 + 参与项目）：比左列明显克制的一档。 */
+.bioYears {
+  font-family: var(--font-number);
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.bioCompany {
+  margin-top: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.bioCareerBody {
+  padding-top: 24px;
+  padding-bottom: 24px;
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--text);
+  /* 指尖让位（x 轴）：旧版式靠垂直居中把本段悬在指尖带（y 490-640@1920 稿）下方，
+     顶部对齐后 y 空间不够，改用行宽让位 —— 右缘钉在「指尖x − 8px」。
+     推导：careerBody 右缘 = 60 + bio宽 − 372 + max-width，令其 = 50vw − 0.0398×box − 8
+     （指尖视口 x），代入 bio宽 = min(824, 50vw − 0.0398×box + 70) 反解即得下式。
+     1440×900 → 234px；1920×1080 → 364px。改 bioLeft/gap/padding 后需重推。 */
+  max-width: min(372px, calc(50vw - 0.0398 * var(--bio-box) - 520px));
+}
+
+/* 参与项目段：跟随整列一起滚动（不再是固定标题 + 内部滚动区）。 */
+.bioProjects {
+  padding-top: 24px;
+}
+
+.bioProjectsTitle {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+/* 标题 → 首条项目的节奏沿用旧 scroller 的视觉值（-12 margin + 28 padding = 16px），
+   首帧构图与改造前逐像素一致。 */
+.bioProjectList {
+  margin-top: 16px;
+  padding: 0;
+  list-style: none;
+}
+
+.bioProjectList > li + li {
+  margin-top: 16px;
+}
+
+.bioProjectTitle {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.bioProjectDescription {
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--text-subtle);
+}
+
+/* ------------------------------------ 履历层辅助装饰（editorial 小字）
+   只属于履历这一层：挂在 .zone 下、随层的状态位与透明度一起进出。
+   不用 position: fixed —— 那会跨 Section 常驻，变成页面级控件。
+   （原章节进度条已上移为页面级 SiteProgress，见 site-progress.module.css。）
+   左右对齐 page padding 而不是固定 40–48px：与上方文字同一条起始线，
+   呼吸空间反而更大，才像「编辑设计里的辅助信息」而不是一个新模块。 */
+
+.bioChrome {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* 右下角 editorial 小字：右对齐三行 + 一条 32px 的短收尾线 */
+.chromeAside {
+  position: absolute;
+  right: var(--page-padding-x);
+  bottom: 80px;
+  font-size: 14.5px;
+  line-height: 1.7;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  text-align: right;
+  color: #73777f;
+  /* 同上：白底态保持无晕光（原白晕光已删——深底上糊字） */
+  text-shadow: none;
+}
+
+.chromeAsideRule {
+  display: block;
+  width: 32px;
+  height: 1px;
+  margin-top: 8px;
+  margin-left: auto;
+  background: rgb(28 32 36 / 25%);
+}
+
+/* 引擎判定「右下两块压在柴犬身上」（窄视口 / 非 16:9 裁切）→ 只反白填充色。
+   演变史：白晕光（Anner 2026-09-20 指名深底上糊成雾）→ 8 向 1px 深描边
+   （照片字幕收尾法）→ **描边也删（Anner 2026-09-21 指名）**，只留浅色填充。
+   判定见 StoryScrolly 的 updateChromeContrast；亮毛高光带上浅字会稍微吃掉
+   对比度，是删描边的已知代价。 */
+.container[data-chrome-on-dark="true"] .chromeAside {
+  color: var(--dark-subtle, #b0b4ba);
+}
+
+.container[data-chrome-on-dark="true"] .chromeAsideRule {
+  background: rgb(255 255 255 / 30%);
+}
+
+/* ---------------------------------------------------------- 作品 Section */
+
+/* 作品栏右边界 = 视口中轴 − 72px，标题下的发丝线与卡片共用这一条线。
+   这条线由实测反推：作品姿态里离卡片最近的主体是笔记本左缘，落在视口中轴左侧
+   11–13px（artifacts/tmp/work-safe-zone.mjs）；三档实测「卡片纵向带内主体最靠左」
+   分别是 703 / 781 / 940px（1440 / 1600 / 1920，见 verify-home-story.mjs 的断言），
+   减掉 72px 后净空 55 / 53 / 52px，任何一档都不会碰到电脑或扶手椅。
+   写法用 50% 而不是 50vw：.zoneCopy 的宽度恰好是「视口宽 − 2×page padding」，
+   半宽减 72px 换算后正是「视口中轴 − 72px」，也就不必再依赖含 % 的
+   --page-padding-x（它在 flex 子项里按 zoneFade 的宽度解析，不是视口宽）。 */
+.zoneWork .zoneCopy {
+  max-width: calc(50% - 72px);
+}
+
+/* 卡片要的是「两条并排的卡」，所以不再受全局 min(30vw, 560px) 的窄栏限制
+   （这条只是把「铺满 .zoneCopy」写成显式规则）；卡片本体沿用 home.module.css 的
+   .workList / .workCard 整套 —— 封面 16:9 完整可见、36px 圆角、描边 + hover 抬起、
+   标签 + 箭头圆圈换位。 */
+.zoneWork .workList {
+  max-width: 100%;
+}
+
+/* 标题是 display 元素：栏宽（1440 时 ≈588px）放不下 92px 的 SELECTED WORK（≈700px）时，
+   允许它按自身文字宽度占满一行，而不是折成两行把卡片顶进扶手椅。
+   发丝线仍在栏内收口，所以标题的右溢出只影响字形本身。 */
+.zoneWork .workHeadTitle {
+  width: max-content;
+}
+
+/* 展开态：这组标题从左上角让位 —— 同一组内容改由 WorkProjectFolder 的
+   顶部居中 chrome 呈现（02 WORK / 作品 + SELECTED WORK）。
+   只淡出不卸载：卸载会让 zoneFade 里的 flex 高度变一次，卡片组的垂直
+   基准跟着跳。始终不出现在 tab 序列与命中测试里（aria-hidden 由组件的
+   aria-hidden={!open} 保证不了这一层 —— 这层在 StoryScrolly 里，
+   所以这里补一条 pointer-events，且它本来就不可交互）。 */
+.container[data-projects-open="true"] .zoneWork [data-work-head-closed] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.zoneWork [data-work-head-closed] {
+  transition: opacity 200ms ease;
+}
+
+/* 「点击文件夹查看完整项目」提示语已移进 WorkProjectFolder 的 shell
+   （work-project-folder.module.css 的 .hint）：它要贴着文件夹正下方、
+   随文件夹一起进出，不再是标题栏的一部分。 */
+
+/* ------------------------------------------------------------- 结尾 */
+
+/* 海报式收尾（2026-09-20 重排，参考 Biaoge 案例的构图而非配色）：
+   顶部章节标记 + 超大标题 / 左下理念句 / 右下辅助字 + CTA / 底部进度条。
+   文字层 absolute 满铺在 sticky 舞台上，柴犬坠落静态图仍是唯一视觉中心 ——
+   不动素材、关键帧、接管逻辑；淡入淡出由外层 zoneFade 引擎整层接管。 */
+.zoneInnerEnd {
+  position: relative;
+}
+
+.endingCopy {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* 顶部：章节标记 + 大标题。纵向几何按三档视口核过（帽子顶 ≈ 视口 25% 高、
+   眼睛 ≈ 37%）：标题整体落一行（Anner 09-20 指名「太高了」），下移量取三档
+   「底缘不压眼睛」的安全交集 88px —— 精确落满一行会在 1600 档压眼 22px。 */
+.endHead {
+  position: absolute;
+  top: 160px;
+  right: 0;
+  left: 0;
+  text-align: center;
+}
+
+/* 章节标记：编号深色粗一档，英文/中文说明浅一档 —— 与大标题保持「eyebrow」量级。
+   #73777f 是全站统一的装饰浅灰（editorial 小字 / SiteProgress meta 同源）。
+   ⚠ 中英混排拆分（2026-09-21）：本行是 `04` + `The Possibility` + `无限可能`
+   三个 span 混排，**不能对整个节点强制一种 family** —— 容器给 UI Latin，
+   编号与中文各自覆盖（见下两条规则）。 */
+.endLabel {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  justify-content: center;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+/* 编号 `04` → DINPro（非正文独立数字）。 */
+.endLabelIndex {
+  font-family: var(--font-number);
+}
+
+.endLabelCn {
+  font-family: var(--font-cn);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: #73777f;
+}
+
+/* 超大标题：单行横贯（临时视觉文案 BEYOND THE ORDINARY.，Anner 后续可换）。
+   纵向几何按收敛终态钉死（探针 artifacts/tmp/probe-ending-view，须等 seek 收敛
+   mainTime=12 + 静态图 opacity=1，700ms 的废片里人物是中间帧叠影）：
+   900 高视口帽顶 y≈229 / 眼顶 y≈309（帧垂直满高，1440/1600 同值）；
+   1920×1080 满帧帽顶 y≈280 / 眼顶 y≈374。字号 7.9vw / 上限 152px，
+   .endHead top=160（落一行）：底缘 ≈289 / 301 / 326，三档压入帽区但都停在
+   眼顶之上（309/309/374）；宽度 74.5% 落在 spec 的 65–75% 带内；
+   152px 比 ABOUT 标题（92px）大一整档。 */
+.endTitle {
+  margin-top: 8px;
+  font-family: var(--font-display);
+  font-size: clamp(60px, 7.9vw, 152px);
+  font-weight: 800;
+  line-height: 0.94;
+  /* ⚠ 2026-09-21 字体统一：原 -0.035em 是为旧字面（PuHuiTi）收紧而设。
+     Impact 本身已是超窄体，先归零仍贴死（字符盒间隙实测 ≈0），
+     用户反馈粘连后统一放宽到 +0.02em —— 副产物：标题宽度从 ~67% 回到
+     ~71% 视口宽，正好落回 ending 重排时 spec 的 65–75% 带内。
+     只动字距，字号与位置未变。 */
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+
+/* 左下：理念句 + 一句态度说明。右缘 372px（1440）在 OpenAI 图标（实测左缘
+   ≈380px）之左，1920 下图标更靠右，任何一档都不压软件图标。 */
+.endManifesto {
+  position: absolute;
+  bottom: 132px;
+  left: var(--page-padding-x);
+  max-width: 320px;
+  text-align: left;
+}
+
+.endManifestoTitle {
+  /* 26px 的小型标语（左侧、紧邻中文说明段）—— 不是「大型英文宣言」，
+     归普通 UI 拉丁。Impact 在这个字号下辨识度差且与中文割裂（实测确认）。 */
+  font-family: var(--font-ui);
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.endManifestoBody {
+  margin-top: 16px;
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--text-subtle);
+}
+
+/* 右下：辅助小字（权重明显低于左下）+ 统一操作组。 */
+.endSide {
+  position: absolute;
+  right: var(--page-padding-x);
+  bottom: 132px;
+  text-align: right;
+}
+
+.endAside {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-number);
+  font-size: 12px;
+  line-height: 1.7;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #73777f;
+}
+
+.endAside span:last-child {
+  text-transform: none;
+}
+
+/* 三颗操作共用同一套克制的 editorial 胶囊；原 class 只保留语义与验收钩子，
+   所有可见属性都收口到 .endAction，避免以后再次漂成三套组件。
+   图标（2026-09-21 实装）：内联 SVG 走 currentColor，默认继承墨色、
+   悬停随胶囊整体反白 —— 单色双态无需两套图形。
+   设计规范板：WorkBuddy 画布「尾页按钮图标 / Ending CTA Icons」（16 网格 · 1.5 描边）。 */
+.endCtaRow {
+  display: flex;
+  margin-top: 14px;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+  pointer-events: auto;
+}
+
+.endAction {
+  box-sizing: border-box;
+  display: inline-flex;
+  height: 42px;
+  padding: 0 20px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid rgb(28 32 36 / 22%);
+  border-radius: 999px;
+  background: transparent;
+  font-family: var(--font-cn);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  /* 中文按钮字距：0.1em 是英文大写标签的惯例，汉字会松散。 */
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  color: #1c2024;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color 200ms ease,
+    color 200ms ease,
+    border-color 200ms ease,
+    transform 200ms ease;
+}
+
+.endAction:hover {
+  border-color: #111113;
+  background: #111113;
+  color: #fafafc;
+  transform: translateY(-1px);
+}
+
+.endCtaRow .endAction:focus-visible {
+  outline: 2px solid rgb(28 32 36 / 28%);
+  outline-offset: 2px;
+}
+
+/* 内联图标：16 网格 / 1.5 描边 / 圆角端点，尺寸钉死不吃布局挤压。 */
+.endIcon {
+  flex: none;
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+.endCta,
+.endCtaGhost,
+.endTop {
+  min-width: max-content;
+}
+
+/* 回到顶部：仅图标圆钮 —— 与胶囊同高，去掉文字侧的横向内边距。 */
+.endTop {
+  width: 42px;
+  padding: 0;
+}
+
+/* ------------------------------------------------------------ 响应式 */
+
+@media (max-width: 1180px) {
+  .zoneCopy {
+    max-width: min(38vw, 520px);
+  }
+}
+
+/* 履历：≤900 收成单列（顺序 = 左列全部 → 工作经历 → 参与项目）。
+   这一段柴犬在画面里占的宽度随 cover 裁切快速变大，两列塞不下；
+   站内已有的断点是 1180 / 720，900 与本文件里 .stageBox 的竖屏查询同档，
+   专给「竖屏平板 / 横屏手机」补一档 —— 桌面（≥901）两列结构不变。 */
+@media (max-width: 900px) {
+  .bio {
+    display: block;
+    width: 100%;
+  }
+
+  .bioLeft,
+  .bioRight {
+    width: min(372px, 100%);
+  }
+
+  .bioRight {
+    padding-top: 0;
+    margin-top: 40px;
+    height: min(520px, 60svh);
+  }
+
+  /* 单列后文字本身就超出一屏，两块装饰只会叠在被裁的内容上 —— 移动端先不显示，
+     等移动端内容裁切问题定方案再一起处理。 */
+  .bioChrome {
+    display: none;
+  }
+}
+
+/* 721–900：人物脸部落进文字带，沿用 ≤720 的白色衬底做法。
+   只给履历自己加 —— Work 的 .zoneFade 规则（≤720）不动。 */
+@media (max-width: 900px) and (min-width: 721px) {
+  .bio {
+    padding: 16px;
+    background: rgb(255 255 255 / 86%);
+  }
+}
+
+@media (max-width: 720px) {
+  .zoneInner {
+    padding: 76px var(--page-padding-x) 24px;
+    justify-content: flex-end;
+  }
+
+  /* 竖屏：文字压在白色衬底上保证可读，人物脸部落在上半部不被遮。
+     首屏文案不受这条管 —— 它本来就压在首屏自己的白色版面上（.hero），
+     再垫一层白底等于多出一块方框。
+     Ending 也不吃这条：它的文字层是 absolute 满铺海报布局，白衬底会盖住
+     整个坠落构图 —— 桌面三档的深色可读性靠浅色背景本身保证（见结尾段）。 */
+  .zoneFade:not(.heroFade):not([data-fade="contact"]) {
+    background: rgb(255 255 255 / 86%);
+    padding: 16px;
+  }
+
+  .zoneCopy,
+  .zoneCopyLeft {
+    max-width: 100%;
+  }
+
+  /* 竖屏放开 max-content：SELECTED WORK 在 390 视口 46px 排出 351px 会溢出 1px，
+     回到 auto 后按词换行（SELECTED / WORK 两行），SplitText 逐字动画不受影响。 */
+  .zoneWork .workHeadTitle {
+    width: auto;
+  }
+
+  /* 履历单列后的紧凑节奏：间距整体收紧。
+     内容量（尤其右列的 8 条项目）注定超出一屏 —— 桌面稿没有移动版，
+     这里只保证层级顺序与可读性，超出部分被视口裁掉（见交付说明）。
+     ABOUT 标题已上移为 storyHeadTitle（.zoneInner 直属），不再有 bioTitle/bioLabel。 */
+  .bioHello {
+    margin-top: 22px;
+    font-size: 21px;
+  }
+
+  .bioIntro {
+    padding-bottom: 14px;
+  }
+
+  .bioIntroLine {
+    margin-top: 6px;
+  }
+
+  .bioCaps {
+    padding-top: 14px;
+    padding-bottom: 14px;
+    gap: 14px;
+  }
+
+  .bioCapBody {
+    margin-top: 3px;
+  }
+
+  .bioTools {
+    padding-top: 14px;
+  }
+
+  .bioRight {
+    margin-top: 26px;
+    height: min(480px, 56svh);
+  }
+
+  .bioYears {
+    font-size: 26px;
+  }
+
+  .bioCareerBody {
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+
+  .bioProjects {
+    padding-top: 14px;
+  }
+
+  .bioProjectList {
+    margin-top: 14px;
+  }
+
+  /* 作品：内容区收回整宽（移动端人物退到文案底下），卡片改单列横排
+     —— 两张上下叠的竖卡（≈362px × 2）放不进一屏，横排后每张 ≈190px。 */
+  .zoneWork .zoneCopy {
+    max-width: 100%;
+  }
+
+  .zoneWork .workList {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .zoneWork .workCardLink {
+    flex-direction: row;
+  }
+
+  .zoneWork .workVisual {
+    flex: 0 0 auto;
+    width: 36%;
+    margin: 14px 0 14px 14px;
+    align-self: center;
+    border-radius: 16px;
+  }
+
+  /* 旧版在 ≤720 隐藏摘要与标签（那是 644px 宽、封面上文案下的并排竖卡时代的取舍）；
+     现在移动端是单列横卡、竖向空间充足（内容总高 ≈510 / 可用 ≈744），两者都保留
+     —— 恢复规则写在 home.module.css 的 .workSummary / .workMeta 上，和卡的样式同源。 */
+
+  /* Ending 移动端：放弃桌面散点，改成纵向流（label → 大标题 → 主视觉
+     → 理念句 → CTA → 进度条）。标题不再强制两行 block，inline 流式折行；
+     纵向几何按 390×844 核过：帽/脸顶 ≈ 视口 30%，标题底缘必须停在其上。 */
+  .endHead {
+    top: 88px;
+    right: var(--page-padding-x);
+    left: var(--page-padding-x);
+  }
+
+  .endTitle {
+    font-size: clamp(34px, 9.5vw, 40px);
+    line-height: 1;
+  }
+
+  .endManifesto {
+    right: var(--page-padding-x);
+    bottom: 122px;
+    left: var(--page-padding-x);
+    max-width: none;
+    /* 竖屏 cover 把柴犬裁到中部偏右，manifesto 文字带压到深色裤区 ——
+       沿用 bio 移动端的白衬底做法（86% 白、无圆角、无描边），只垫文字块本身。 */
+    padding: 14px 16px;
+    background: rgb(255 255 255 / 86%);
+  }
+
+  .endSide {
+    right: var(--page-padding-x);
+    bottom: 64px;
+    left: var(--page-padding-x);
+  }
+
+  /* 辅助小字在手机上属于可牺牲的装饰：藏掉，只留 CTA 行。 */
+  .endAside {
+    display: none;
+  }
+
+  .endCtaRow {
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .endAction {
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  /* 圆钮不吃上面的 14px 文字内边距（42 - 28 塞不下 16px 图标）。 */
+  .endTop {
+    width: 42px;
+    padding: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zone [data-ui-group],
+  .container .heroVideo[data-ui-group="hero-visual"] {
+    opacity: 1;
+    filter: none;
+    transform: none;
+    transition: none;
+  }
+
+  .endAction {
+    transition: none;
+  }
+
+  .poseLayer,
+  .video,
+  .heroVideo {
+    transition: none;
+  }
+
+  .stageBox,
+  .container[data-projects-open="true"] .stageBox {
+    transition: opacity 180ms ease;
+  }
+}

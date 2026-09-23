@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="2304" viewBox="0 0 1024 1536" text-rendering="geometricPrecision">
+  <rect width="1024" height="1536" fill="#f8f8f5"/>
+  <rect x="38" y="38" width="948" height="1460" rx="24" fill="none" stroke="#d8d9d6" stroke-width="4"/>
+  <text x="112" y="190" fill="#73777f" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="48" letter-spacing="5">ZR / CONTACT</text>
+  <line x1="112" y1="240" x2="912" y2="240" stroke="#d8d9d6" stroke-width="4"/>
+  <text x="112" y="650" fill="#1c2024" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="144" font-weight="600">伍子荣</text>
+  <text x="112" y="795" fill="#1c2024" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="98" font-weight="600" letter-spacing="1">Zirong Wu</text>
+  <text x="112" y="895" fill="#73777f" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="55" letter-spacing="1">PRODUCT DESIGNER</text>
+  <line x1="112" y1="1075" x2="912" y2="1075" stroke="#1c2024" stroke-width="5"/>
+  <text x="112" y="1150" fill="#666b72" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="44" font-weight="500" letter-spacing="2">EMAIL · 点击复制</text>
+  <text x="112" y="1225" fill="#1c2024" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="68" font-weight="600">2462362144@qq.com</text>
+  <text x="112" y="1330" fill="#666b72" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="44" font-weight="500" letter-spacing="2">PHONE · 点击复制</text>
+  <text x="112" y="1410" fill="#1c2024" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="76" font-weight="600">13694246950</text>
+</svg>

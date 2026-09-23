@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="2304" viewBox="0 0 1024 1536" text-rendering="geometricPrecision">
+  <rect width="1024" height="1536" fill="#1c2024"/>
+  <rect x="38" y="38" width="948" height="1460" rx="24" fill="none" stroke="#52565a" stroke-width="4"/>
+  <text x="112" y="190" fill="#aeb3b8" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="48" letter-spacing="5">04 / CONTACT</text>
+  <line x1="112" y1="240" x2="912" y2="240" stroke="#52565a" stroke-width="4"/>
+  <text x="112" y="620" fill="#f8f8f5" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="116" font-weight="600">LET’S</text>
+  <text x="112" y="750" fill="#f8f8f5" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="116" font-weight="600">TALK.</text>
+  <text x="112" y="870" fill="#aeb3b8" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="62">聊聊下一件有意义的事。</text>
+  <line x1="112" y1="1075" x2="912" y2="1075" stroke="#aeb3b8" stroke-width="5"/>
+  <text x="112" y="1150" fill="#c5c9cd" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="44" font-weight="500" letter-spacing="2">EMAIL · 点击复制</text>
+  <text x="112" y="1225" fill="#f8f8f5" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="68" font-weight="600">2462362144@qq.com</text>
+  <text x="112" y="1330" fill="#c5c9cd" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="44" font-weight="500" letter-spacing="2">PHONE · 点击复制</text>
+  <text x="112" y="1410" fill="#f8f8f5" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="76" font-weight="600">13694246950</text>
+</svg>

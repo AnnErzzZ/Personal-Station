@@ -1,0 +1,28 @@
+/* 单个持久 Canvas 始终固定在视口内；深色页用滤镜同步把单色墨粒过渡为白色。 */
+.layer {
+  position: fixed;
+  z-index: 3;
+  pointer-events: none;
+  inset: 0;
+  filter: invert(0);
+  transition: filter 640ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.layer[data-dark="true"] {
+  filter: invert(1);
+}
+
+/* 这一层是纯装饰（aria-hidden，不需要任何指针事件），但它盖在内容之上（z-index 3），
+   而 r3f 的 Canvas 包装 div 会内联 `pointer-events: auto`——内联值会盖掉继承来的
+   none，于是整块全屏画布把下面的链接点击全吃掉了（实测卡片点不动）。
+   这里压掉内联值，保证整层对指针完全透明。 */
+.layer,
+.layer * {
+  pointer-events: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .layer {
+    transition: none;
+  }
+}

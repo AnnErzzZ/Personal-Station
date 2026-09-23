@@ -1,0 +1,930 @@
+.layer {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.layer[data-section-motion="entering"],
+.layer[data-section-motion="entered"] {
+  visibility: visible;
+  opacity: 1;
+}
+
+.layer[data-section-motion="entering"] {
+  transition:
+    opacity 360ms cubic-bezier(0.22, 1, 0.36, 1) 280ms,
+    visibility 0s linear 0s;
+}
+
+.layer[data-section-motion="entered"] {
+  transition:
+    opacity 360ms cubic-bezier(0.22, 1, 0.36, 1) 0ms,
+    visibility 0s linear 0s;
+}
+
+.layer[data-section-motion="exiting"] {
+  visibility: visible;
+  opacity: 0;
+  transition:
+    opacity 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 220ms;
+}
+
+.layer[data-section-motion="hidden"] {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.layer[data-state="fade"],
+.layer[data-state="on"] {
+  visibility: visible;
+}
+
+/* 正在淡入淡出时不吃点击：此时父层还是半透明，点开遮罩会让人失去上下文。 */
+.layer[data-state="fade"] .shell {
+  pointer-events: none;
+}
+
+.layer[data-section-motion="hidden"] .hint,
+.layer[data-section-motion="exiting"] .hint {
+  opacity: 0;
+  transition-delay: 0ms;
+}
+
+.layer[data-section-motion="entering"] .hint {
+  opacity: 1;
+  transition-delay: 420ms;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: rgb(10 11 14 / 42%);
+  cursor: default;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  /* 模糊值从挂载起保持不变，只过渡遮罩透明度。Chromium 在 visibility 与
+     backdrop-filter 同帧从近零值开始插值时，偶发不会建立 backdrop 合成层：
+     computed style 已经是 16px，画面却仍未模糊。预先持有最终滤镜后，展开
+     只需把已经存在的模糊表面淡入。不要补写 -webkit- 前缀，Lightning CSS
+     会据此改写标准属性，而当前 Chrome 使用标准 backdrop-filter。 */
+  backdrop-filter: blur(16px) saturate(0.9);
+  transition:
+    opacity 360ms ease,
+    visibility 0s linear 620ms;
+}
+
+.overlay:focus-visible {
+  outline: 2px solid rgb(255 255 255 / 82%);
+  outline-offset: -6px;
+}
+
+.layer[data-projects-open="true"] .overlay {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition:
+    opacity 360ms ease,
+    visibility 0s linear 0s;
+}
+
+/* ------------------------------------------------ 展开态内容舞台
+   「标题 / 卡片+文件夹 / 提示」三段一个 flex 列，整体在
+   「顶部导航下沿 → 视口底」之间垂直居中。几何量由组件写在 .layer 上
+   （--wx-top / --wx-center / --wx-card-fit，见 WorkProjectFolder.tsx）：
+   卡片在 FolderFloat 里是绝对定位，宽度要用百分比基准 —— 而那条基准链
+   （.openGroup → .shell → .items）全是零尺寸锚点，CSS 的百分比没有可解析的
+   对象，所以宽度、缩放、居中量都只能由 JS 给确定值。
+
+   z-index 说明：卡片弹出的层在 FolderFloat 内部（item z=2），而 FolderFloat 的
+   root 在 .shell 里 —— 卡片实际落在 shell 的层叠上下文内，所以展开态舞台
+   必须高过 .shell 整体，否则标题会被卡片盖掉。
+   右上角收起按钮反而要**低于**舞台：它固定在顶部，跟标题同一横带，
+   压不到卡片。 */
+.expandedContent {
+  position: absolute;
+  top: var(--wx-top, 76px);
+  right: 0;
+  left: 0;
+  z-index: 3;
+  display: flex;
+  padding: 0 var(--page-padding-x);
+  flex-direction: column;
+  align-items: center;
+  /* 容器本身**永不隐藏**：文件夹（.shell → FolderFloat）住在这一层里，
+     closed 态要靠它继续可见、可 hover、可点击（位置见 .shell 的 closed 规则）。
+     展开态要淡入的是「标题 + 提示」两块，所以透明度写在它们身上，
+     不写在这个容器上。 */
+  transform: translateY(var(--wx-center, 0px));
+  pointer-events: none;
+}
+
+/* 展开态才淡入的两块（标题 / 提示）。容器透明会连带子级，
+   所以透明度必须落在它们自己身上。 */
+.openHead,
+.openHint {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 300ms ease,
+    visibility 0s linear 480ms;
+}
+
+.layer[data-folder-phase="expanded"] .openHead,
+.layer[data-folder-phase="expanded"] .openHint {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 300ms ease,
+    visibility 0s linear 0s;
+}
+
+/* closed 态：**不能**整块 display:none —— 文件夹（.shell）住在这一层里，
+   藏了它就等于关闭态没有文件夹可点（实测 [data-variant="projects"] 的
+   getBoundingClientRect 全 0、hover peek 断言全线失败）。
+   只把「展开态专属」的两块 —— 顶部标题与底部提示 —— 收起来，
+   文件夹交给 .shell 自己的 closed 规则（fixed / 62% / 25vw）去定位。
+   注意 .expandedContent 本身在 closed 态必须保持可见（opacity 1），
+   否则子级跟着一起透明。
+
+   ⚠ 还要把**展开态的几何残值清掉**：--wx-top / --wx-center 是 measure 写的，
+   closed 态 measure 不跑，这两个变量留着上一次的值；而 .openGroup 的高度
+   公式也仍是展开态那一套。不清的话这一层会带着一个「高 11718px、top −6032」
+   的盒子参与布局（实测 .layer 的 overflow:hidden 里多出一整页，
+   .shell 的命中区被推走、后续视口点不开文件夹）。
+   所以 closed 态一律归零：top 0 / 无位移 / 格子不设尺寸。 */
+.layer[data-projects-open="false"] .expandedContent {
+  top: 0;
+  transform: none;
+}
+
+.layer[data-projects-open="false"] .openHead,
+.layer[data-projects-open="false"] .openHint {
+  display: none;
+}
+
+.layer[data-projects-open="false"] .openGroup {
+  width: auto;
+  height: auto;
+}
+
+/* 顶部居中标题：小 section label 在上、主标题在下，与关闭态的左侧大标题
+   同一套命名（编号 + WORK / 作品），但从左上角搬到视口中轴。
+   展开态标题承担文字视觉锚点，卡片与文件夹仍以真实空间运动承接它。 */
+.openHead {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 1.8svh, 18px);
+  align-items: center;
+  margin-top: 16px;
+  text-align: center;
+  white-space: nowrap;
+  animation: none;
+  /* expandedContent 的整组居中量只服务卡片 / 文件夹。标题抵消这段位移，
+     让标题栏继续落在默认 Work 标题的 92px 顶部基线上。 */
+  transform: translateY(calc(-1 * var(--wx-center, 0px)));
+}
+
+.openEyebrow {
+  display: flex;
+  margin: 0;
+  gap: 12px;
+  align-items: baseline;
+  /* 混排节点：容器给 UI Latin；编号 `02` 与中文标签各自在下方覆盖。 */
+  font-family: var(--font-ui, var(--body));
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+/* 编号 `02` → DINPro（非正文独立数字）。 */
+.openIndex {
+  font-family: var(--font-number);
+  font-size: 14px;
+  font-weight: 700;
+  color: rgb(255 255 255 / 92%);
+}
+
+/* `WORK / 作品` 是同一 span 里的中英混排 → 走中文栈（Source Han Sans 自带
+   拉丁字形，`WORK /` 不会掉档），比拆 JSX 改动更小、显示更稳。 */
+.openLabel {
+  font-family: var(--font-cn);
+  font-size: 12.5px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: rgb(255 255 255 / 58%);
+}
+
+.openTitle {
+  margin: 0;
+  font-family: var(--font-display, var(--body));
+  font-size: clamp(46px, 6.5vw, 92px);
+  font-weight: 700;
+  line-height: 1.05;
+  /* Impact 统一 +0.02em：原 -0.03em 在超窄体上粘连最严重（2026-09-21 用户反馈）。 */
+  letter-spacing: 0.02em;
+  color: #fafafc;
+}
+
+/* 卡片行 + 文件夹：一个 cell 同时给出卡片的定位基准（cell 宽 = 2 卡 + gap）
+   和文件夹的落点（cell 底缘居中）。
+   ⚠ 高度里的卡高**乘 fit** —— 让 cell 的盒子等于「视觉高」，而不是布局满高。
+   `scale()` 是绘制期变换、不改布局盒，所以卡片的布局盒仍是 cardHeight，
+   但 cell 只需要给**缩放后**的卡片留位：
+     卡片 transform-origin = 自己底边，缩到 s 后上缘下落 cardH×(1−s)、
+     底边不动，所以它占的垂直空间恰好是 cardH×s。
+   不乘 fit（曾经的写法）：cell 比视觉高出一截，整组比预算高、
+   底部被视口裁掉（实测 1280×800 裁 33px、1024×768 裁 65px）。
+   也不要「乘 fit 再补负 margin」：那是把差额减两遍。
+   --wx-card-h 由组件写入**实测卡高**（两卡取大者），与 --wx-center 同源。 */
+.openGroup {
+  position: relative;
+  display: flex;
+  width: calc(var(--wx-card-w, 518px) * 2 + 40px);
+  height: calc(
+    var(--wx-folder-h, 333px) + var(--wx-group-gap, 36px) + var(--wx-card-h, 502px) *
+      var(--wx-card-fit, 1)
+  );
+  flex: 0 0 auto;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+/* ------------------------------------------------ 卡片在卡片行里的定位
+   展开态卡片的位移**只由本模块负责** —— FolderFloat.module.css 里已不再写
+   `[data-open]` 的 transform（那边留着就会以更具体的规则压过这里，
+   让 `scale(var(--wx-card-fit))` 静默失效）。
+
+   ⚠ 特异性必须算准，这里有两个竞争者：
+     · FolderFloat 的 `.root[data-variant="projects"] .item`（收起态）
+       = 2 类 + 1 属性 = (0,3,0)；
+     · 本规则若写成 `.layer[data-projects-open="true"] [data-work-project-card]`
+       也是 (0,3,0) —— **平手靠源码顺序，CSS Module 的注入顺序不可靠**，
+       实测被对方的 `scale(0.58)` 压掉（卡片停在待机位）。
+   所以这里刻意多加一个 `[data-open]` 提到 (0,4,0)。
+   注意 [data-open] 是 **FolderFloat root** 上的空值属性，
+   必须写成 `.layer[...] [data-open] [data-work-project-card]`（后代），
+   挂到 .layer 自己身上是不匹配的 —— 别写成 `.layer[data-open]`。
+
+   坐标系：`.item` 绝对定位在 .items（0×0 锚点，钉在 shell 顶部 = 文件夹顶），
+   锚点即卡片中心，所以 `translateY` 用「上移卡高 + 30」把卡片放到文件夹上方，
+   横向按半个卡宽 + 半个 gap（= 20px）分左右。
+
+   --wx-card-fit：矮视口装不下整个组合时，JS 把卡片按这个比例缩小。
+   **只缩卡片，不缩文件夹** —— 文件夹是主体，缩它会牵动前盖与口的角度。
+
+   缩放只影响「卡片占多高」，不影响「卡片要上移多少」——这两个量必须分清：
+   scale 原点钉在「卡片自己底边」（transform-origin: 50% 100%），所以缩到 s
+   后卡片上缘下落 cardH×(1−s)、底边不动。卡片在 .openGroup 里是
+   `align-items: flex-end`（底对齐），占了 cardH × s 的垂直空间；
+   而位移量（下面那条 translateY）用的是**布局高**，跟 s 无关。
+   所以「乘 fit 的只有 .openGroup 的高度」，位移不乘 —— 见 .openGroup。
+
+   ⚠ 纵向位移是 `-100% - 30px`，**不要乘 fit**。这里有个容易搞反的地方：
+   `.item` 是绝对定位，未变换时它的**顶边**贴在锚点（= 文件夹顶）上，
+   所以要把卡片底边送到「锚点 − 30」，位移量恰好是「整个布局高 + 30」——
+   抵消的是**布局偏移**，用 `100%`（= 卡片自身布局高）。
+   而 fit 的 scale 是以「卡片底边」为原点的绘制期变换，底边本来就不动，
+   它不参与这次抵消。写成 `calc(100% * fit)` 会让卡片少上移
+   `cardH × (1 − fit)`，卡片沉进文件夹里（实测 1280×800 底部越过文件夹顶 35px）。
+   `100%` 还有个好处：两张卡文案长短不同（实测 438 / 457），
+   用各自的 `100%` 才能让两张卡的**底边落在同一条线**上 ——
+   换成预算的 --wx-card-h 会错开近 20px。
+
+   ⚠ calc 语法：乘除只能出现在「长度 × 数字」里，`* -1 - 30px` 串在一条
+   乘链后会被整条判无效 —— 需要中间量时先写成子表达式再用减号连接。
+
+   ⚠⚠ 2026-09-21 **必须显式写 [data-index="0"]**，否则左卡会被 FolderFloat
+   自己的规则压掉、两卡缩放不一致（这是「两卡高度不一致」的真正来源）：
+     · FolderFloat.module.css 里有一条
+         `.root[data-variant="projects"][data-open] .item[data-index="0"]`
+       = 3 类 + 3 属性 = **(0,6,0)**，它的 `scale(1)` 会把这里的
+       `scale(var(--wx-card-fit))` 整条覆盖掉；
+     · 而右卡那边的对应规则也是 (0,6,0)（多了个 [data-index="1"]），
+       与本模块的右卡规则**平手**，靠源码顺序由本模块胜出。
+     · 结果就是「左卡不缩、右卡缩」：1600×900 实测左卡 489.1、右卡 272.1 —
+       两卡看起来一大一小，正是需求第一条要修的现象。
+   带上 [data-index="0"] 后本规则也到 (0,6,0)，与右卡对称、也不依赖注入顺序。
+   （早先的注释说「多加一个 [data-open] 提到 (0,4,0) 就够」——那条在当时的
+   FolderFloat 下成立，现在不够了；两边源码改动后一定要重跑
+   artifacts/tmp/probe-item-rules.mjs 复核命中集。） */
+.layer[data-projects-open="true"] [data-open] [data-work-project-card][data-index="0"] {
+  transform: translate(calc(var(--wx-card-w) * -1 - 20px), calc(-100% - 30px))
+    scale(var(--wx-card-fit, 1));
+}
+
+.layer[data-projects-open="true"] [data-open] [data-work-project-card][data-index="1"] {
+  transform: translate(20px, calc(-100% - 30px)) scale(var(--wx-card-fit, 1));
+}
+
+/* 缩放原点钉在卡片底部中点 */
+.layer[data-projects-open="true"] [data-open] [data-work-project-card] {
+  transform-origin: 50% 100%;
+}
+
+.projectCard {
+  width: var(--wx-card-w, 518px);
+  background: #fff;
+}
+
+/* ============================================================================
+   ★★ 目标高度：两卡共用的唯一高度事实（2026-09-21 展开态重排加入）
+   ----------------------------------------------------------------------------
+   为什么必须有这个常量，以及它为什么是「高度」而不是「最小高度」：
+
+   两张卡的位移是 `translateY(-100% - 30px)`（见上方）。绝对定位的 `.item`
+   未变换时**顶边贴锚点**，所以 `100%` 抵消的是**卡片自身布局高** ——
+   两卡文案长短不同（实测 438 / 457）时，它们各自的 `100%` 不等长，
+   位移量也就不等长，**结果反而是底边对齐、顶边错开 19px**（这正是需求里
+   「两卡高度不一致」的视觉来源）。
+   把两卡钉成同一个确定高度 H 之后：位移量相同 + 顶边相同 ⇒ 两对边同时对齐，
+   `transform-origin: 50% 100%` 的缩放原点也落在同一像素上。
+
+   H 必须落在一个**窄区间**里，区间由几何闭环确定（推导见 WorkProjectFolder.tsx
+   的 WORK_FIT_BUDGET / WORK_FIT_VH / WORK_FIT_MIN）：
+     · 下界：--wx-card-h 取「两卡实测高的较大值」，而 fit 由 5.6 : 1 的
+       「视口高 : 卡高」反解。H 越大 ⇒ 矮视口下 fit 越小 ⇒ 卡片被缩得越小。
+       下限 H ≳ 0.99×vh 能把 1600×900 / 1920×1080 / 1440×900 三档的 fit
+       全部保在 1.0（1920×1080 的 H 帽在 1.0×vh = 1080）。
+     · 上界：fit 有 0.55 下限（再小字就看不清），触底后会**静默溢出**。
+       保持 H ≤ 1.0×vh 时，最矮的一档 1440×900（vh 900 里可用 824）
+       恰好是 fit 第一次跌破 1（≈0.98，缩 2%），还有余量。
+   取 clamp(460px, 52vh, 560px)：
+     1440×900 → 468（需 477，缩 2% 到 451；比现状的 457 只小 6px）
+     1600×900 → 468（需 457，fit 1.0）
+     1920×1080 → 560（需 544，fit 1.0）—— 正好落在上限，再加就跌出 fit 1.0
+   ⚠ 别把这个上限往上抬。h 只被 --wx-card-h / openGroup 的格子盒限制，
+   **真正让卡片吃到 h 的是 .openGroup 的 align-items: flex-end 加上
+   .projectCardLink 的 height: 100%**；早先「让卡片拉伸」的做法不成立，
+   这里记一笔免得后人再试一遍。
+   ⚠ 也不需要 JS 配合：--wx-card-h 取两卡实测高的**较大值**，等高后两卡都 ≈H，
+   实测自然就等于 H，measure() 的 fit / center 口径自动对上。
+   ⚠ 但上面那条「卡内预算」会把 H 往下压（长文案的卡用自身预算高），
+   于是 --wx-card-h 变成两卡各自 h 的较大值；因为两张卡此时**高度相等**，
+   较大值 = H′，measure() 依然自洽。
+   ============================================================================ */
+.layer[data-projects-open="true"] .projectCard {
+  /* ---- ★ 内部几何的缩放支点（--wxc-scale）--------------------------------
+     卡内所有字级 / 间距 / 圆角都写成 `calc(<基准> * var(--wxc-scale))`，
+     所以只要调这一个变量就能整档缩放，不必再写第二套媒体查询。
+
+     ⚠⚠ **这个变量必须由 JS 写成一个纯数字（无单位）。**
+     两轮排查才钉死的一条规则：`var()` 替换发生在**解析之前**，替换后的文本
+     必须能直接判成一个 `<number>`，否则 `calc(22px * var(--s))` 就是
+     「长度 × 长度」的类型错误 —— 整条声明在计算值阶段作废，元素掉回上一条
+     规则（实测标题静默停在基础规则的 17px，看起来像「覆盖没生效」）。
+
+       实测（Chrome，同一台机器）：
+         --s: .94                                  → calc(22px * var(--s)) = 20.68px  ✅
+         --s: clamp(.86, .94, 1)                   → 20.68px  ✅
+         --s: calc(480 / 510)                      → 20.7px   ✅（纯数 ÷ 纯数）
+         --s: calc(.5631 + 480px / 510)             → 失效 ❌
+         --s: calc(480px / 510)                     → 失效 ❌
+         --s: calc(100vw / 510)                     → 失效 ❌（视口单位同样不算纯数）
+
+     关键在最后两行：**`px / 数字` 与 `100vw / 数字` 都不会被约简成数字** ——
+     只要表达式里出现长度单位，它就被当成 `<length>`。而「卡宽」恰恰是
+     `.layer` 上的内联 px（JS 写的），CSS 侧拿不到它的「无单位比例」，
+     所以这个缩放档**在 CSS 里算不出来**，由 WorkProjectFolder.tsx 的 measure()
+     算完再写下来（公式同源：`clamp(.86, (vw − 470) / 510 + .86, 1)`）。
+     这里只留一个 1 作为首帧兜底（measure 未跑时按「不缩」渲染，不跳字）。 */
+  --wxc-scale: 1;
+
+  /* 卡内文案区预算（--wxc-copy，由组件量出，**带 px**）。
+     ⚠ 这里不能写成 `calc(var(--wxc-copy) * var(--wxc-scale))`：
+     预算带 px，一乘就变成「长度 × 数字」—— 那是**合法**的，
+     但它会把这个中间变量也变成带 px 的长度。真正踩雷的是上面那条：
+     只要**乘数**里混进 px，`长度 × 长度` 就整条作废。
+     所以乘法一律写成 `calc(<长度> * var(--wxc-scale))` 的形式，
+     把 px 放在被乘数一侧，让 --wxc-scale 保持纯数字。 */
+  --wxc-h: clamp(460px, 52vh, 560px);
+  /* 安全边：吸掉 offsetHeight 取整与断行测量的 ±1px 误差（6 =
+     组件里的 CARD_COPY_SAFETY，改一处要改另一处）。 */
+  --wxc-copy-safe: 6px;
+  /* 「这张卡自己的文案需要多高」= 封面定高 + 实测文案区高 + 安全边。
+     封面定高写成 `卡宽 × 0.5628`（16:9 的 941/1672，与 --wx-card-h 的
+     measure 口径同源）。 */
+  --wxc-tight: calc(
+    var(--wx-card-w, 518px) * 0.5628 + var(--wxc-copy, 0px) * var(--wxc-scale) +
+      var(--wxc-copy-safe)
+  );
+
+  /* ---- ★★ 最终高度 --------------------------------------------------------
+     只有一条规则，且**不允许裁掉内容**：
+
+       height = max(--wxc-h, --wxc-tight)
+
+     `--wxc-h`（clamp(460, 52vh, 560)）是「排版目标高」——它保证两卡等高、
+     且高度落在 fit 能吸收的区间里；`--wxc-tight` 是「这张卡的内容下限」。
+     取 max 的语义：**内容装不下时以内容为准**，宁可让这张卡比目标高一点、
+     也不能把标签与右下箭头裁掉（需求第八条明确不许牺牲内容换等高）。
+
+     ⚠⚠ 早先这里是 `clamp(460px, <插值的 tight/h>, var(--wxc-h))` —— 那是错的：
+     `clamp` 的**上界**会把 tight 压回 h，而 h = 52vh 在 1600×900 是 468，
+     tight 需要 489 ⇒ 被 clamp 到 468 ⇒ 仍然溢出（实测 scrollHeight 476 >
+     clientHeight 466）。**用 --wxc-h-fit 插值也救不了**：插值的两个端点
+     一个是被压的 tight、一个是更小的 h，怎么插都在 468 以下。
+     正解就是把 ceiling 拆掉、换成 floor：`max()`。
+
+     ⚠ `max()` 的**参数里可以含 var() 长度**（只要不要求在数字层面运算），
+     这与早先那条「`min()` 不接受 var() 参与数字运算」不是一回事 ——
+     那条讲的是 `min(1, var(--x))` 这种「数字取小」，
+     这里的两个参数都是长度、是合法的取大。 */
+  height: max(var(--wxc-h), var(--wxc-tight));
+  overflow: hidden;
+  color: var(--ink, #111113);
+  /* ⚠ 不要在这里改 transform / box-shadow / border：hover 抬升与阴影是卡片
+     自带的交互，需求要求原样保留（验收脚本「keeps its hover lift / shadow /
+     zoom」三条就盯这个）。也**不要**写 `.projectCard:hover { transform: none }`
+     去「静住」它 —— 那是更高权重的声明，会把 hover 抬升钉死。 */
+}
+
+/* Closed（= 默认文件夹 / hover peek）态完全不碰：下面每一条都带
+   [data-projects-open="true"]，peek 走的是 FolderFloat 自己的
+   `[data-peek]:not([data-open])`，两边选择器不相交。
+   peek 的卡片是多带一个 .item 的绝对定位盒（高 auto），高度那一条碰不到它。 */
+
+.layer[data-projects-open="true"] .projectCardLink {
+  /* 100% 而非 auto：卡片已被钉成确定高度，链接要跟着吃满，否则文案区
+     不是 flex: 1（分配不到余量）、底部对齐也就无从谈起。 */
+  height: 100%;
+}
+
+.layer[data-projects-open="true"] .projectCardVisual {
+  /* flex: 0 0 auto —— 封面按自己的 16:9 拿定高，不被压缩；
+     ⚠ 不要改成 flex: 1：那会让封面反过来撑高卡片，把上面的确定高度对冲掉。
+     overflow: visible 是卡片的既有行为（hover 放大时不裁）。 */
+  flex: 0 0 auto;
+  overflow: visible;
+}
+
+/* ---------------------------------------------- 卡内文案区：节奏与字级
+   ★★ 本段的选择器**一律用 data-* 钩子定位元素，绝不引用 home.module.css 的
+   类名**。原因（实测踩过，是本轮最隐蔽的一个坑）：
+
+     CSS Modules 只会给**本文件里出现过的** `.class` 加哈希。
+     写 `.layer[data-projects-open="true"] .workTitle` 时，编译器把 `.workTitle`
+     当成**本模块的类**处理，输出成
+       `.work-project-folder-module__X__layer[...] .work-project-folder-module__X__workTitle`
+     而卡上的标题真实类名是 `home-module__Y__workTitle` —— **永远选不中**，
+     规则静默失效（表现为「字号没变大」，看起来像 calc 算错，极易误判）。
+     `.projectCard` / `.projectCardLink` / `.projectCardVisual` 能用，是因为它们
+     确实是本模块自己的类（写在 WorkProjectFolder.tsx 的 styles.* 里）。
+
+   所以卡内元素改用 WorkProjectFolder.tsx 挂上去的 data-* 钩子：
+     [data-work-copy] / [data-work-title] / [data-work-body] /
+     [data-work-positioning] / [data-work-summary] / [data-work-footer] /
+     [data-work-meta] / [data-work-arrow] / [data-work-arrow-box] /
+     [data-work-arrow-glyph]
+   它们只在本模块的模块作用域里声明动画/布局，跨模块引用没有哈希问题。
+
+   结构（来自 app/home.module.css，这里只做展开态覆盖）：
+     copy   = 文案区（flex 列，吃掉封面之外的全部高度）
+     title  = 卡名
+     body   = 正文块（与 footer 是 flex 兄弟）
+     footer = 标签 + 箭头，margin-top: auto → 钉在卡片下缘 ——
+       「meta 与右下箭头同一条水平线」由它天然满足，不需要额外包装。 */
+.layer[data-projects-open="true"] [data-work-copy] {
+  gap: 0;
+  /* 图→标题 = padding-top。整卡被 scale(fit) 缩放，fit 在 0.55~1.0 之间，
+     所以 CSS 值要按最矮视口的 fit 反补偿：30px × 0.55 ≈ 16.5（下限 16），
+     30px × 0.57 ≈ 17.1（1440）。1920 fit=0.76 → 22.8，略超上限但大屏
+     间距偏大是合理的，需求第十二条允许响应式差异。 */
+  padding: calc(30px * var(--wxc-scale))
+    calc(24px * var(--wxc-scale)) calc(18px * var(--wxc-scale));
+  /* 覆盖 home.module.css 的 ≤720 里 padding: 14px 16px 16px —— 它在媒体查询里
+     且特异性更低（这里是 (0,2,0) vs (0,1,0)），一句就能压过。 */
+}
+
+.layer[data-projects-open="true"] [data-work-title] {
+  font-size: calc(22px * var(--wxc-scale));
+  font-weight: 650;
+  line-height: 1.24;
+}
+
+.layer[data-projects-open="true"] [data-work-body] {
+  /* 标题→正文 = body.margin-top。之前注释错写成「图→标题」—— body 在
+     title 下面，margin-top 作用在 title↔body 之间。18px × 0.55 ≈ 9.9 ✓。 */
+  margin-top: calc(18px * var(--wxc-scale));
+  /* 正文→meta = body.margin-bottom + footer.margin-top（见 footer 那条）。
+     这里 12 + footer 20 = 32，32 × 0.55 ≈ 17.6 ✓。 */
+  margin-bottom: calc(12px * var(--wxc-scale));
+  gap: calc(10px * var(--wxc-scale));
+}
+
+.layer[data-projects-open="true"] [data-work-positioning] {
+  font-size: calc(16px * var(--wxc-scale));
+  font-weight: 500;
+  line-height: 1.7;
+}
+
+.layer[data-projects-open="true"] [data-work-summary] {
+  /* 标题 → 正文 = 上面的 gap 10px。
+     ⚠ 必须**解除行数钳制**（home.module.css 是 -webkit-line-clamp: 2）：
+     需求明确要求长文案不许被压成两行、也不许为了等高去截断 ——
+     允许它撑到三行，代价由「卡内预算 + 放大兜底」吸收。 */
+  display: block;
+  overflow: visible;
+  font-size: calc(16px * var(--wxc-scale));
+  line-height: 1.75;
+  -webkit-line-clamp: unset;
+  color: #60646c;
+  text-wrap: pretty;
+}
+
+.layer[data-projects-open="true"] [data-work-footer] {
+  /* 正文→meta 的下半段（body.margin-bottom 12 + 这里 20 = 32）。
+     32 × 0.55 ≈ 17.6 ✓（1600/1440），32 × 0.76 ≈ 24.3（1920，在 24 附近）。
+     到卡片下缘（= 到右下箭头圆圈的底）留 ≈19px：箭头圆圈自带 (26 − 19)/2
+     ≈ 3.5px 视觉余量，加起来 ≈22，落在需求「底部 padding 18–22」。 */
+  margin-top: calc(20px * var(--wxc-scale));
+}
+
+.layer[data-projects-open="true"] [data-work-meta] {
+  /* 字面 12–13 / 字重 500 / 字距 0.03–0.06em / #73777F。
+     ⚠ 不调它的 gap：它也用 gap 排**行距**（标签换行时靠 3px 的 row-gap），
+     一旦跟着 --wxc-scale 收，两行标签就会贴在一起。
+     标签的数量与换行是内容事实，不该随视口缩。 */
+  font-size: calc(12.5px * var(--wxc-scale));
+  font-weight: 500;
+  line-height: calc(17px * var(--wxc-scale));
+  letter-spacing: 0.045em;
+  color: #73777f;
+}
+
+/* 右下箭头圆圈：26 → 29，与放大的字级同档；内部 glyph 同步放大，
+   否则圆圈变大而箭头还是 15px，看着像没画满。 */
+.layer[data-projects-open="true"] [data-work-arrow] {
+  width: calc(29px * var(--wxc-scale));
+  height: calc(29px * var(--wxc-scale));
+}
+
+.layer[data-projects-open="true"] [data-work-arrow-box] {
+  inset: calc(5px * var(--wxc-scale));
+}
+
+.layer[data-projects-open="true"] [data-work-arrow-glyph] {
+  mask-size: calc(16px * var(--wxc-scale)) calc(16px * var(--wxc-scale));
+  -webkit-mask-size: calc(16px * var(--wxc-scale)) calc(16px * var(--wxc-scale));
+}
+
+/* 右上角「收起文件夹」。位置贴着视口右上、与页面右 padding 对齐
+   （--page-padding-x 是横向留白的唯一事实，见 story.module.css）。
+   展开态唯一的明显关闭操作 —— z-index 2 低于展开态内容（卡片明显更高，
+   压不到它），又高于遮罩，永远可点。 */
+.openClose {
+  position: absolute;
+  top: 78px;
+  right: var(--page-padding-x, 60px);
+  z-index: 2;
+  display: inline-flex;
+  width: 48px;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border: 1px solid rgb(28 32 36 / 12%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 68%);
+  box-shadow: 0 4px 20px rgb(0 0 0 / 6%);
+  color: #1c2024;
+  font-family: var(--body);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  pointer-events: auto;
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    background 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    transform 200ms ease,
+    opacity 300ms ease,
+    visibility 0s linear 480ms;
+}
+
+.layer[data-folder-phase="expanded"] .openClose {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    background 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    transform 200ms ease,
+    opacity 300ms ease,
+    visibility 0s linear 0s;
+}
+
+.openClose:hover {
+  background: rgb(255 255 255 / 90%);
+  transform: translateY(-1px);
+}
+
+.openClose:focus-visible {
+  outline: 2px solid rgb(255 255 255 / 82%);
+  outline-offset: 3px;
+}
+
+.openCloseLabel {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 用户指定的 Nucleo 18px xmark 原始资源，作为按钮图形直接呈现。 */
+.openCloseGlyph {
+  display: block;
+  width: 18px;
+  height: 18px;
+  background: var(--close-icon) center / 18px 18px no-repeat;
+}
+
+/* 底部操作提示：展开内容的一部分（flex 列尾），跟着文件夹走 ——
+   以前它 absolute 贴视口底，文件夹一动提示就被裁。
+   无渐变底：展开态整屏已被遮罩压暗，深色字面之外不需要额外兜底。 */
+/* 底部提示：**绝对定位挂在文件夹下沿**，不占 flex 列的位。
+   参与流内布局的话，它会把纵向预算撑高（并让整组居中量偏移），
+   而它本来就只是句小字提示，不该改变主体几何。
+   top: 100% 取的是 .openGroup 底缘 = 文件夹底缘（卡片行在上、文件夹贴底）。 */
+.openHint {
+  position: absolute;
+  top: calc(100% + var(--wx-hint-gap, 16px));
+  left: 50%;
+  margin: 0;
+  font-family: var(--body);
+  font-size: 12px;
+  line-height: 1.6;
+  text-align: center;
+  white-space: nowrap;
+  color: rgb(255 255 255 / 58%);
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+/* ------------------------------------------------ 文件夹壳的两态位置
+   关闭：悬在左半屏、垂直**下部锁点**（视口 62% —— 与常驻的
+   SiteProgress、左下 section meta 各自留出空间），下方贴待机提示语。
+   展开：不再由壳自己决定位置 —— .expandedContent 的 flex 列把它摆在卡片
+   正下方。这里只是把 fixed 定位交还给 static，**不加 transition**：
+   fixed → static 是离散切换，配 transition 只会让位置和动画互相打架。
+   left / top 是 fixed 专属属性，对 static 无意义，也就不必清零。 */
+.shell {
+  position: fixed;
+  top: 62%;
+  left: 25vw;
+  z-index: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%);
+}
+
+.layer[data-projects-open="true"] .shell {
+  position: static;
+  transform: none;
+}
+
+/* FLIP 只作用在布局壳内部这层：.shell 负责 fixed/static 两套真实落点，
+   .shellMotion 把同一个 FolderFloat 从旧矩形反变换到新矩形。这样不会让
+   定位 transform 与共享元素 transform 互相覆盖，也不会复制第二个文件夹。 */
+.shellMotion {
+  position: relative;
+  display: block;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+/* 提示语贴着文件夹正下方，随 shell 一起移动；打开后卡片接管画面，提示让位。
+   ⚠ 必须 absolute 贴 shellMotion 底缘、不许回流内 margin 布局：
+   .shell 用 translate(-50%,-50%) 把盒子中心钉在 62% 锁点上，流内 hint 会
+   撑高盒子 —— 字体落地前后行高差几像素，关闭态文件夹就跟着漂几像素
+   （实测 +6px/1.5s）。absolute 后 hint 不占盒高，文件夹几何与
+   「没有提示语」时完全一致。 */
+.hint {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font-family: var(--body);
+  font-size: 14px;
+  line-height: 1.6;
+  text-align: center;
+  white-space: nowrap;
+  color: var(--text-subtle);
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 240ms ease;
+}
+
+.layer[data-projects-open="true"] .hint {
+  opacity: 0;
+}
+
+/* ⚠ 下面这条必须写在最后「归零」小节（本文件末尾）之前的任意位置，
+   因为它是 (0,2,0) 覆盖基础 .projectCard (0,1,0)：靠特异性赢，与顺序无关。 */
+@media (max-width: 720px) {
+  .shell {
+    top: 66%;
+    left: 50vw;
+    transform: translate(-50%, 0) scale(0.8);
+  }
+
+  .hint {
+    font-size: 16px;
+  }
+
+  .projectCard {
+    border-radius: 24px;
+  }
+
+  /* 窄屏展开态：两卡改竖排。--wx-* 是 JS 按桌面（横排）几何算的，
+     这里逐项覆盖成竖排的：卡片行宽 = 单卡宽，高度 = 两卡 + 卡间距 + 文件夹。
+     标题在窄屏隐藏（见下），所以 --wx-gap-head 归零。
+     ⚠ --wx-card-h 只用于「卡 0 要上移多少」（见下），所以它必须等于卡片的
+     **实际渲染高**，否则合成位移与真实高不匹配、两卡会叠在一起。
+     卡宽在 720 视口下是 27vw = 194 → clamp 下限 300px，于是高度 = 同一条
+     clamp(460, 52vh, 560)；两卡等高，取 460px 即可（vh 更小则更矮，短一截无害）。 */
+  .expandedContent {
+    --wx-card-w: min(96vw, 430px);
+    --wx-group-gap: 22px;
+    --wx-gap-head: 0px;
+    --wx-top: 76px;
+  }
+
+  /* ---- 移动端：两卡**回到文档流**竖排，取消一切绝对定位与计算位移 ---------
+     之前这里靠「绝对定位 + translateY(-卡高−12)」把卡 0 抬到卡 1 上方，
+     位移量取自硬编码的 --wx-card-h: 460px。但卡高现在是**内容驱动**的
+     （CSS 的 max(--wxc-h, --wxc-tight)），两张卡文案长短不同 ⇒ 实高不同
+     ⇒ 460 这个常数与真实高对不上：实测 390×844 下卡 0 高 358.8、卡 1 高 287，
+     位移却按 460 算，两卡错开 822px（卡 0 被送出视口）。
+
+     正解是别再用位移算 —— 直接让 FolderFloat 的 .items 变成 flex 列。
+     卡片本来就在 DOM 里按 data-index 顺序排列，进文档流后天然就是
+     「卡 0 在上、卡 1 在下」，高度由内容自己决定，正好满足需求
+     「移动端若单列则取消统一固定高度，自然增长」。
+
+     ⚠ `.cardsClip` / `.items` 是 **FolderFloat.module.css 的类**，在本模块里
+     写 `.items` 会被 CSS Modules 加上本模块的哈希 → 永远选不中（跨模块类名
+     陷阱，本轮踩过一次）。所以一律用 data-* 钩子：
+     `[data-folder-cards-clip]` / `[data-folder-items]`（后者是本轮为移动端
+     新加的钩子，见 FolderFloat.tsx）。
+     ⚠ 特异性：FolderFloat 的 `.root[data-variant="projects"] .items` 是 (0,3,0)，
+     这里带 `.layer` + `[data-projects-open]` + `.openGroup` 提到 (0,4,0)，
+     不依赖 CSS Module 的注入顺序。 */
+  .openGroup {
+    width: min(86vw, 430px);
+    height: auto;
+  }
+
+  .layer[data-projects-open="true"] .openGroup [data-folder-cards-clip],
+  .layer[data-projects-open="true"] .openGroup [data-folder-items] {
+    position: static;
+    width: 100%;
+    height: auto;
+    inset: auto;
+    overflow: visible;
+  }
+
+  .layer[data-projects-open="true"] .openGroup [data-folder-items] {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* 卡片退出绝对定位，回到文档流；清掉桌面那套左右分列 + 上移位移。
+     ⚠ 必须用 `.openGroup` 提权到 (0,5,0) 压过桌面的 (0,4,0) 位移规则。 */
+  .layer[data-projects-open="true"] .openGroup [data-work-project-card],
+  .layer[data-projects-open="true"] .openGroup [data-open] [data-work-project-card],
+  .layer[data-projects-open="true"] .openGroup [data-open] [data-work-project-card][data-index="1"] {
+    position: static;
+    width: 100%;
+    transform: none;
+    transform-origin: 50% 100%;
+  }
+
+  .layer[data-projects-open="true"] .projectCard {
+    --wx-card-w: min(86vw, 430px);
+    /* 单列时取消统一固定高：--wxc-tight 已随 --wxc-copy 自动给出内容高，
+       max() 的 floor 语义天然就是「自然增长」（需求第十二条）。 */
+    --wxc-h: 460px;
+    height: max(var(--wxc-h), var(--wxc-tight));
+  }
+
+  /* 展开态窄屏收敛：标题让位（两张竖卡已经超出视口，顶部没有空间），
+     只保留「收起按钮 + 底部提示」。 */
+  .openHead {
+    display: none;
+  }
+
+  .openClose {
+    top: 72px;
+    right: var(--page-padding-x, 24px);
+    width: 44px;
+    height: 44px;
+  }
+
+  .openHint {
+    font-size: 12px;
+  }
+
+  /* 窄屏文件夹缩小一档（与关闭态待机的 0.78 一致），缩放锚点放底边，
+     免得缩小后文件夹底与卡片行的落点脱开。 */
+  .openGroup [data-variant="projects"] {
+    transform: scale(0.78);
+    transform-origin: 50% 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay {
+    transition-duration: 180ms;
+  }
+
+  .openHead {
+    animation: none;
+  }
+
+  .openGroup [data-variant="projects"] {
+    animation: none;
+  }
+}
+
+/* ============================================================================
+   ★★ 展开态卡片的响应式：**纯几何**，一律放最后
+   ----------------------------------------------------------------------------
+   为什么集中放最后：本模块前面的展开态规则与这里的几条**同特异性**，层叠靠
+   源码顺序决胜（先命中的就是最终值），所以顺序不能乱、也不能插到前面去。
+   两条约束的来源：
+     · `--wx-card-w` 是 JS 写在 **.layer 内联样式**上的（优先级高于任何选择器），
+       所以「窄屏收窄卡宽」必须在 .projectCard 自己身上**重新声明**它。
+       ⚠ 别把这条写进 `[data-work-project-card]` 或 `.item[data-index]` 那类
+       「后代 + 属性」规则（(0,4,0)）—— 它们比这里 (0,3,0) 更具体，
+       会以更高权重把卡片钉回原点（历史上踩过 82px 越界）。
+     · `--wx-card-h` 在这里只是「格子高」的一个**兜底**：JS 会用两卡实测高
+       覆盖它。而 JS 从 ResizeObserver 里读到的高本来就是「已应用窄屏收窄」
+       之后的，反馈回路自洽，不会来回抖。
+   ============================================================================ */
+
+/* 1301–1460：桌面「略窄」段。只动内边距（24 → 20），字号梯度已经很平
+   （--wxc-scale 在这区间是 0.99–1.0，差不到 1%），再加一档只会让排版跳。
+   命中区间靠两个条件卡出来：max-width 压住上界，min-width 抬高下界，
+   所以 1461px 及以上完全不受影响。 */
+@media (max-width: 1460px) and (min-width: 1301px) {
+  .layer[data-projects-open="true"] [data-work-copy] {
+    padding: calc(30px * var(--wxc-scale))
+      calc(20px * var(--wxc-scale)) calc(18px * var(--wxc-scale));
+  }
+}
+
+/* 721–1300：卡宽收窄到「可用宽 − 两端留白」除以 2，保证卡片行不溢出。
+   不设 --wx-card-w 的话 1024 视口下卡片行 ≈ 1070 > 视口，直接被裁。 */
+@media (max-width: 1300px) and (min-width: 721px) {
+  .layer[data-projects-open="true"] .projectCard {
+    --wx-card-w: min(
+      var(--wx-card-w, 518px),
+      calc((100vw - 2 * var(--page-padding-x, 40px) - 40px) / 2)
+    );
+  }
+}
+
+/* ============================================================================
+   ★★ 展开态整层可见性兜底（2026-09-21 幽灵层修复的第二道保险）
+   ----------------------------------------------------------------------------
+   chrome 三块（.openHead / .openHint / .openClose）在 expanded 态显式写
+   visibility: visible —— visibility 是**可逆继承**，子级 visible 能「逃逸」
+   父级 hidden。一旦滚动引擎把 work 层推到 sectionMotion=hidden，就会出现
+   「标题和关闭按钮还在、文件夹和卡片消失」的幽灵层（用户实测截图一；
+   收起后停在原地则整个文件夹消失，截图二。主修在 StoryScrolly 的三处守卫：
+   work 不吃边缘提前离场 / 收起中不换幕退场 / 关闭后兜底 exit）。
+   这里再加一道：展开进行中（opening/expanded）整层不许 hidden。
+   只写 visibility 不写 opacity —— exiting 的淡出照常，只是不会被瞬间藏掉。
+   ⚠ 必须放在文件末尾：与 .layer[data-section-motion="hidden"] 同特异性
+   (0,2,0)，靠源码顺序取胜。
+   ============================================================================ */
+.layer[data-folder-phase="opening"],
+.layer[data-folder-phase="expanded"] {
+  visibility: visible;
+}
+
+/* ≤720：移动端走**单列**、卡片自然增长 —— 不保留统一的确定高度
+   （需求「移动端若单列则取消统一固定高度，自然增长」）。
+   卡宽不在这里给：JS 写的 27vw 会 clamp 到 300px 下限，
+   而 300px 在 390 视口下只占 77%，观感偏小，所以钉成 86vw 左右。
+   --wx-card-h 同步换成「一张卡的完整高」—— 它只用于卡 0 的上移量，
+   不参与「两卡等高」，所以这里给一张卡的自然高即可。 */

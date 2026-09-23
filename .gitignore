@@ -1,0 +1,63 @@
+# dependencies
+/node_modules
+
+# Next.js
+/.next/
+/.next-pages/
+/out/
+
+# production
+/build
+
+# local environment files
+.env*
+
+# debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# local caches and temporary files
+/.cache/
+/.turbo/
+/.vercel/
+/coverage/
+/tmp/
+/temp/
+*.tmp
+*.bak
+*.swp
+*~
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# system files
+.DS_Store
+Thumbs.db
+
+# Engramory live memory store (plain text, machine-local)
+/.engramory-memory/
+
+# local agent state, backups, and preview output
+/.codex/
+/.codex-logs/
+/.codex-reference/
+/.superpowers/
+/.workbuddy/
+/artifacts/
+/generated-images/
+
+# separate GitHub clone nested inside the site directory
+/Personal Station/
+
+# local design records and development-only tools
+/AGENTS.md
+/CLAUDE.md
+/docs/
+/references/
+/scripts/
+/vendor/

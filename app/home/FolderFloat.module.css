@@ -1,0 +1,477 @@
+.root {
+  --ff-w: 200px;
+  --ff-h: 148px;
+  --ff-r: 14px;
+  --ff-tab: 14px;
+  --ff-back: #3f3f46;
+  --ff-front: #52525b;
+  --ff-paper: #f5f5f5;
+  --ff-item: #f5f5f5;
+  --ff-item-ink: #18181b;
+  --ff-label: #f5f5f5;
+  --ff-spread: 180px;
+  --ff-lift: 26px;
+  --ff-angle: 34deg;
+  --ff-rest: 16deg;
+  --ff-peek: 24deg;
+  --ff-open: 520ms;
+  --ff-close: 312ms;
+  --ff-stagger: 45ms;
+  --ff-n: 6;
+  --ff-spring: cubic-bezier(0.34, 1.57, 0.64, 1);
+  --ff-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+
+  position: relative;
+  isolation: isolate;
+  display: inline-block;
+  width: var(--ff-w);
+  padding-top: var(--ff-tab);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.folder {
+  position: relative;
+  width: var(--ff-w);
+  height: var(--ff-h);
+}
+
+.back {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: var(--ff-r);
+  background: var(--ff-back);
+  transform: perspective(600px) rotateX(8deg);
+  transform-origin: 50% 100%;
+}
+
+.back::before {
+  position: absolute;
+  top: calc(-1 * var(--ff-tab));
+  left: 0;
+  width: 42%;
+  height: calc(var(--ff-tab) + var(--ff-r));
+  border-radius: var(--ff-r) var(--ff-r) 0 0;
+  background: inherit;
+  content: "";
+}
+
+.paper {
+  position: absolute;
+  top: 10%;
+  right: 8%;
+  left: 8%;
+  z-index: 1;
+  height: 50%;
+  border-radius: 6px;
+  background: var(--ff-paper);
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    transform var(--ff-close) var(--ff-ease-out),
+    opacity var(--ff-close) ease;
+}
+
+.front {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 4;
+  display: flex;
+  box-sizing: border-box;
+  height: 76%;
+  padding: 14px 16px;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 5px;
+  border-radius: var(--ff-r);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ff-front) 92%, #fff),
+    var(--ff-front) 60%
+  );
+  color: var(--ff-label);
+  box-shadow: 0 -10px 24px rgb(0 0 0 / 28%);
+  transform: perspective(600px) rotateX(calc(-1 * var(--ff-rest)));
+  transform-origin: 50% 100%;
+  transition: transform var(--ff-open) var(--ff-ease-out);
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.sub {
+  font-size: 12px;
+  opacity: 0.55;
+}
+
+.trigger {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 5;
+  height: 76%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ff-r);
+  outline: none;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.trigger:focus-visible {
+  outline: 2px solid rgb(28 32 36 / 86%);
+  outline-offset: 5px;
+}
+
+.root[data-open] .front {
+  transform: perspective(600px) rotateX(calc(-1 * var(--ff-angle)));
+}
+
+.root[data-open] .paper {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    transform var(--ff-open) var(--ff-ease-out),
+    opacity 200ms ease;
+}
+
+.cardsClip {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.items {
+  position: absolute;
+  top: var(--ff-tab);
+  left: 50%;
+  width: 0;
+  height: 0;
+}
+
+.root[data-open] .items::before {
+  position: absolute;
+  top: calc(-1 * (var(--ff-lift) + 120px));
+  left: calc(-1 * (var(--ff-spread) + 100px));
+  width: calc(2 * var(--ff-spread) + 200px);
+  height: calc(var(--ff-lift) + 120px);
+  content: "";
+}
+
+.item {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 34px;
+  margin: 0;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 17px;
+  outline: none;
+  background: var(--ff-item);
+  color: var(--ff-item-ink);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 14%);
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 44px) scale(0.6);
+  transform-origin: 50% 100%;
+  transition:
+    transform var(--ff-close) var(--ff-ease-out)
+      calc((var(--ff-n) - 1 - var(--i)) * var(--ff-stagger) * 0.5),
+    opacity 160ms ease
+      calc(
+        (var(--ff-n) - 1 - var(--i)) * var(--ff-stagger) * 0.5 +
+          var(--ff-close) * 0.45
+      ),
+    scale 160ms var(--ff-ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.root[data-open] .item {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(calc(-50% + var(--x)), var(--y)) rotate(var(--r))
+    scale(1);
+  transition:
+    transform var(--ff-open) var(--ff-spring)
+      calc(var(--i) * var(--ff-stagger)),
+    opacity 160ms ease calc(var(--i) * var(--ff-stagger)),
+    scale 160ms var(--ff-ease-out);
+}
+
+/* projects 变体：收起方向两卡同步（张开仍按 open/peek 各自的错峰）。
+   基础 .item 的收起 transition 带 stagger delay（card0 晚 50ms），
+   Anner 要求「两个卡片一起往下收」——这里把 delay 全部去掉。 */
+.root[data-variant="projects"]:not([data-open]) .item {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    transform var(--ff-close) var(--ff-ease-out),
+    opacity 0s linear var(--ff-close),
+    visibility 0s linear var(--ff-close);
+}
+
+.root[data-live] .item {
+  cursor: grab;
+  transition: scale 160ms var(--ff-ease-out);
+}
+
+.item[data-drag] {
+  cursor: grabbing;
+}
+
+.item[data-pop] {
+  animation: folder-float-pop 320ms var(--ff-ease-out);
+}
+
+.drift {
+  display: block;
+  animation: folder-float-drift 3.2s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -0.7s);
+  animation-play-state: paused;
+}
+
+.root[data-open] .drift {
+  animation-play-state: running;
+}
+
+.root[data-physics] .drift,
+.root[data-live] .drift,
+.root[data-variant="projects"] .drift {
+  animation: none;
+}
+
+/* Project mode keeps React Bits' folder/flap timing, but replaces pills with
+   two stable full-size cards. The cards originate behind the folder front.
+
+   ⚠ 卡宽**不在这里定**：`.item` 是绝对定位在 0×0 的 .items 锚点上的，
+   width 的百分比基准不可解析（script 里的 sizes 量到 0，layout 会退化成
+   PAD + len*CHAR）。所以宽度由使用方以 px 给出（本站见
+   app/home/story/work-project-folder.module.css 的 .projectCard → 100%），
+   这里只保留「不设 width」这条约定，别再加回 clamp()。 */
+.root[data-variant="projects"] .item {
+  height: auto;
+  padding: 0;
+  border-radius: 36px;
+  background: transparent;
+  box-shadow: none;
+  white-space: normal;
+  cursor: default;
+  /* 收起时卡片整个藏在文件夹前盖后面（深处、缩小），
+     打开时从文件夹口里升出来 —— React Bits 的 paper 轨迹，只是换成真卡片。
+     ⚠ 本站项目卡**不裁剪、不缩放**：卡高会随视口浮动，一旦把布局盒裁成定高，
+     位移就必须跟着浮动才藏得住，否则卡底从背板（前盖只盖 folder 下 76%）
+     底下垂出去（Anner 两次截图吃过）。整卡尺寸参与排版，几何才是确定的。 */
+  transform: translate(-50%, calc(var(--ff-h) * 0.32)) scale(0.58);
+}
+
+/* Project cards occupy a real middle layer:
+     back (0) < cardsClip (2) < front (4)
+
+   The clip extends far enough above the folder for preview/opening motion, but
+   its bottom is locked to the folder root. During retraction, the front masks
+   the card inside its own face and cardsClip removes any geometry that travels
+   below the folder body. Full expanded mode releases the clip so the two real
+   project cards keep their existing layout and click behavior. */
+.root[data-variant="projects"] .cardsClip {
+  top: calc(var(--ff-h) * -2);
+  right: calc(var(--ff-w) * -2);
+  bottom: 0;
+  left: calc(var(--ff-w) * -2);
+  overflow: hidden;
+}
+
+.root[data-variant="projects"] .items {
+  top: calc(var(--ff-h) * 2 + var(--ff-tab));
+}
+
+.root[data-variant="projects"][data-open] .cardsClip {
+  overflow: visible;
+}
+
+/* The preview cards themselves stay non-interactive, so extend the root's hit
+   area over their exposed strip. Pointer enter/leave remains attached to this
+   one interaction wrapper and cannot flicker while crossing the folder mouth. */
+.root[data-variant="projects"]:not([data-open])::after {
+  position: absolute;
+  top: -116px;
+  right: -48px;
+  z-index: 6;
+  width: calc(100% + 96px);
+  height: calc(116px + var(--ff-tab));
+  content: "";
+}
+
+/* 展开态：两张卡从文件夹口里升出来，左一右一。
+   ⚠ 这里**不写这条规则** —— 展开态的几何全部归使用方
+   （本站见 app/home/story/work-project-folder.module.css）：
+     · 卡宽是使用方给的 px（--wx-card-w），`-100%` 已不等于「卡宽」；
+     · 矮视口下卡片要按 fit 缩放，位移还得跟着缩放量走。
+   两边各算一套必然打架。原先这里有 `.root[data-variant="projects"]
+   [data-open] .item[data-index="N"]`（4 个类/属性，比使用方的规则更具体），
+   于是 `scale(var(--wx-card-fit))` 永远不生效、translateY 永远按满高算 ——
+   实测 1024×768 卡片越界标题 82px。
+   因此本文件只保留「收起 / peek」两态；`[data-open]` 交给使用方。
+   （不要在这里写 `transform: none` 来「让位」：none 同样是具体规则的声明，
+   只会以更高权重把卡片钉回锚点原点。） */
+
+/* ---- hover 半开（仅 trigger="click" 的鼠标设备）：前盖掀起一半，
+   两张卡片从文件夹口探出一截顶边示意「里面有两张」，点击才真正弹出。
+   卡片保持 pointer-events: none / aria-hidden —— 纯示意，不可点。 */
+@media (hover: hover) and (pointer: fine) {
+  .root[data-peek]:not([data-open]) .front {
+    transform: perspective(600px) rotateX(calc(-1 * var(--ff-peek)));
+    transition-duration: 240ms;
+  }
+
+  .root[data-variant="projects"][data-peek]:not([data-open]) .item {
+    opacity: 1;
+    visibility: visible;
+    /* 裁剪盒在 :not([data-open]) 全态规则里（收起/peek 共用）。这里只管
+       peek 的进入曲线。注：peek 的 -64px 也是锚点坐标系的值（锚点宽 = 0），
+       与卡宽无关，所以本站换了卡宽也不受影响。 */
+    transition:
+      transform 320ms var(--ff-ease-out),
+      opacity 0s linear,
+      visibility 0s linear;
+  }
+
+  .root[data-variant="projects"][data-peek]:not([data-open]) .item[data-index="0"] {
+    transform: translate(calc(-50% - 16px), -58%) rotate(-1.6deg) scale(0.58);
+  }
+
+  .root[data-variant="projects"][data-peek]:not([data-open]) .item[data-index="1"] {
+    transform: translate(calc(-50% + 18px), -55%) rotate(1.4deg) scale(0.58);
+    transition-delay: 40ms;
+  }
+}
+
+/* ---- 待机漂浮：文件夹（连同探出的卡片）一起上下微微浮动，
+   像悬在半空。打开后冻结在当前帧（paused 不跳变），关闭后继续。 */
+.root[data-variant="projects"]:not([data-open]) {
+  animation: folder-float-bob 4.4s ease-in-out infinite;
+}
+
+.root[data-variant="projects"][data-open] {
+  animation-play-state: paused;
+}
+
+@keyframes folder-float-bob {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+
+  50% {
+    translate: 0 -7px;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .root:not([data-open]) .trigger:hover {
+    transform: scale(1.02);
+  }
+
+  .root:not([data-open]) .trigger:hover ~ * {
+    transform: none;
+  }
+
+  .root[data-open]:not([data-variant="projects"]) .item:hover {
+    scale: 1.05;
+  }
+}
+
+.root[data-open]:not([data-variant="projects"]) .item:active {
+  scale: 0.97;
+}
+
+@keyframes folder-float-drift {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+
+  50% {
+    translate: 0 -3px;
+  }
+}
+
+@keyframes folder-float-pop {
+  30% {
+    scale: 1.1;
+  }
+
+  100% {
+    scale: 1;
+  }
+}
+
+@media (max-width: 720px) {
+  .root[data-variant="projects"][data-open] .item[data-index="0"] {
+    transform: translate(-50%, calc(-200% - 42px)) scale(1);
+  }
+
+  .root[data-variant="projects"][data-open] .item[data-index="1"] {
+    transform: translate(-50%, calc(-100% - 22px)) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .front,
+  .paper {
+    transition: opacity 200ms ease;
+  }
+
+  .root[data-peek] .front,
+  .root[data-peek] .item,
+  .root[data-variant="projects"][data-peek]:not([data-open]) .item {
+    transition: opacity 200ms ease;
+  }
+
+  .root[data-variant="projects"]:not([data-open]) {
+    animation: none;
+  }
+
+  /* 本站收起态是「完整卡片缩到口里」，唯一表达它「在里面」的手段就是位移 ——
+     冻结成静止会变成整张卡片悬在文件夹下方（上一版就是靠裁剪盒藏住的）。
+     只留淡入淡出、位移瞬时到位，两帧内看不出跳变。 */
+  .root[data-variant="projects"]:not([data-open]) .item {
+    transition: opacity 0s linear;
+  }
+
+  .root[data-variant="projects"][data-peek]:not([data-open]) .item {
+    transition: opacity 0s linear;
+  }
+
+  .root[data-open] .front {
+    transform: perspective(600px) rotateX(calc(-1 * var(--ff-rest)));
+  }
+
+  .paper {
+    transform: none !important;
+  }
+
+  .item,
+  .root[data-open] .item {
+    transition: opacity 200ms ease calc(var(--i) * var(--ff-stagger));
+  }
+
+  .drift {
+    animation: none;
+  }
+}

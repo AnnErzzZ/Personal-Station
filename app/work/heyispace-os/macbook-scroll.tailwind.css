@@ -1,0 +1,27 @@
+/*
+ * Scoped Tailwind v4：只为 MacBook Scroll 组件生成工具类。
+ *
+ * 背景（2026-09-23）：components/ui/macbook-scroll.tsx 来自 Aceternity UI，
+ * 原组件完全用 Tailwind 工具类排版。本站其余部分全部是手写 CSS Modules，
+ * 不能全局引入 Tailwind —— preflight 会重置全站样式。
+ *
+ * 处理方式：
+ *   · 手动引入 theme + utilities 两个子层，**跳过 preflight**，全站样式零影响；
+ *   · source 限定为组件自身两个文件，其他文件里的 Tailwind 风格类名不会被编译；
+ *   · dark: 变体重写为永远不命中的类选择器 —— 原组件用 prefers-color-scheme
+ *     的 dark 变体，本站只有浅色主题，深色系统的用户若按媒体查询走会拿到
+ *     一套深色键盘，与浅色页面对不上；
+ *   · 工具类在 utilities layer 里，本站的非 layer 样式（CSS Modules）优先级
+ *     天然高于它，冲突时以本站为准。
+ * 依赖：postcss.config.mjs 注册 @tailwindcss/postcss；在案例页 page.tsx 导入。
+ */
+
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+/* dark: 变体改为类策略且不挂载：本站无深色主题，禁用媒体查询式 dark。 */
+@custom-variant dark (&:where(.ho-macbook-dark, .ho-macbook-dark *));
+
+@source "../../components/ui/macbook-scroll.tsx";
+@source "../../components/macbook-scroll-demo.tsx";

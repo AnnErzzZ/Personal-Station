@@ -1,0 +1,4952 @@
+/*
+ * Heyispace OS Case Study 01–07
+ * 本轮只搭内容框架、层级与主视觉占位：统一章节骨架与排版，构图按内容变化。
+ * 不做最终视觉精修、不做滚动动效、不用假 UI 补位。
+ *
+ * 2026-09-23 字重真实化轮：全文件 font-weight:600 → 500（43 处）。
+ * 根因：中文栈（Noto Sans SC / 思源黑体）在本机与多数 Windows 环境没有
+ * 真实 SemiBold 档，Chrome 按静态档匹配，600 请求一律渲染为 700 Bold
+ * （笔画粘连）。按「没有真档就不请求」原则统一降到真实存在的 500 Medium，
+ * 标题分量由字号与颜色承担。DINPro 同理（真实档 400/500/700/900/300）。
+ */
+
+.chapter {
+  --cs-gutter: max(60px, calc(50% - 660px));
+  /* 页面底色与「页面上的面板底」：面板比页面亮一档，边界才看得出来。 */
+  --cs-page: #f5f5f7;
+  --cs-panel: #ffffff;
+  --cs-ink: #1d1d1f;
+  --cs-ink-soft: #333333;
+  --cs-ink-faint: #7a7a7a;
+  --cs-rule: #e8e8ed;
+  --cs-rule-strong: #d2d2d7;
+  --cs-surface: #f5f5f7;
+  --cs-accent: #0066cc;
+  position: relative;
+  color: var(--cs-ink);
+  background: var(--cs-page);
+}
+
+.chapterLight + .chapterLight,
+.chapterDark + .chapterLight {
+  border-top: 1px solid var(--cs-rule);
+}
+
+.chapterDark {
+  --cs-ink: #f5f5f7;
+  --cs-ink-soft: #a1a1a6;
+  --cs-ink-faint: #86868b;
+  --cs-rule: rgb(255 255 255 / 14%);
+  --cs-rule-strong: rgb(255 255 255 / 30%);
+  --cs-surface: rgb(255 255 255 / 4%);
+  --cs-panel: rgb(255 255 255 / 4%);
+  --cs-accent: #2997ff;
+  background: #0a1310;
+}
+
+.inner {
+  margin-inline: var(--cs-gutter);
+}
+
+/* ── 章节头 ───────────────────────────────────────────── */
+
+.header {
+  max-width: 920px;
+}
+
+/*
+ * 章节头 meta 标签：两段共用同一套排版规格（2026-09-22 统一三段规格；
+ * 2026-09-23 降噪轮删去中段英文定位标签——与中文标题完全同义，
+ * 只保留「品牌 + 编号」两段）。
+ *
+ * 字号 / 字重 / 字距 / 字体现在只由这里定义一次（.metaIndex 只剩颜色分工）。
+ *
+ * 间距：整组不用 space-between，改成定距行内排布，标签之间的间隔由
+ * --cs-meta-gap 唯一控制。左对齐与 .headerCentered / 各章覆写兼容。
+ */
+.meta {
+  --cs-meta-gap: 16px;
+  --cs-meta-sep-gap: 0.4em;
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 4px var(--cs-meta-gap);
+  margin: 0 0 22px;
+  color: var(--cs-ink-faint);
+  /* 2026-09-23 降噪轮：字体 mono → DINPro（--font-number）。全站数字/编号
+   * 统一 DINPro；英文标签行同属这一档（用户规范：英文不与中文同栈、
+   * 标签字重 400–500）。 */
+  font-family: var(--font-number);
+  /* 行高显式给 1，消掉 mono / 黑体各自的默认行高差（原来 14 vs 18）。 */
+  line-height: 1;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/*
+ * 标签内部的分隔符：文本里的「·」（U+00B7）两侧留 --cs-meta-sep-gap。
+ * 用 ::before / ::after 之外的写法做不到「只给 · 加间距」，所以这里
+ * 让标签整段正常排，靠上面统一的 letter-spacing 保证疏密一致；
+ * 若某天标签重新引入 · 分隔，用它包裹即可拿到同一档间距。
+ */
+.metaSep {
+  margin-inline: var(--cs-meta-sep-gap);
+}
+
+/* 降噪轮（2026-09-23）：.metaTag 已随中段英文定位标签一起删除。 */
+
+/*
+ * 窄屏：整组标签改成纵向堆叠。
+ *
+ * 桌面靠一行两段的定距排布读成「品牌 · 编号」，在 ≤720px 上纵向排布
+ * 让每段独占一行，段间距仍统一为 --cs-meta-gap。
+ */
+@media (max-width: 720px) {
+  .meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--cs-meta-gap);
+  }
+
+  /* 居中版章节头在窄屏同样回到左对齐（与 runningHeader 既有处理一致），
+   * 标签堆叠时逐行居中会读成三块互不相关的居中文字。 */
+  .headerCentered .meta,
+  .section03Header .meta,
+  .section06Header .meta,
+  .runningHeader .meta,
+  .roleAccessHeader .meta,
+  .impactHeader .meta {
+    justify-content: flex-start;
+    margin-inline: 0;
+  }
+}
+
+.metaIndex {
+  color: var(--cs-accent);
+}
+
+/*
+ * 章节大标题（2026-09-21 Apple 语言轮）：桌面档顶到 56px、行高压到 1.16，
+ * 读成一句大陈述，而不是一段加粗的正文。字距保留轻微负值——
+ * 中文大字号下 -0.035em 会把「、」挤进前字，收到 -0.028em。
+ */
+.title {
+  margin: 0;
+  color: var(--cs-ink);
+  font-size: clamp(38px, 4vw, 56px);
+  /* 560 是无效字重（思源黑体下解析到 Bold 700），规范为 600——渲染不变。 */
+  font-weight: 500;
+  letter-spacing: -0.028em;
+  line-height: 1.16;
+}
+
+.intro {
+  max-width: 760px;
+  margin: 26px 0 0;
+  color: var(--cs-ink-soft);
+  font-size: 17px;
+  line-height: 1.78;
+}
+
+.intro strong {
+  color: var(--cs-ink);
+  font-weight: 500;
+}
+
+/* 居中版章节头：只用在 02，标题与说明整体居中，meta 两段并排居中。 */
+.headerCentered {
+  max-width: 820px;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.headerCentered .meta {
+  justify-content: center;
+  /* 定距排布后不再需要收窄容器 —— 原来 20px 的 gap 配 space-between，
+   * 两端各自贴边；现在整组按内容宽度居中，间隔由 .meta 的 --cs-meta-gap 管。 */
+  gap: 4px var(--cs-meta-gap);
+  max-width: none;
+}
+
+.headerCentered .intro {
+  margin-inline: auto;
+}
+
+/* ── 通用小组件 ───────────────────────────────────────── */
+
+.stage {
+  position: relative;
+  display: grid;
+  min-height: var(--cs-stage-height, 400px);
+  margin: 0;
+  border: 1px dashed var(--cs-rule-strong);
+  background: var(--cs-panel);
+}
+
+.stageContent {
+  display: grid;
+  padding: 20px;
+}
+
+.stageTag {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  text-align: center;
+}
+
+.stageTagCenter {
+  place-self: center;
+  padding: 24px;
+}
+
+.stageTagCorner {
+  position: absolute;
+  left: 20px;
+  bottom: 18px;
+  justify-items: start;
+  text-align: left;
+}
+
+.stageLabel {
+  color: var(--cs-ink-faint);
+  /* ⚠ 2026-09-21 全站字体统一的**刻意例外**：hiyispace-os 是终端/代码语境的
+     案例页，这一档 mono 是设计元素本身（不是遗漏的三档之一）。
+     本机解析链落到 consolas（已安装），渲染正常。
+     如需把它也纳入 token 体系，应为它单开一个 --font-mono，而不是塞进
+     display/number/cn 任意一档。 */
+  font-family: ui-monospace, sfmono-regular, "SF Mono", "Cascadia Mono",
+    consolas, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.stageHint {
+  max-width: 460px;
+  color: var(--cs-ink-faint);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.slot {
+  display: grid;
+  place-items: center;
+  min-height: 84px;
+  margin: 0;
+  padding: 16px;
+  border: 1px dashed var(--cs-rule-strong);
+  background: var(--cs-panel);
+  color: var(--cs-ink-faint);
+  font-family: ui-monospace, sfmono-regular, "SF Mono", "Cascadia Mono",
+    consolas, monospace;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.caption {
+  max-width: 860px;
+  margin: 14px 0 0;
+  color: var(--cs-ink-faint);
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+.note {
+  max-width: 860px;
+  margin: 18px 0 0;
+  padding-left: 16px;
+  border-left: 2px solid var(--cs-rule-strong);
+  color: var(--cs-ink-soft);
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+.blockLabel {
+  margin: 0 0 14px;
+  color: var(--cs-ink-faint);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.blockTitle {
+  margin: 0;
+  color: var(--cs-ink);
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+/*
+ * 「我的判断」：每一章都要能读到「我做了什么、为什么这么做」。
+ *
+ * 形态刻意做成窄阅读列上的一组编号陈述，不是卡片网格 ——
+ * 05/06 章节里已经各有一排四列说明带，再摆一块卡片阵，
+ * 整章就会读成同一套模板（CASE_STUDY_DESIGN_RULES §11.3 / §16）。
+ * 左侧那条 accent 细轨是这一块的识别特征，读者滚过一次就知道
+ * 「带这条线的就是作者本人说的话」。
+ *
+ * 细轨用负 margin 挂进 gutter，正文仍落在章节内容轴上 ——
+ * 全页的文字都对齐同一条线，rail 只是挂在轴左侧的一条批注线。
+ */
+/* ── 块间距节奏（2026-09-21 Apple 语言轮）────────────────
+ * 主内容块（舞台 / 对比模块 / 判断块 / 素材带 / 角色分层）统一 88px，
+ * 次级块（说明带、小节标签）72px。此前各块 58–88px 散着排，
+ * 滚动读起来节奏不齐。移动端在 ≤720 断点单独收敛。 */
+
+.decisions {
+  max-width: 860px;
+  margin-top: 88px;
+  margin-left: -18px;
+  padding-left: 16px;
+  border-left: 2px solid var(--cs-accent);
+}
+
+.decisionList {
+  display: grid;
+  gap: 24px;
+  margin: 28px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.decisionItem {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  column-gap: 14px;
+  align-items: baseline;
+}
+
+.decisionIndex {
+  grid-column: 1;
+  grid-row: 1;
+  color: var(--cs-accent);
+  font-family: var(--font-number);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+}
+
+.decisionTitle {
+  grid-column: 2;
+  grid-row: 1;
+  margin: 0;
+  color: var(--cs-ink);
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.55;
+}
+
+.decisionBody {
+  grid-column: 2;
+  grid-row: 2;
+  margin: 7px 0 0;
+  color: var(--cs-ink-soft);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+/*
+ * 「我的判断」列式形态（2026-09-18 起的统一形态，取自 03 章）：
+ * 头部 + 一条贯穿的顶部横线 + 横向列（列间竖细线），
+ * 每列 = mono 序号 + 标题 + 正文（+ 证据位）。
+ * 列数由组件写入的 --decisionGridCols 决定（03 三列 / 04 四列 / 05、06 两列）。
+ * 断点退化与竖分隔线处理和下方 .questions 保持一致。
+ */
+.decisionsColumns {
+  margin-top: 88px;
+}
+
+.decisionGrid {
+  display: grid;
+  grid-template-columns: repeat(var(--decisionGridCols, 3), minmax(0, 1fr));
+  margin: 26px 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--cs-rule-strong);
+}
+
+.decisionCol {
+  padding: 28px 36px 0 0;
+}
+
+.decisionCol + .decisionCol {
+  padding-left: 36px;
+  border-left: 1px solid var(--cs-rule);
+}
+
+.decisionColIndex {
+  color: var(--cs-accent);
+  font-family: var(--font-number);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+}
+
+.decisionColTitle {
+  margin: 12px 0 12px;
+  color: var(--cs-ink);
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.decisionColBody {
+  margin: 0;
+  color: var(--cs-ink-soft);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.decisionColSlot {
+  margin-top: 26px;
+}
+
+.mono {
+  font-family: ui-monospace, sfmono-regular, "SF Mono", "Cascadia Mono",
+    consolas, monospace;
+}
+
+/* ── 章节节奏：03 / 04 / 05 明显更重 ───────────────────── */
+
+/* 章节节奏（2026-09-21 Apple 语言轮）：两档制 ——
+   High 权重章（03/04/05）172/196，Light 章（06/07）148/168–176。
+   （旧 02 深色章已下线，其 150/168 节奏随之移除。） */
+
+/* 页面底色已统一由 .chapter 的 --cs-page 给，03 不再单独覆写。 */
+.chapter03 {
+  padding-block: 172px 196px;
+}
+
+.chapter04 {
+  padding-block: 172px 196px;
+}
+
+/* 05 的浅中性底（2026-09-18，参考图）现在就是全页底色，不再单独覆写。 */
+.chapter05 {
+  --cs-surface: #f5f5f7;
+  padding-block: 172px 196px;
+}
+
+/* 08 直接迁移旧四视图舞台；不继承旧章的判断区块与编号。 */
+.chapter08 {
+  --cs-surface: #f5f5f7;
+  padding-block: 172px 196px;
+}
+
+.chapter06 {
+  padding-block: 148px 168px;
+}
+
+.chapter07 {
+  padding-block: 148px 176px;
+}
+
+/* ── 03 Agent ───────────────────────────────────────── */
+
+.section03Header {
+  max-width: 840px;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.section03Header .meta {
+  /* 260px 是 space-between 时代的残留：那时三段被撑满、容器只需给出居中参考。
+   * 改成定距后 10 章的 Key Design 05 标签整组实测约 458px，窄容器会挤到换行。 */
+  max-width: none;
+  justify-content: center;
+  margin-inline: auto;
+}
+
+.section03Header .intro {
+  max-width: 720px;
+  margin-inline: auto;
+}
+
+.questionsHead {
+  max-width: 760px;
+  margin-top: 88px;
+}
+
+.questions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 26px;
+  border-top: 1px solid var(--cs-rule-strong);
+}
+
+.question {
+  padding: 28px 36px 0 0;
+}
+
+.question + .question {
+  padding-left: 36px;
+  border-left: 1px solid var(--cs-rule);
+}
+
+.questionIndex {
+  color: var(--cs-accent);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+}
+
+.questionTitle {
+  margin: 12px 0 12px;
+  color: var(--cs-ink);
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.questionBody {
+  margin: 0;
+  color: var(--cs-ink-soft);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.questionSlot {
+  margin-top: 26px;
+}
+
+.statusNote {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  align-items: baseline;
+  margin: 72px 0 0;
+  padding-top: 22px;
+  border-top: 1px solid var(--cs-rule);
+  color: var(--cs-ink-faint);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.statusNote strong {
+  color: var(--cs-ink-soft);
+  font-weight: 500;
+}
+
+/* ── 04 地图编辑器 ───────────────────────────────────── */
+
+/*
+ * 编辑流程：原来是六颗等宽标签加箭头，读不出一条线的方向。改成一条带刻度的
+ * 序列带——每格自带顶边与节点，换行时结构不断；末格节点填实，指向「发布」。
+ * 序列带现有五步（「替换图标」已移除），桌面端一格一列铺满整幅。
+ */
+.flowHead {
+  margin-top: 72px;
+}
+
+.editSequence {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.editStep {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 7px;
+  padding: 22px 28px 0 0;
+  border-top: 1px solid var(--cs-rule-strong);
+}
+
+.editStep + .editStep {
+  padding-left: 28px;
+  border-left: 1px solid var(--cs-rule);
+}
+
+/* 顶边上的一颗刻度：和自己格子的文字左对齐，最后一步「发布」填实。 */
+.editStep::before {
+  position: absolute;
+  top: -3px;
+  left: 28px;
+  width: 6px;
+  height: 6px;
+  background: var(--cs-rule-strong);
+  content: "";
+}
+
+.editStep:first-child::before {
+  left: 0;
+}
+
+.editStep:last-child::before {
+  background: var(--cs-accent);
+}
+
+.editStepIndex {
+  color: var(--cs-accent);
+  font-family: var(--font-number);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+}
+
+.editStepName {
+  color: var(--cs-ink);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.editStepOutput {
+  color: var(--cs-ink-faint);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/*
+ * 四条设计判断：原本挤在右侧窄栏里竖排，是这一章唯一有内容的资产却最弱。
+ * 改成整幅宽度的四栏并列，并让「证据」一行用虚线分隔后贴齐栏底。
+ */
+/*
+ * 04 章的「我的判断」原先是独立的 .principles* 四栏（每列各自一条顶线 +
+ * 虚线证据脚注）。2026-09-18 统一为 03 章形态后改用 MyDecisions 的
+ * .decisionsColumns / .decisionGrid，样式见上方。
+ */
+
+/*
+ * 素材位：原来是单个 700px 高的空舞台，占掉全章最大的视觉重量却什么都没说。
+ * 拆成「空地图 / 编辑中 / 发布后」三段，高度压到 260，素材到位后逐格替换。
+ */
+.materialStrip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 88px;
+}
+
+.materialSlot {
+  display: flex;
+  flex-direction: column;
+  min-height: 260px;
+  margin: 0;
+  padding: 20px;
+  border: 1px dashed var(--cs-rule-strong);
+  background: var(--cs-panel);
+}
+
+.materialSlotTag {
+  color: var(--cs-ink-faint);
+  font-family: ui-monospace, sfmono-regular, "SF Mono", "Cascadia Mono",
+    consolas, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+}
+
+.materialSlotLabel {
+  margin: 12px 0 0;
+  color: var(--cs-ink-soft);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.editorOutcome {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 48px;
+  margin-top: 88px;
+  padding-top: 26px;
+  border-top: 1px solid var(--cs-rule);
+}
+
+.editorOutcomeItem {
+  margin: 0;
+  color: var(--cs-ink-soft);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.editorOutcomeItem strong {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--cs-ink);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ── 05 多视图 ───────────────────────────────────────── */
+
+/*
+ * 2026-09-18 改版：复刻参考版式 —— 标题左对齐 → 大主图 → 主图下方居中
+ * pill Tab → 当前视图一句话说明。主图 / Tab / 说明由 MultiViewTabs 一组渲染。
+ */
+.section05Layout {
+  width: 100%;
+}
+
+.section08Layout {
+  width: 100%;
+}
+
+/* 窗口 chrome（三色圆点条）：05 主舞台已去掉，06 运行看板仍在使用。 */
+.windowChrome {
+  display: flex;
+  align-items: center;
+  height: 42px;
+  gap: 7px;
+  padding-inline: 18px;
+  border-bottom: 1px solid rgb(59 66 61 / 9%);
+  background: rgb(255 255 255 / 92%);
+}
+
+.windowChrome span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ff6159;
+}
+
+.windowChrome span:nth-child(2) {
+  background: #ffbd2e;
+}
+
+.windowChrome span:nth-child(3) {
+  background: #28c941;
+}
+
+/* 主图：视觉中心。1160px 在 1440 视口约占 80%，仍在内容轴（1320px）之内。
+ * 阴影保留但压轻（2026-09-18 晚）：低 opacity、收小范围，只留轻微悬浮感。 */
+.spatialWindow {
+  width: min(100%, 1160px);
+  margin: 64px auto 0;
+  overflow: hidden;
+  border-radius: 28px;
+  background: #ffffff;
+  box-shadow:
+    0 20px 48px rgb(29 29 31 / 8%),
+    0 4px 14px rgb(29 29 31 / 4%);
+}
+
+/* 主舞台：固定 16 / 10。四张素材同比例，切换时不改变高度、不推动后续章节。 */
+.spatialStage {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  border: 0;
+  background-color: #f5f5f7;
+}
+
+.spatialStage:focus-visible {
+  outline: 2px solid var(--cs-accent);
+  outline-offset: -3px;
+}
+
+/* 四张真实素材同时挂载以避免首次切换空帧。静止态不保留 transform、filter
+ * 或 will-change；切换只有 300ms 纯淡入淡出，动画结束自动回到 none。 */
+.multiViewLayer {
+  object-fit: contain;
+  opacity: 0;
+  transform: none;
+}
+
+.multiViewLayerActive {
+  opacity: 1;
+  animation: multiViewEnter 300ms ease;
+}
+
+.multiViewLayerLeaving {
+  animation: multiViewLeave 300ms ease;
+}
+
+@keyframes multiViewEnter {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes multiViewLeave {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .multiViewLayer,
+  .multiViewLayerLeaving {
+    transform: none;
+    animation: none;
+  }
+}
+
+/* RubberSegment 与主图同轴，窄屏时保留横向可滚动区域。 */
+.rubberSwitcher {
+  display: flex;
+  justify-content: center;
+  max-width: 100%;
+  margin: 28px auto 0;
+  overflow-x: auto;
+}
+
+/* 当前视图说明：Tab 状态的一句话解释，随 active Tab 更新。居中、窄栏、无卡片。 */
+.viewDescriptionWrap {
+  margin: 26px auto 0;
+  text-align: center;
+}
+
+.viewDescription {
+  max-width: 720px;
+  margin: 0 auto;
+  color: var(--cs-ink-soft);
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+/* 事实边界小字（docs §G）：固定放在说明下方，不随 Tab 切换，不占说明句。 */
+.viewFacts {
+  max-width: 720px;
+  margin: 12px auto 0;
+  color: var(--cs-ink-faint);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* ── 06 运行数据 ─────────────────────────────────────── */
+
+.section06Header {
+  max-width: 820px;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.section06Header .meta {
+  max-width: none;
+  justify-content: center;
+  margin-inline: auto;
+}
+
+.section06Header .intro {
+  max-width: 760px;
+  margin-inline: auto;
+}
+
+/* 与 05 同一套排版：1000px 悬浮窗口承载唯一的整页截图。 */
+.dashboardWindow {
+  width: min(100%, 1000px);
+  margin: 30px auto 0;
+  overflow: hidden;
+  border: 1px solid rgb(59 66 61 / 10%);
+  border-radius: 26px;
+  background: #ffffff;
+  box-shadow:
+    0 34px 80px rgb(29 29 31 / 16%),
+    0 8px 24px rgb(29 29 31 / 8%);
+}
+
+.dashboardStage {
+  margin: 0;
+}
+
+.dashboardImage {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* 四列说明带，与 05 的说明带同规格。 */
+.dashboardMetrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  width: min(100%, 1000px);
+  margin: 72px auto 0;
+}
+
+.dashboardMetric {
+  padding: 0 28px;
+}
+
+.dashboardMetric:first-child {
+  padding-left: 0;
+}
+
+.dashboardMetric:last-child {
+  padding-right: 0;
+}
+
+.dashboardMetric + .dashboardMetric {
+  border-left: 1px solid var(--cs-rule);
+}
+
+.dashboardMetricName {
+  margin: 0;
+  color: var(--cs-ink);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.dashboardMetricBody {
+  margin: 10px 0 0;
+  color: var(--cs-ink-soft);
+  font-size: 14px;
+  line-height: 1.8;
+}
+/* ── 07 从设计到落地 ─────────────────────────────────── */
+
+.statusGroups {
+  display: grid;
+  margin-top: 88px;
+  border-top: 1px solid var(--cs-rule-strong);
+}
+
+.statusGroup {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 48px;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--cs-rule);
+}
+
+.statusLabel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--cs-ink);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1.6;
+  text-transform: uppercase;
+}
+
+.statusDot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cs-accent);
+}
+
+.statusDotDemo {
+  background: #c9a227;
+}
+
+.statusDotPlanned {
+  border: 1px solid var(--cs-ink-faint);
+  background: transparent;
+}
+
+.statusItems {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--cs-ink-soft);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.statusItems li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+}
+
+.statusItems li::before {
+  width: 5px;
+  height: 5px;
+  margin-top: 10px;
+  border-radius: 50%;
+  background: var(--cs-rule-strong);
+  content: "";
+}
+
+/*
+ * 我的角色：按贡献层级分组，而不是一串平铺的 bullet。
+ * 用与「我的判断」同一条 accent 细轨，让读者认出「这一段是作者本人的话」。
+ */
+/*
+ * 07「我的角色」：2026-09-18 起与「我的判断」统一为 03 章形态
+ * （贯穿顶线 + 竖分隔列 + mono 序号），内容仍是按贡献层级的分组清单。
+ */
+.roleTiers {
+  margin-top: 88px;
+}
+
+.roleTierGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 26px;
+  border-top: 1px solid var(--cs-rule-strong);
+}
+
+.roleTier {
+  padding: 28px 36px 0 0;
+}
+
+.roleTier + .roleTier {
+  padding-left: 36px;
+  border-left: 1px solid var(--cs-rule);
+}
+
+.roleTierIndex {
+  color: var(--cs-accent);
+  font-family: var(--font-number);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+}
+
+.roleTierLabel {
+  margin: 12px 0 12px;
+  color: var(--cs-ink);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* 收尾陈述（2026-09-21 Apple 语言轮）：全页最后一句作者的话，
+   用一档明显大于正文、略小于章节标题的字号收束，两行以内读完。 */
+.ending {
+  max-width: 840px;
+  margin: 96px 0 0;
+  padding-top: 34px;
+  border-top: 1px solid var(--cs-rule);
+  color: var(--cs-ink);
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.75;
+}
+
+/* ── 响应式：先保证结构可读，不重做移动端视觉 ─────────── */
+
+@media (max-width: 1180px) {
+  .chapter {
+    --cs-gutter: 40px;
+  }
+
+  .facts {
+    grid-template-columns: 1fr;
+  }
+
+  .fact {
+    padding: 24px 0 0;
+  }
+
+  .fact + .fact {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  /* 换行后竖分隔线会指不清归属，窄屏统一去掉，改用列间距。 */
+  .editSequence {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 32px 28px;
+  }
+
+  .editStep,
+  .editStep + .editStep {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .editStep::before {
+    left: 0;
+  }
+
+  /* 判断块收半列；换行后竖分隔线会指不清归属，只保留右列的左线。 */
+  .decisionGrid,
+  .roleTierGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 40px;
+  }
+
+  .decisionCol,
+  .decisionCol + .decisionCol,
+  .roleTier,
+  .roleTier + .roleTier {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .decisionCol:nth-child(2n),
+  .roleTier:nth-child(2n) {
+    padding-left: 36px;
+    border-left: 1px solid var(--cs-rule);
+  }
+
+  .decisionsColumns,
+  .roleTiers {
+    margin-top: 64px;
+  }
+
+  .questions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .question {
+    padding: 26px 32px 0 0;
+    border-left: 0;
+  }
+
+  .question + .question {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .question:nth-child(2n) {
+    padding-left: 32px;
+    border-left: 1px solid var(--cs-rule);
+  }
+
+  .dashboardMetrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 36px 0;
+  }
+
+  .dashboardMetric {
+    padding: 26px 32px 0 0;
+    border-left: 0;
+  }
+
+  .dashboardMetric + .dashboardMetric {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .dashboardMetric:nth-child(2n) {
+    padding-left: 32px;
+    border-left: 1px solid var(--cs-rule);
+  }
+
+  .materialStrip {
+    gap: 12px;
+  }
+
+  .decisions {
+    margin-top: 64px;
+  }
+
+}
+
+@media (max-width: 720px) {
+  .chapter {
+    --cs-gutter: 20px;
+  }
+
+  .chapter03,
+  .chapter04,
+  .chapter05,
+  .chapter08,
+  .chapter06,
+  .chapter07 {
+    padding-block: 88px 96px;
+  }
+
+  /* 桌面 88/72 的块间距在窄屏收敛到 56，保持滚动密度（2026-09-21）。 */
+  .flowHead,
+  .questionsHead,
+  .materialStrip,
+  .editorOutcome,
+  .statusGroups {
+    margin-top: 56px;
+  }
+
+  .ending {
+    margin-top: 64px;
+  }
+
+  .decisions {
+    margin-top: 56px;
+    /* 窄屏 gutter 只剩 20px，细轨不再挂出去，改成贴着内容轴。 */
+    margin-left: 0;
+    padding-left: 16px;
+  }
+
+  .decisionList {
+    gap: 20px;
+    margin-top: 22px;
+  }
+
+  .decisionItem {
+    grid-template-columns: 22px minmax(0, 1fr);
+    column-gap: 10px;
+  }
+
+  .title {
+    font-size: 32px;
+  }
+
+  .intro {
+    font-size: 15px;
+  }
+
+  /* 05：主图保持完整可看，Tab 收紧成一行小 pill，仍可横向滚动兜底。 */
+  .spatialWindow {
+    margin-top: 40px;
+    border-radius: 22px;
+    box-shadow:
+      0 14px 32px rgb(29 29 31 / 7%),
+      0 3px 10px rgb(29 29 31 / 4%);
+  }
+
+  .rubberSwitcher {
+    margin-top: 24px;
+  }
+
+  .viewDescriptionWrap {
+    margin-top: 22px;
+  }
+
+  .viewDescription {
+    font-size: 15px;
+  }
+
+  .viewFacts {
+    padding-inline: 6px;
+    font-size: 14px;
+  }
+
+  .questions,
+  .editorOutcome,
+  .decisionGrid,
+  .roleTierGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .question {
+    padding: 22px 0 0;
+    border-left: 0;
+  }
+
+  .question:nth-child(2n),
+  .question + .question {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  /* 单列后竖分隔线全部去掉，行距用 gap 撑开。 */
+  .decisionGrid,
+  .roleTierGrid {
+    row-gap: 32px;
+  }
+
+  .decisionCol,
+  .decisionCol + .decisionCol,
+  .decisionCol:nth-child(2n),
+  .roleTier,
+  .roleTier + .roleTier,
+  .roleTier:nth-child(2n) {
+    padding: 0;
+    border-left: 0;
+  }
+
+  .dashboardWindow {
+    margin-top: 24px;
+    border-radius: 20px;
+    box-shadow:
+      0 24px 52px rgb(29 29 31 / 14%),
+      0 6px 18px rgb(29 29 31 / 7%);
+  }
+
+  .dashboardMetrics {
+    grid-template-columns: 1fr;
+    gap: 0;
+    margin-top: 44px;
+  }
+
+  .dashboardMetric {
+    padding: 22px 0 0;
+    border-left: 0;
+  }
+
+  .dashboardMetric:first-child {
+    padding-top: 0;
+  }
+
+  .dashboardMetric + .dashboardMetric {
+    margin-top: 24px;
+    border-top: 1px solid var(--cs-rule);
+  }
+
+  .editSequence {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 20px;
+  }
+
+  .materialStrip {
+    grid-template-columns: 1fr;
+  }
+
+  .materialSlot {
+    min-height: 200px;
+  }
+
+  .editorOutcome {
+    gap: 28px;
+  }
+
+  .statusGroup {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .roleTiers {
+    margin-top: 56px;
+  }
+
+  .stageTagCorner {
+    position: static;
+    justify-items: center;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .ending {
+    font-size: 20px;
+  }
+
+}
+
+/* ══ 03 / 12 Users & Tasks（section-03-users，2026-09-21 新结构）══════
+ * B 端角色任务对照矩阵：三个角色 × GOAL / KEY TASKS / INFORMATION NEEDS。
+ * 桌面端三列共用 subgrid 行轨道，同一层级的行基线跨列对齐，可横向比较；
+ * 不是 Persona 卡片，无头像、人数、使用频率与调研数据（SoT §0 角色清单）。
+ * 本章基础样式与断点整体追加在文件末尾，不与上面各章段落交错。 */
+
+/* meta 行中段的英文辅助标签（SectionHeader 可选 prop）。
+ * 2026-09-22 起规格统一收归 .meta —— 此前这里重复声明了 mono 字体、
+ * 12px 与 0.14em 字距，与两端走的正文族 + 0.12em 不一致，是标签
+ * 「字体 / 间距不统一」的根因。现在只保留语义类名，规格不再覆写。 */
+
+.chapterUsersTasks {
+  padding-block: 172px 196px;
+}
+
+/* ── 入场：进入视口放行，块级线性 stagger，不做滚轮驱动 ──────────── */
+
+.revealItem {
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 0.55s cubic-bezier(0.25, 0.1, 0.25, 1),
+    transform 0.55s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.usersReveal[data-entered="true"] .revealItem {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .revealItem {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ── 角色任务卡：三张并列白色卡片 ────────────────────────────────────
+ * 版式语言参考定价卡（独立卡片 / 较大圆角 / 浅描边 / 轻阴影 / 头部内衬块），
+ * 但不是 pricing page：三张卡视觉权重一致，没有深色强调卡，没有价格位；
+ * 内部分区 = 头部（序号 + 角色名 + 弱化英文）→ 目标 → 核心任务 → 信息需求。
+ * 页面本身是白底，卡片靠 1px 浅描边 + 极轻阴影与背景分层。
+ */
+
+.usersCards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  align-items: stretch;
+  margin-top: 88px;
+}
+
+.roleCard {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: #ffffff;
+  border: 1px solid var(--cs-rule);
+  border-radius: 16px;
+  box-shadow:
+    0 1px 2px rgb(16 24 40 / 4%),
+    0 14px 36px rgb(16 24 40 / 5%);
+}
+
+/* 头部内衬块：独立感来自浅灰底 + 底部细分隔线，对应参考卡的头部区块。 */
+.cardHead {
+  padding: 26px 30px 22px;
+  background: var(--cs-surface);
+  border-bottom: 1px solid var(--cs-rule);
+  border-radius: 15px 15px 0 0;
+}
+
+.cardIndex {
+  color: var(--cs-accent);
+  font-family: var(--font-number);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+}
+
+.cardName {
+  margin: 14px 0 8px;
+  color: var(--cs-ink);
+  /* 角色标题 20–24px 档：21px（typography 轮复核保留）。 */
+  font-size: 21px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.4;
+}
+.cardBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+/* 卡内分区：目标 / 核心任务 / 信息需求，用细分隔线拆开。 */
+.cardBlock {
+  padding: 24px 30px 26px;
+}
+
+.cardBlock + .cardBlock {
+  border-top: 1px solid var(--cs-rule);
+}
+
+/* 最后一段撑满剩余高度：三张卡等高时，底缘内容区一齐收进卡底。 */
+.cardBlock:last-child {
+  flex: 1;
+}
+
+/* ⚠ 历史遗留：文件后部的这条 .blockLabel 覆盖了上方 200 行的同名定义，
+ * 04+ 的「我的判断」标签当前渲染的就是这一条。本轮（03 章 typography）
+ * 不能动它的值——否则 04+ 视觉会变。03 章卡片标签已改用下方
+ * .cardBlockLabel（14px 中文底线版），不再依赖这条覆盖。 */
+.blockLabel {
+  margin: 0 0 12px;
+  color: var(--cs-ink-faint);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+}
+
+/* 结构标签中文化（03 章卡片专用）：中文标签守住 14px 底线，但整体退到
+ * 内容后面——Tertiary 淡灰 + 500 字重（思源 500 是真实 Medium，600 渲染
+ * 成 Bold）+ 收窄字距；结构仍可扫读，不再与正文抢优先级
+ *（2026-09-21 降优先级轮，原 14px/600/#515154/0.24em）。 */
+.cardBlockLabel {
+  margin: 0 0 12px;
+  color: #6e6e73;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+}
+
+/* 目标是卡内主陈述：比 bullet 区深一档、大一档，承担这一卡的第一句。 */
+.cardGoalText {
+  margin: 0;
+  color: var(--cs-ink);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.7;
+}
+
+.taskList {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 细横线 marker：编辑感，不用图标。 */
+.taskItem {
+  position: relative;
+  padding-left: 18px;
+  color: var(--cs-ink-soft);
+  /* 任务 bullet 15–16px 档（typography 轮）：14px 与信息需求拉不开层级。 */
+  font-size: 15px;
+  line-height: 1.65;
+}
+/* 细横线 marker：编辑感，不用图标。 */
+.taskItem::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.68em;
+  width: 8px;
+  height: 1px;
+  background: var(--cs-rule-strong);
+}
+
+.taskText {
+  display: block;
+}
+
+/* Agent 状态标签：中文、轻量胶囊，明确 Demo / 内部验证边界。
+ * 中文信息标签 14px 底线（typography 轮）——12px 弱灰胶囊读不清，
+ * 换 Secondary 深灰保证对比；仍然不是大 Badge。 */
+.taskTag {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 2px 10px;
+  border: 1px solid var(--cs-rule-strong);
+  border-radius: 999px;
+  color: #515154;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.needsList {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 信息需求弱一级：比任务 bullet 小一档，仍在中文 14px 底线上。 */
+.needsItem {
+  position: relative;
+  padding-left: 14px;
+  color: var(--cs-ink-soft);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.needsItem::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.72em;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--cs-ink-faint);
+}
+
+/* ── ≤1180：压缩三列（用户给定的中屏方案），卡内留白收紧，保持横向可比 ── */
+
+@media (max-width: 1180px) {
+  .chapterUsersTasks {
+    padding-block: 128px 144px;
+  }
+
+  .usersCards {
+    gap: 20px;
+    margin-top: 64px;
+  }
+
+  .cardHead {
+    padding: 22px 24px 18px;
+  }
+
+  .cardBlock {
+    padding: 20px 24px 22px;
+  }
+}
+
+/* ── ≤900：纵向堆叠，每张卡保持完整结构，阅读序 = 角色 1 → 2 → 3 ── */
+
+@media (max-width: 900px) {
+  .usersCards {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+/* ── ≤720：收紧留白与字号，结构不变 ───────────────────────────────── */
+
+@media (max-width: 720px) {
+  .chapterUsersTasks {
+    padding-block: 96px 112px;
+  }
+
+  .usersCards {
+    margin-top: 48px;
+  }
+
+  .cardName {
+    font-size: 18px;
+  }
+
+  .cardGoalText {
+    font-size: 15px;
+  }
+
+  .taskItem {
+    /* 移动端同样守住中文 14px 底线（typography 轮）。 */
+    font-size: 14px;
+  }
+
+  .needsItem {
+    font-size: 14px;
+  }
+}
+
+/* ══ 04 / 12 Product Complexity（section-04-complexity，2026-09-21 新结构）════
+ * 宽幅 System Relationship Map：本章不再使用 03 的白色角色卡，节奏切换为
+ * 「空间系统 + 分层 + 对象关系」。三层构图：
+ *   第一层  空间上下文（实线框链）＋ 设备侧组织（虚线框链）——两套既有模型，
+ *           刻意不画成一棵同质树；层级本身不是我的设计（SoT §0 事实边界）。
+ *   第二层  核心对象链路（视觉主轴，实线蓝箭头）：空间 → 设备 → 策略 →
+ *           运行状态 → 数据 / 异常；六组产品能力以「能力簇」挂在对象下方，
+ *           不做成六张独立卡片。
+ *   第三层  支撑层：用户 / 权限（虚线横向约束带：头部行 = 文字 + 真实
+ *           界面配图；带下方四张等宽约束卡展开四个维度；不是主轴末节点）。
+ * 层级：主对象 20px/600 > 能力组 15px/600 > 具体能力 14px/400；
+ * 约束卡标题 15px/600、说明 14px/400；中文实际信息全部 ≥14px。入场为
+ * 断点触发 + 轻量 stagger，终态 transform: none、无 filter、无
+ * will-change（防半像素重采样发糊）。 */
+
+.chapterComplexity {
+  padding-block: 172px 196px;
+}
+
+/* 与 03 章同款 RevealOnView 容器：进入视口后放行 .revealItem。 */
+.complexityReveal[data-entered="true"] .revealItem {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── 三张独立关系卡：上二下一，外层只负责节奏，不提供大面板表面 ── */
+
+.complexityMap {
+  --complexity-card-gap: 28px;
+  margin-top: 56px;
+}
+
+/* ── 第一层：两条既有组织链路 ─────────────────────────────────── */
+
+.mapContextRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--complexity-card-gap);
+}
+
+.mapLane {
+  min-width: 0;
+}
+
+.mapLaneHead {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+/* 链路标签：18px/600 —— 中文是这一行唯一的主要阅读层级。
+   2026-09-22（第五轮文案优化）：14px → 18px，说明句 14px → 15px，
+   与权限带主标题 / 说明形成 18 / 15 / 20 / 16 的层级。 */
+.mapLaneLabel {
+  color: #515154;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+/* 2026-09-22（第三轮）：链路改为画板结构图卡，chips 流样式
+   （.mapChain / .mapChainItem / .mapChip / .mapChipDashed）已删除，
+   新样式见文件末尾「04 章结构图卡」独立块。 */
+
+/* ── 支撑层（用户 / 权限横向约束；Agent 卡已于 2026-09-22 下线，
+      其只读接入语义由章首 CoreChainHero 承担）──────────────────── */
+
+/* 权限带 + 约束卡列同属一个支撑组，间距收紧保持一体。 */
+.mapSupportRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--complexity-card-gap);
+  margin-top: var(--complexity-card-gap);
+}
+
+/* 用户 / 权限：支撑层约束带，不是主轴上的节点。
+   2026-09-22：带内改为「文字 + 真实界面配图」头部行（参考版式：
+   左文右图的宽幅卡），四个约束维度下放为带下方的一组等宽卡片。
+   2026-09-22（第六轮）：配图列 340 → 480，四张约束卡随左列收窄
+   （每张 ~430 → ~360，卡内 15px 正文仍有 ≥21 字/行容量，无悬尾）。
+   2026-09-22（第七轮）：去掉虚线描边，改与上方结构卡同款 1px 细边 +
+   同款投影，另加一圈白色内描边（见 .mapAccess::after）。 */
+.mapAccess {
+  position: relative;
+  display: grid;
+  /* 第十轮：figure 绝对定位贴右下角，但 grid 仍保留两列 —— 第二列
+     那一列（480px + 44px gap）的作用是「占位」，把第一列的宽度压到
+     配图左侧，左栏文字才不会被浮在上面的截图盖住。figure 虽然脱离
+     文档流，grid 列定义照旧生效，正好当左栏的让位约束。
+     第十一轮：图改为停在白环内侧后，右内边距恢复对称的 30px ——
+     不再需要归零顶边。 */
+  grid-template-columns: minmax(0, 1fr) 480px;
+  gap: 12px 44px;
+  /* 第八轮：center → end。左栏（文字 + 约束卡）整体贴底收拢 —— 卡高由
+     本轮「序号并入标题行」压定后，左栏底部与右栏配图底部对齐，rows
+     之间的空档全留在左栏顶部。
+     注：figure 绝对定位 + 26px 下偏移后，其底边与左栏底同一水平线，
+     对齐关系仍成立。 */
+  align-items: end;
+  /* 2026-09-22（第十一轮）：恢复四边对称内边距。配图不再贴卡片边线
+     （改停白环内侧），右侧不再需要归零。 */
+  padding: 26px 30px;
+  border: 1px solid var(--cs-rule);
+  border-radius: 20px;
+  overflow: hidden;
+  /* 右上 → 左下径向渐变 + DotGrid 点阵（画布为首个子元素，absolute
+     不占 grid 格）；点阵经 .stageDots 的 mask 从左上角向右下淡出。 */
+  background: #ffffff;
+  background-image: radial-gradient(
+    120% 150% at 100% 0%,
+    #e0f1ea 0%,
+    #f0f9f5 42%,
+    #ffffff 76%
+  );
+  box-shadow:
+    0 1px 2px rgb(16 24 40 / 4%),
+    0 12px 28px rgb(16 24 40 / 5%);
+}
+
+/* 卡内容在画布之上（DotGrid 为 absolute 首子元素，DOM 序在后即覆盖）。 */
+.mapAccess > * {
+  position: relative;
+}
+
+/* 白色内描边环：对齐上方结构卡「边框 → 白边 → 舞台」的层次——
+   14px 白环随圆角内收一圈，盖在点阵画布与渐变之上（::after 树序
+   在最后，绘制于 absolute 画布上方），点阵与渐变不再顶到边框。
+   环不与内容重叠（内容 padding 26/30 > 14），不拦截交互。
+   2026-09-22（第十一轮）：恢复四边完整白环 —— 第十轮曾为让配图贴边
+   而取消右侧，本轮 Anner 要求「右边的白色内描边要保留」，且配图改为
+   「贴右不贴底」，故右侧白环重新画上（配图与卡片右缘之间现在有
+   白环 + padding 的缓冲，不再被切）。 */
+.mapAccess::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 14px #ffffff;
+  pointer-events: none;
+}
+
+/* 左栏（文字 + 约束卡）：flex 列。gap 14px 同时承担「标题行 → 说明句」
+   的间距（对齐上方结构卡的 14px 节奏）；卡高度确定后，整列改为
+   justify-content: flex-end 整体贴底收拢（图标行 + 标题 + 说明 + 卡片
+   作为一体下靠），上方余出的留白交给左栏顶部。
+   宽度由 grid 的 1fr 列决定（见 .mapAccess 的两列定义）。 */
+.mapAccessIntro {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* 配图：裁边后的真实产品截图（设置菜单中的角色标签示例），等比缩放。 */
+.mapAccessImage {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* 权限带标题行（第八轮）：主标题 + 英文辅助标签，与上方 .mapLaneHead
+   同款（flex / baseline / gap 12）。间距改由下面的 .mapAccessIntro
+   列间距（14px）承担 —— 与上方结构卡「标签行 → 说明句」同为 14px。 */
+.mapAccessHead {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+/* 配图 figure：默认行内级会让图片下方多出基线间隙（约 7px），
+   贴底收拢时这段间隙会把左栏顶上去。改 flex 列可消掉。
+   2026-09-22（第十一轮）：配图改为「停在白环内侧 + 不贴底」
+   （Anner 截图修正：保留右侧白环、图底不压卡底）——
+   - right: 14px → 让开 ::after 的 14px 白色内描边，图右缘落在白环
+     内侧，白边完整、图也不被白环压住；
+   - bottom: 26px → 与 .mapAccess 的 padding-bottom 同值，图底与左栏
+     底同一水平线，右下角白环重新可见；
+   - width: calc(100% - 88px) = 卡片内宽 − 左内边距 30 − 右侧让位
+     (白环 14 + 与图右缘 44 的呼吸间距)，取 min 后图宽 480 完整呈现；
+   - 绝对定位让 figure 退出 grid 行高计算 —— 这是关键，否则负 margin
+     会压缩行高、把左栏顶上去（第十轮踩过）；
+   - ≤1180 缩到 280、≤720 退出绝对定位恢复纵向流。 */
+.mapAccessFigure {
+  position: absolute;
+  right: 14px;
+  bottom: 26px;
+  display: flex;
+  flex-direction: column;
+  width: min(480px, calc(100% - 88px));
+  margin: 0;
+  min-width: 0;
+}
+/* 权限带主标题：20px/600（第五轮 17px → 20px，对应「模块标题 18–20px」）。
+   第八轮：margin-top 10 → 0（间距由 .mapAccessIntro 的 14px 列间距提供，
+   与上方结构卡「标签行 → 说明句」一致）。 */
+.mapAccessName {
+  margin: 0;
+  color: var(--cs-ink);
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+/* 权限带说明：16px/400–500（第五轮 14px → 16px）。第八轮：margin-top
+   8 → 0（列间距 14px 接管，说明句到标题的视觉间距与上方结构卡一致）。 */
+.mapAccessDesc {
+  margin: 0;
+  color: var(--cs-ink-soft);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.7;
+}
+
+/* ── 四个约束维度：带内正文下方的 2×2 卡列（2026-09-22 新增）───────
+   白卡 + 细描边 + 轻投影，与带内 chip 同族但更完整；结构沿用全站
+   「mono 序号 + 标题 + 正文」列式。非交互卡，不做 hover 位移。 */
+
+.mapConstraintGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 14px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mapConstraintCard {
+  min-width: 0;
+  padding: 18px 20px 20px;
+  border: 1px solid var(--cs-rule);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgb(16 24 40 / 3%);
+}
+
+/* 序号 + 标题同行（第八轮）：序号由独立块降为行内片段，卡内首行不再
+   独占；标题仍在 h4 里（verify 的 h4 文案采集不受影响 —— 纯文本节点
+   仍只输出标题本身，序号 span 带 aria-hidden）。
+   11px mono 的 x-height 小于 17px 中文，baseline 对齐后 rect.top 会
+   比中文低一截（实测 10px），这是字面差不是换行 —— 用 inline-flex +
+   固定行高把行盒拉齐，视觉上序号与标题同排居中对齐。 */
+.mapConstraintNum {
+  display: inline-flex;
+  align-items: baseline;
+  color: var(--cs-ink-faint);
+  font-family: var(--font-number);
+  font-size: 17px;  /* 与约束卡标题（.mapConstraintTitle 17px）同号 */
+  font-weight: 500;
+  letter-spacing: 0.14em;
+}
+
+/* 约束卡标题 17px/600、正文 15px/400（第五轮 15 / 14 → 17 / 15，
+   对应「四个卡片标题 16–18px、卡片正文 15–16px」）。
+   第八轮：margin-top 8 → 0（标题行升到卡片 padding 之后第一行），
+   并改为 flex 行承载「01 + 标题」。 */
+.mapConstraintTitle {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  color: var(--cs-ink);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.mapConstraintTitleText {
+  min-width: 0;
+}
+
+.mapConstraintDesc {
+  margin: 6px 0 0;
+  color: var(--cs-ink-soft);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.7;
+}
+
+/* ── ≤1180：关系图改为上下两层（链路 → 支撑层）────────────────── */
+
+@media (max-width: 1180px) {
+  .chapterComplexity {
+    padding-block: 128px 144px;
+  }
+
+  .mapSupportRow {
+    gap: var(--complexity-card-gap);
+    margin-top: var(--complexity-card-gap);
+  }
+
+  /* 中屏：配图收窄到 280；约束卡保持带内 2×2（与桌面同列数）。
+     2026-09-22（第十一轮）：恢复两列 grid（配图列 280 作左栏让位约束）
+     与对称内边距；figure 停在白环内侧（right 14）且不贴底（bottom 22，
+     与同断点 padding-bottom 同值）。 */
+  .mapAccess {
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 10px 32px;
+    padding: 22px 24px;
+  }
+
+  .mapAccessFigure {
+    right: 14px;
+    bottom: 22px;
+    width: min(280px, calc(100% - 38px));
+  }
+}
+
+/* ── ≤720：整体重排为 空间上下文 → 权限，
+   不缩放、不裁切，中文一律守住 14px ─────────────────────────────── */
+
+@media (max-width: 720px) {
+  .chapterComplexity {
+    padding-block: 96px 112px;
+  }
+
+  .complexityMap {
+    --complexity-card-gap: 20px;
+    margin-top: 40px;
+  }
+
+  .mapContextRow {
+    grid-template-columns: 1fr;
+    gap: var(--complexity-card-gap);
+  }
+
+  .mapSupportRow {
+    gap: var(--complexity-card-gap);
+    margin-top: var(--complexity-card-gap);
+  }
+
+  /* 窄屏：头部行竖排（文字在上、配图在下），约束卡收单列。
+     2026-09-22（第十轮）：配图恢复静态排版（退出绝对定位）、内边距
+     恢复对称 —— 单列时「文字 → 配图」是纵向流，贴边会破坏这个节奏。 */
+  .mapAccess {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 20px 20px 22px;
+  }
+
+  .mapAccessFigure {
+    position: static;
+    right: auto;
+    bottom: auto;
+    width: min(360px, 100%);
+    margin: 0;
+  }
+
+  .mapConstraintGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .mapConstraintCard {
+    padding: 16px 18px 18px;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   04/14 · 核心链路动画（CoreChainHero，2026-09-22 新增）
+
+   深色动画面板嵌在浅色 04 章内（章节版式保持 --cs-page 浅色不变）。
+   与 verify 断言的关系：
+   - 循环动画（中心呼吸 / 3 个轨道光点绕行 / hover 缩放）
+     常驻存在，transform / filter / opacity<1 属预期终态，verify 的
+     「过渡后无残留」断言对 [data-core-chain] 子树豁免；
+   - 入场动画一律 fill-mode: backwards（默认样式即终态，不锁 opacity）；
+   - 中文文本一律 ≥14px（章节字号底线 13.5px，此处留余量）。
+   ══════════════════════════════════════════════════════════════════ */
+
+.chainPanel {
+  margin-top: 56px;
+  padding: 28px 28px 24px;
+  border: 1px solid rgb(255 255 255 / 8%);
+  border-radius: 22px;
+  background:
+    radial-gradient(58% 62% at 50% 50%, #17171d 0%, #0b0b0e 72%),
+    #0a0a0b;
+  color: #e8e8ed;
+}
+
+.chainHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.chainTitle {
+  margin: 0;
+  color: #f5f5f7;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+/* 舞台：stageBox 定布局尺寸（缩放后），stage 以 transform-origin 0 0
+   缩放对齐，避免未变换布局盒把页面撑出横向溢出。 */
+.chainScaleBox {
+  margin-top: 20px;
+}
+
+.chainStageBox {
+  position: relative;
+  margin-inline: auto;
+}
+
+.chainStage {
+  /* 桌面与平板共用的浮层定高（与 .chainCore 同值，此处兜住挂载在 stage
+     直下的浮层）；移动档在链尾以复合选择器覆盖为 186px。 */
+  --tip-h: 148px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+}
+
+/* ── 背景同心环与漂浮光点（装饰层）────────────────────────────────── */
+
+.chainRing {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  border: 1px solid rgb(255 255 255 / 6%);
+  border-radius: 50%;
+  animation: chainRingIn 1.1s ease-out backwards;
+  transition: opacity 0.4s ease;
+}
+
+.chainRing1 {
+  width: 300px;
+  height: 300px;
+  margin: -150px 0 0 -150px;
+}
+
+.chainRing2 {
+  width: 440px;
+  height: 440px;
+  margin: -220px 0 0 -220px;
+  border-color: rgb(255 255 255 / 4.5%);
+}
+
+.chainRing3 {
+  width: 580px;
+  height: 580px;
+  margin: -290px 0 0 -290px;
+  border-color: rgb(255 255 255 / 3%);
+}
+
+/* ── 连线与粒子 ──────────────────────────────────────────────────── */
+
+.chainLinks {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  width: 100%;
+  height: 100%;
+}
+
+.chainLink {
+  transition: opacity 0.35s ease;
+}
+
+.chainLinkBase {
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: 0.16;
+}
+
+.chainLinkDash {
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  opacity: 0.85;
+}
+
+/* 连线反馈：当前模块的连线提亮加粗并带同色 glow，其余连线退暗
+   （模块 hover 时生效；中心 hover 不打 data-dim，六条线保持默认）。 */
+.chainLink[data-active] .chainLinkBase {
+  opacity: 0.34;
+}
+
+.chainLink[data-active] .chainLinkDash {
+  stroke-width: 2.4;
+  opacity: 1;
+  filter: drop-shadow(0 0 6px currentColor);
+}
+
+.chainLink[data-dim] .chainLinkBase {
+  opacity: 0.08;
+}
+
+.chainLink[data-dim] .chainLinkDash {
+  opacity: 0.3;
+}
+
+.chainParticleHalo {
+  opacity: 0.5;
+  filter: blur(2.5px);
+}
+
+/* ── 中心核心 ────────────────────────────────────────────────────── */
+
+.chainCore {
+  position: absolute;
+  z-index: 12;
+  display: grid;
+  place-items: center;
+  width: 128px;
+  height: 128px;
+  margin: -64px 0 0 -64px;
+  /* 说明浮层统一最小高度：定死这个值后浮层上下锚点都不随文案长度变化，
+     关系图不会因 hover 不同节点而跳动。118px 不足以容纳 4 行文案，这里按
+     实测最长的一条（中心说明 4 行 × 21.7px + 题头/内边距）取 148px，桌面与
+     平板共同使用；移动档浮层更窄会折到 6 行，由链尾的
+     [data-mode="mobile"].chainStage 后置覆盖为 186px。
+     本文件 .chainCore 与 .chainTip 有多处后置覆盖，变量只在首发块声明一次。 */
+  --tip-h: 148px;
+  border: 1px solid rgb(251 146 60 / 35%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, #2a1c10 0%, #15100a 62%, #0d0b08 100%);
+  box-shadow:
+    0 0 56px 6px rgb(249 115 22 / 24%),
+    0 0 120px 30px rgb(249 115 22 / 9%);
+  animation:
+    chainCoreIn 0.7s ease-out backwards,
+    chainBreathe 3.2s ease-in-out 1.1s infinite;
+  transition: filter 0.35s ease;
+}
+
+.chainCore svg {
+  width: 40px;
+  height: 40px;
+  stroke: #fdba74;
+  transition:
+    stroke 0.3s ease,
+    filter 0.3s ease;
+}
+
+/* 中心 hover（data-active="core"）：只比外部节点略强一点——外圈提亮、
+   图标提亮提饱和、glow 走 brightness 轻微加强（与常驻的 chainBreathe
+   叠加，不新起动画，也不改 --tip-h 布局值）。 */
+.chainCore[data-active="core"] {
+  border-color: rgb(253 186 116 / 62%);
+  filter: brightness(1.14);
+}
+
+.chainCore[data-active="core"] svg {
+  stroke: #fed7aa;
+  filter: drop-shadow(0 0 11px rgb(253 186 116 / 62%));
+}
+
+/* 聚焦退暗：由 React 按当前 hover 目标直接打 data-dim（模块 hover →
+   其余节点 + 其余连线退暗；中心 hover → 全部保持默认，因为中心承托
+   六条连线，压暗后反而看不清它连了谁）。用 brightness 而非 opacity：
+   图标圆底 / 中心为不透明实底，压 opacity 会让内部连线起点段透出来。 */
+.chainNode[data-dim] {
+  filter: brightness(0.45);
+}
+
+/* ── 功能模块节点（锚点 = 圆形图标中心）──────────────────────────── */
+
+.chainNode {
+  position: absolute;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  /* 盒宽随内容收窄（fit-content + translate 居中），hover 判定范围 =
+     视觉节点本体，离开即收起说明，不再拖着大片透明判定区。 */
+  width: fit-content;
+  margin: -28px 0 0;
+  translate: -50% 0;
+  transform-origin: 50% 28px;
+  transition:
+    filter 0.35s ease,
+    transform 0.35s ease;
+  animation: chainPop 0.55s cubic-bezier(0.22, 0.9, 0.34, 1.2) var(--chain-delay) backwards;
+}
+
+.chainNode[data-active] {
+  z-index: 20;
+  /* 保持原位移与缩放幅度：hover 反馈只走边框 / 发光 / 连线亮度，
+     不做节点位移，也不放大量级。 */
+  transform: scale(1.07);
+}
+
+.chainNodeIcon {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  padding: 15px;
+  border: 1px solid color-mix(in srgb, var(--chain-c) 42%, transparent);
+  border-radius: 50%;
+  /* 不透明实底：连线从节点下方穿过时不可透出，避免视觉穿透。 */
+  background: radial-gradient(circle at 50% 38%, #22222b 0%, #131318 72%);
+  box-shadow: 0 0 18px -2px color-mix(in srgb, var(--chain-c) 45%, transparent);
+  transition:
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.chainNode[data-active] .chainNodeIcon {
+  border-color: color-mix(in srgb, var(--chain-c) 75%, transparent);
+  box-shadow: 0 0 30px 2px color-mix(in srgb, var(--chain-c) 60%, transparent);
+}
+
+.chainNodeDotted .chainNodeIcon {
+  border-style: dashed;
+}
+
+.chainLabel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+}
+
+.chainLabelIdx {
+  color: var(--chain-c);
+  font-family: var(--font-number);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+}
+
+.chainLabelText {
+  color: #e8e8ed;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+/* ── 说明浮层（悬停 / 聚焦时出现）────────────────────────────────── */
+
+.chainTip {
+  position: absolute;
+  bottom: calc(100% + 14px);
+  left: 50%;
+  z-index: 40;
+  width: 250px;
+  margin-left: -125px;
+  /* 定高：文案长度不同的浮层占位完全一致，hover 切换时关系图不跳动。
+     文字自身顶部对齐——模块说明 1–2 行、中心说明约 4 行，底部留白属预期。 */
+  height: var(--tip-h, 118px);
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 12px;
+  background: #141419;
+  box-shadow: 0 18px 40px rgb(0 0 0 / 45%);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.25s ease,
+    visibility 0s linear 0.25s;
+}
+
+.chainNode[data-tip-below] .chainTip {
+  bottom: auto;
+  top: calc(100% + 12px);
+}
+
+/* 中心浮层：加宽压矮，落在核心自身与同心环的占位内，避开六边形排布的全部
+   模块。中心四周被 01（上方 y≈97–198）、04（下方 y≈487–588）、05/06（左侧
+   x≈312–368）、02/03（右侧 x≈872–928）夹住，148px 高的标准浮层无论向上、
+   向下、向右都会压住节点，因此改为 440px 宽 → 文案折成 2 行 → 约 99px 高，
+   横向 400–840、纵向 246–345 全落在空档里。 */
+.chainCore .chainTip {
+  width: 440px;
+  margin-left: -220px;
+  /* 与核心同心：核心 128px 高，浮层 99px，向上偏移 (99-128)/2 ≈ 14px 即居中 */
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
+}
+
+.chainNode:hover .chainTip,
+.chainNode[data-active] .chainTip,
+.chainCore:hover .chainTip {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.chainTipHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.chainTipIdx {
+  color: var(--chain-c, #fb923c);
+  font-family: var(--font-number);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+}
+
+.chainTipName {
+  color: #f5f5f7;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.chainTipBody {
+  margin: 6px 0 0;
+  color: #a1a1a6;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+/* 中心说明文本最长（桌面约 4 行 @216px 宽），略收行距让四行落在定高内；
+   仍在 1.5–1.6 规范区间内。必须写在本基类之后，否则被 line-height 覆盖。 */
+.chainCore .chainTipBody {
+  line-height: 1.55;
+}
+
+/* ── 图例 ────────────────────────────────────────────────────────── */
+
+.chainLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 26px;
+  margin: 18px 0 0;
+  padding: 14px 0 0;
+  border-top: 1px solid rgb(255 255 255 / 7%);
+}
+
+.chainLegendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: #8a8a93;
+  font-size: 14px;
+}
+
+.chainLegendSwatch {
+  flex: none;
+  width: 28px;
+  height: 8px;
+}
+
+/* ── 平板档（721–1180）：900×560 舞台 ───────────────────────────── */
+
+[data-mode="tablet"] .chainRing1 {
+  width: 260px;
+  height: 260px;
+  margin: -130px 0 0 -130px;
+}
+
+[data-mode="tablet"] .chainRing2 {
+  width: 380px;
+  height: 380px;
+  margin: -190px 0 0 -190px;
+}
+
+[data-mode="tablet"] .chainRing3 {
+  width: 500px;
+  height: 500px;
+  margin: -250px 0 0 -250px;
+}
+
+[data-mode="tablet"] .chainTip {
+  width: 230px;
+  margin-left: -115px;
+}
+
+/* ── 移动档（≤720）：236×640 双列舞台，核心居顶 ─────────────────── */
+
+[data-mode="mobile"] .chainRing {
+  top: 15%;
+}
+
+[data-mode="mobile"] .chainRing1 {
+  width: 120px;
+  height: 120px;
+  margin: -60px 0 0 -60px;
+}
+
+[data-mode="mobile"] .chainRing2 {
+  width: 190px;
+  height: 190px;
+  margin: -95px 0 0 -95px;
+}
+
+[data-mode="mobile"] .chainRing3 {
+  width: 260px;
+  height: 260px;
+  margin: -130px 0 0 -130px;
+}
+
+[data-mode="mobile"] .chainCore {
+  width: 96px;
+  height: 96px;
+  margin: -48px 0 0 -48px;
+}
+
+[data-mode="mobile"] .chainCore svg {
+  width: 30px;
+  height: 30px;
+}
+
+/* 核心贴近舞台顶缘，浮层向下翻，避免伸出面板。 */
+[data-mode="mobile"] .chainCore .chainTip {
+  bottom: auto;
+  top: calc(100% + 14px);
+}
+
+/* 移动档浮层更窄，中心说明折到 5–6 行，定高同步上提。
+   注意必须是复合选择器（[data-mode="mobile"].chainStage，中间无空格）：
+   data-mode 与 chainStage 是同一个元素上的属性与类，写成后代选择器永不命中。 */
+[data-mode="mobile"].chainStage {
+  --tip-h: 186px;
+}
+
+/* 中心浮层挂在 .chainCore 下，会读到 .chainCore 自己的 --tip-h；
+   移动档必须同时覆盖该作用域，否则中心说明仍按 148px 截断。 */
+[data-mode="mobile"] .chainCore {
+  --tip-h: 186px;
+}
+
+[data-mode="mobile"] .chainNode {
+  margin: -24px 0 0;
+  transform-origin: 50% 24px;
+}
+
+[data-mode="mobile"] .chainNodeIcon {
+  width: 48px;
+  height: 48px;
+  padding: 13px;
+}
+
+[data-mode="mobile"] .chainTip {
+  width: 174px;
+  margin-left: -87px;
+  padding: 10px 12px;
+}
+
+/* ── 动效降级：prefers-reduced-motion → 全部静态 ────────────────── */
+
+[data-reduced] .chainCore,
+[data-reduced] .chainNode,
+[data-reduced] .chainRing {
+  animation: none;
+}
+
+/* ── 面板响应式（随章节断点）────────────────────────────────────── */
+
+@media (max-width: 1180px) {
+  .chainPanel {
+    margin-top: 48px;
+    padding: 24px 24px 20px;
+  }
+}
+
+@media (max-width: 720px) {
+  .chainPanel {
+    margin-top: 40px;
+    padding: 20px 15px 16px;
+    border-radius: 18px;
+  }
+}
+
+/* ── keyframes（入场一律 backwards；聚焦退暗走 brightness 通道，
+   与循环动画帧互不覆盖）──────────────────────────────────────────── */
+
+@keyframes chainBreathe {
+  0%,
+  100% {
+    box-shadow:
+      0 0 56px 6px rgb(249 115 22 / 24%),
+      0 0 120px 30px rgb(249 115 22 / 9%);
+  }
+
+  50% {
+    box-shadow:
+      0 0 78px 12px rgb(249 115 22 / 38%),
+      0 0 150px 42px rgb(249 115 22 / 15%);
+  }
+}
+
+@keyframes chainRingIn {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes chainCoreIn {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes chainPop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.8);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   04 章（2026-09-22 第三轮）：第一层两条链路 → 画板结构图卡实装
+   （Ardot 12:109「空间上下文 · 设备拓扑 · 参考版式」）。
+
+   左卡：空间上下文 = 渐变舞台（#29A383 主题色浅色调 → 白，角部点阵）
+         +「空间档案」档案面板（HEYISPACE OS mono 头 + 分隔线 + 三条
+         等宽骨架条 + 底部悬浮胶囊工具条，项目··楼栋··楼层··区域）。
+   修复轮（2026-09-22）：第三轮把左卡做成了「小白卡悬浮 + 胶囊散落
+         舞台底部」的散架形态，与参考版式不符；本轮按 12:109 原稿修回
+         一体结构——面板为贴满舞台中部的带边框纸面（细边框、微绿白底、
+         无投影），胶囊行是单条白色圆角工具条、内嵌面板底部并比面板
+         左右各宽出一点，压住第三条骨架条下半段；胶囊浅灰填充无描边。
+   右卡：设备拓扑 = 同款渐变舞台 + 平滑贝塞尔曲线树
+         （网络 → 分组×2 → 设备×4；SVG 连线 x 用百分比单位，
+         preserveAspectRatio=none + non-scaling-stroke 保持 1.5 线宽，
+         DOM 胶囊节点按 calc(x% - 30px) 定位，不用 transform——
+         终态红线：无残留 transform / filter）。
+   断点：两卡桌面/中屏并排（≤1180 单列堆叠），≤720 右卡曲线隐藏、
+   重排为纵向层级流（网络 → 分组×2 → 设备×4，网格排列非缩放）。
+   中文实际信息全部 ≥14px。
+   ══════════════════════════════════════════════════════════════════ */
+
+/* 卡片外壳：白底细边卡，圆角与页面节奏一致（约束卡 16 → 卡 20）。 */
+.mapCard {
+  min-width: 0;
+  height: 100%;
+  box-sizing: border-box;
+  /* 文字边距参考版式加宽：stage 内衬 14 + 文字缩进 16 ≈ 30px。 */
+  padding: 14px 14px 22px;
+  border: 1px solid var(--cs-rule);
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow:
+    0 1px 2px rgb(16 24 40 / 4%),
+    0 12px 28px rgb(16 24 40 / 5%);
+}
+
+/* 渐变舞台：右上 → 左下径向渐变（主题色浅调淡出至白），
+   点阵改用 DotGrid 画布组件（见 .stageDots），CSS 点阵已移除。 */
+.mapCardStage {
+  position: relative;
+  height: 264px;
+  border-radius: 14px;
+  overflow: hidden;
+  background-color: #ffffff;
+  background-image: radial-gradient(
+    130% 140% at 100% 0%,
+    #d7eee6 0%,
+    #eef8f3 40%,
+    #ffffff 78%
+  );
+}
+
+/* DotGrid 画布层：铺满舞台；radial mask 让点阵只在左上角出现，
+   向右下逐渐淡出至不可见——右上角的绿色渐变底下不落点。
+   mask 不产生 transform / filter 残留。 */
+.stageDots {
+  position: absolute;
+  inset: 0;
+  -webkit-mask-image: radial-gradient(
+    85% 95% at 0% 0%,
+    #000 15%,
+    transparent 66%
+  );
+  mask-image: radial-gradient(85% 95% at 0% 0%, #000 15%, transparent 66%);
+}
+
+/* ── 左卡：空间档案面板 + 底部悬浮胶囊工具条 ──────────────────── */
+
+/* 档案纸面（修复轮恢复参考版式）：贴满舞台中部的带边框面板，
+   平贴无投影（浮卡观感即本轮修掉的散架形态）。top/bottom 拉出
+   ≈舞台高 80% 的高度，宽度收画板比例 ≈57%，不用 transform。 */
+.ctxPanel {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  bottom: 14px;
+  left: 0;
+  width: min(57%, 440px);
+  margin: 0 auto;
+  padding: 10px 12px 0;
+  border: 1px solid var(--cs-rule);
+  border-radius: 14px;
+  background: #f7fbfa;
+}
+
+/* 头行下加分隔线：档案纸抬头（品牌标 + 档案名 + 细线）。 */
+.ctxPanelHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--cs-rule);
+}
+
+.ctxPanelBrand {
+  color: var(--cs-ink-faint);
+  font-family: ui-monospace, sfmono-regular, "SF Mono", "Cascadia Mono",
+    consolas, monospace;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+}
+
+/* 「空间档案」是卡内实际信息，守住 14px。 */
+.ctxPanelName {
+  color: var(--cs-ink-soft);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* 骨架条：三条等宽等色（参考版式不做阶梯缩进），第三条下半段
+   被底部工具条压住。 */
+.ctxSkeleton {
+  display: block;
+  height: 17px;
+  margin-top: 11px;
+  border-radius: 999px;
+  background: #e9edf2;
+}
+
+.ctxSkeleton:first-of-type {
+  margin-top: 12px;
+}
+
+/* 悬浮胶囊工具条（修复轮恢复参考版式）：单条白色圆角工具条，内嵌
+   面板底部并比面板左右各宽出 12px（参考版式的出檐），压住第三条
+   骨架条下半段。left/right 负值 + space-between 分布，
+   不用 translateX（终态不得残留 transform）。 */
+.ctxPillRow {
+  position: absolute;
+  right: -12px;
+  bottom: 35px;
+  left: -12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow:
+    0 2px 6px rgb(16 24 40 / 6%),
+    0 14px 28px rgb(16 24 40 / 12%);
+}
+
+.ctxDash {
+  flex: 0 1 12px;
+  border-top: 1.5px dashed #b9bfc7;
+}
+
+/* 胶囊：浅灰填充、无描边无投影（参考版式），坐在白色工具条上。 */
+.ctxChip {
+  padding: 9px 13px;
+  border-radius: 999px;
+  background: #eef0f4;
+  color: var(--cs-ink-soft);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* 窄屏（含两档布局）：面板放宽保工具条内容排得下，工具条出檐与
+   内距同步收窄；dash 允许收缩，极端宽度下优雅退化。 */
+@media (max-width: 900px) {
+  .ctxPanel {
+    width: 76%;
+  }
+
+  .ctxPillRow {
+    right: -8px;
+    left: -8px;
+    padding: 10px 12px;
+  }
+
+  .ctxChip {
+    padding: 8px 9px;
+  }
+
+  .ctxDash {
+    flex-basis: 10px;
+  }
+}
+
+/* ── 右卡：曲线树（SVG 连线 + 胶囊节点）────────────────────────── */
+
+.treeLinks {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.treeLinks path {
+  fill: none;
+  stroke: #c7ced6;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.treeNodes {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 胶囊节点：定宽 60px（两字 14px + 左右留白），left = calc(x% - 30px)。 */
+.treeNode {
+  position: absolute;
+  width: 60px;
+}
+
+.treeChip {
+  display: block;
+  padding: 8px 0;
+  border: 1px solid rgb(29 29 31 / 10%);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--cs-ink-soft);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.15;
+  text-align: center;
+  box-shadow: 0 4px 12px rgb(16 24 40 / 6%);
+}
+
+/* 卡片下方标题行 + 一句话说明（复用 .mapLaneHead 的标签排版）。 */
+.mapLane .mapLaneHead {
+  margin: 24px 16px 0;
+}
+
+/* 链路说明句：15px/400（第五轮文案优化上抬，仍远低于标签 18px）。 */
+.mapLaneDesc {
+  margin: 8px 16px 0;
+  color: var(--cs-ink-soft);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.7;
+}
+
+/* ── ≤720：两卡已单列；右卡曲线 → 纵向层级流重排（非缩放）──────── */
+
+@media (max-width: 720px) {
+  .mapCard {
+    padding: 12px 12px 16px;
+    border-radius: 18px;
+  }
+
+  .mapCardStage {
+    height: 252px;
+  }
+
+  .ctxPanel {
+    top: 36px;
+  }
+
+  .ctxPillRow {
+    right: -6px;
+    left: -6px;
+    padding: 9px 10px;
+  }
+
+  .ctxDash {
+    flex-basis: 8px;
+  }
+
+  .treeLinks {
+    display: none;
+  }
+
+  /* 纵向层级流：网络跨全行 → 分组各占半行 → 设备四列。
+     inline 的 left/top 对 static 定位无效，无需覆盖。 */
+  .treeNodes {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    row-gap: 12px;
+    align-items: center;
+    justify-items: center;
+    padding: 18px 6px 0;
+  }
+
+  .treeNode {
+    position: static;
+    width: auto;
+  }
+
+  .treeNode:nth-child(1) {
+    grid-column: 1 / -1;
+  }
+
+  .treeNode:nth-child(2) {
+    grid-column: 1 / 3;
+  }
+
+  .treeNode:nth-child(3) {
+    grid-column: 3 / 5;
+  }
+
+  .treeChip {
+    padding: 8px 12px;
+    width: auto;
+  }
+}
+
+/* ══ 07 / 12 Key Design 02 · Keep the context ═══════════════════════
+ * 一张真实设备视图承担完整产品舞台；左侧三条设计动作切换同一截图上的
+ * Case Study 焦点。注释层明确标识，不伪装成产品控件。第三条保留素材
+ * 缺口：当前截图没有控制发出、成功、失败与控制前后状态。
+ * 08 四视图组件与素材映射保持不变。 */
+
+.chapterContext {
+  padding-block: 172px 196px;
+}
+
+.contextHeader {
+  max-width: 900px;
+}
+
+.contextRevealItem {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 560ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 560ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.contextReveal[data-entered="true"] .contextRevealItem {
+  opacity: 1;
+  transform: none;
+}
+
+.contextEvidenceLayout {
+  display: grid;
+  grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+  gap: clamp(44px, 5vw, 72px);
+  align-items: start;
+  margin-top: 88px;
+}
+
+.contextNarrative {
+  min-width: 0;
+}
+
+.contextBoundary {
+  margin: 0 0 34px;
+  color: var(--cs-ink-soft);
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.contextActionList {
+  border-top: 1px solid var(--cs-rule-strong);
+}
+
+.contextAction {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  padding: 25px 0 27px;
+  border: 0;
+  border-bottom: 1px solid var(--cs-rule);
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.contextAction:focus-visible {
+  outline: 2px solid var(--cs-accent);
+  outline-offset: 5px;
+}
+
+/* 选中态只用文字颜色区分（标题转黑），不加底色、不加左轨——与 09 / 10 章 tab 同一套。 */
+
+/* 编号与标题同一行、同字号（编号靠基线对齐，DIN 与思源混排视觉等高）——同 09 / 10 章。 */
+.contextActionHead {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.contextActionIndex {
+  flex: none;
+  color: var(--cs-ink-faint);
+  font-family: var(--font-number);
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+  transition: color 240ms ease;
+}
+
+.contextActionActive .contextActionIndex {
+  color: var(--cs-accent);
+}
+
+.contextActionCopy {
+  display: grid;
+}
+
+.contextActionTitle {
+  min-width: 0;
+  color: var(--cs-ink-faint);
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+  transition: color 240ms ease;
+}
+
+.contextActionActive .contextActionTitle {
+  color: var(--cs-ink);
+}
+
+.contextActionBody {
+  margin-top: 10px;
+  color: var(--cs-ink-faint);
+  font-size: 15px;
+  line-height: 1.72;
+}
+
+/* 选中（含 hover 预览）时正文加深一级，与 10 章 answerIndexBody 同一层级逻辑。 */
+.contextActionActive .contextActionBody {
+  color: var(--cs-ink-soft);
+}
+
+.contextProductFigure {
+  min-width: 0;
+  margin: 0;
+}
+
+.contextProductStage {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border: 1px solid rgb(29 29 31 / 8%);
+  border-radius: 24px;
+  background: #f3f4f6;
+  box-shadow:
+    0 24px 54px rgb(16 24 40 / 9%),
+    0 4px 14px rgb(16 24 40 / 5%);
+}
+
+.contextProductStage:focus-visible {
+  outline: 2px solid var(--cs-accent);
+  outline-offset: 5px;
+}
+
+.contextProductImage {
+  object-fit: contain;
+  object-position: center;
+  opacity: 0;
+  transition: opacity 320ms ease;
+}
+
+.contextProductImageActive {
+  opacity: 1;
+}
+
+.contextStageMeta {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 10px;
+  border: 1px solid rgb(255 255 255 / 75%);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 88%);
+  color: #515154;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  box-shadow: 0 6px 18px rgb(16 24 40 / 8%);
+}
+
+.contextStageMeta span + span::before {
+  margin-right: 8px;
+  color: #b5b5ba;
+  content: "·";
+}
+
+/*
+ * 高亮框：**单个元素**承载三个状态，几何是四个互相独立的像素属性
+ * （由 JS 按舞台实测尺寸算出，见 ContextEvidenceStage.focusStyle），
+ * 切换时 top / left / width / height 同时插值 —— 框会平滑变形位移到下一个
+ * 位置。不再叠三个框靠 opacity 交叉淡入：那样中途两个框同时半透明，
+ * 视觉上就是「旧框灭了、新框亮起来」的闪烁。
+ *
+ * 为什么不用百分比：同元素上 `height` 百分比按包含块解析、又参与包含块
+ * 尺寸推导，与 `top` 百分比互相干扰，实测把框压成一条线。像素无此问题。
+ * 不用 transform —— 章节验收有「动画结束后无 transform 残留」红线。
+ *
+ * `--context-focus-ready` 是量测守卫：resize 期间（含三档视口切换）先关掉
+ * 过渡，避免用旧尺寸算出的中间态被平滑播放出来。
+ */
+.contextFocus {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  border: 1.5px solid rgb(0 102 204 / 76%);
+  /* 2026-09-23 用户定稿：圆角从 16px 收紧到 8px（16px 是早年为包住
+   * 12px 圆角卡片调的，用户反馈太圆）。 */
+  border-radius: 8px;
+  /* 量测完成前先藏起来，避免首帧用 0 尺寸闪一下。 */
+  opacity: 0;
+  pointer-events: none;
+  /* .contextFocusHasSize 由组件在量到舞台尺寸后挂上，此时才放行。 */
+  transition:
+    opacity 160ms ease,
+    top 480ms cubic-bezier(0.34, 1.28, 0.44, 1),
+    left 480ms cubic-bezier(0.34, 1.28, 0.44, 1),
+    width 480ms cubic-bezier(0.34, 1.28, 0.44, 1),
+    height 480ms cubic-bezier(0.34, 1.28, 0.44, 1),
+    border-color 240ms ease,
+    box-shadow 240ms ease;
+}
+
+.contextFocusHasSize {
+  top: var(--context-focus-top);
+  right: auto;
+  bottom: auto;
+  left: var(--context-focus-left);
+  width: var(--context-focus-w);
+  height: var(--context-focus-h);
+  opacity: 1;
+}
+
+.contextFocusGap {
+  border-style: dashed;
+  border-color: rgb(81 81 84 / 76%);
+  box-shadow:
+    0 0 0 3px rgb(255 255 255 / 72%),
+    0 8px 28px rgb(16 24 40 / 12%);
+}
+
+/*
+ * 标签统一放在框**外部右上角**（2026-09-23 用户定稿）：飘在框顶上方
+ * 8px，右缘与框右缘对齐（right: -1px 与 1.5px 描边取齐）。原先 01 框内
+ * 左上 / 02 框上方左对齐 / 03 框右侧垂直居中的三套定位全部作废，三个
+ * 状态共用本条。
+ * 用 right 而不是 left：框 morph 时 width 在插值，right 定位让标签每帧
+ * 自动贴住右缘，无需为它单设过渡；top 是相对框顶的纯 px，三个状态下
+ * 恒为 -40px，标签几何与状态无关、整体骑着框走。不引 transform
+ * （章节验收红线：动画结束后无 transform 残留）。
+ */
+.contextFocusLabel {
+  position: absolute;
+  top: calc(-32px - 8px);
+  right: -1px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 32px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: rgb(255 255 255 / 94%);
+  color: #1d1d1f;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.25;
+  white-space: nowrap;
+  box-shadow: 0 5px 16px rgb(16 24 40 / 12%);
+}
+
+/*
+ * 历史方案存档（2026-09-23 起全部废弃，标签统一走基础规则的框外右上角）：
+ * - 03 曾贴框右侧垂直居中（left: calc(100% + 12px)）；
+ * - 02 曾飘框上方左对齐，更早还因「框内放不下 172px 标签」在框内找过位
+ *   （设备在左下、卡片关机圆钮在右上，压谁都不行）；
+ * - 02 的框改成「设备 + 控制卡片」并集后右边界到 79%，右侧放标签会顶出
+ *   舞台，才挪到上方——现在统一右上后此顾虑仅剩「向左伸展」方向，安全。
+ */
+
+.contextFocusLabel > span {
+  color: var(--cs-accent);
+  font-family: var(--font-number);
+  font-size: 14px;
+  letter-spacing: 0.06em;
+}
+
+.contextProductCaption {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 16px;
+  color: var(--cs-ink-faint);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.contextProductCaption span:first-child {
+  color: #515154;
+  font-weight: 500;
+}
+
+@media (max-width: 1180px) {
+  .chapterContext {
+    padding-block: 128px 144px;
+  }
+
+  .contextEvidenceLayout {
+    grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
+    gap: 36px;
+    margin-top: 64px;
+  }
+
+  .contextAction {
+    padding-block: 21px 23px;
+  }
+
+  .contextActionIndex,
+  .contextActionTitle {
+    font-size: 20px;
+  }
+
+  /*
+   * ≤1180 舞台变矮（415px 高时 01 框顶只离舞台顶 37px），8px 间隙会把
+   * 标签顶到舞台内缘（overflow:hidden 裁掉圆角）；间隙收到 4px。
+   * ≤720 的移动端规则在本块之后、会覆盖回 top:auto / bottom 定位。
+   */
+  .contextFocusLabel {
+    top: calc(-32px - 4px);
+  }
+}
+
+@media (max-width: 900px) {
+  .contextEvidenceLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .contextNarrative {
+    display: grid;
+    grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
+    gap: 32px;
+    align-items: start;
+  }
+
+  .contextBoundary {
+    margin-bottom: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .chapterContext {
+    padding-block: 96px 112px;
+  }
+
+  .contextEvidenceLayout {
+    gap: 32px;
+    margin-top: 48px;
+  }
+
+  .contextNarrative {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .contextAction {
+    gap: 8px;
+    padding-block: 21px 23px;
+  }
+
+  .contextActionIndex,
+  .contextActionTitle {
+    font-size: 20px;
+  }
+
+  .contextActionBody {
+    font-size: 15px;
+  }
+
+  .contextProductStage {
+    aspect-ratio: 4 / 5;
+    border-radius: 18px;
+  }
+
+  .contextProductImage {
+    object-fit: cover;
+  }
+
+  .contextProductStage[data-context-stage="location"] .contextProductImageActive {
+    object-position: 21% center;
+  }
+
+  /*
+   * 移动端舞台是 350x437.5 的竖版，素材 900x562 走 cover 后横向被裁掉近一半，
+   * object-position 决定露哪一段。取景值按"目标元素落在舞台中段"反算：
+   *   02 取 64% → 可见区间 288~738 图内像素，容得下设备+控制卡片（右沿 712.4）
+   *   03 取 71% → 结果提示条落在 left 60%~81%
+   * y 方向无溢出，纵向给 50% 即可。
+   */
+  .contextProductStage[data-context-stage="object"] .contextProductImageActive {
+    object-position: 64% 50%;
+  }
+
+  .contextProductStage[data-context-stage="result"] .contextProductImageActive {
+    object-position: 71% 50%;
+  }
+
+  .contextStageMeta {
+    top: auto;
+    right: 12px;
+    bottom: 12px;
+    flex-direction: column;
+    gap: 3px;
+    align-items: flex-end;
+    font-size: 14px;
+    line-height: 1.2;
+  }
+
+  .contextStageMeta span + span::before {
+    display: none;
+  }
+
+  /*
+   * ≤720 高亮框改用 cover 口径：像素几何由 JS 按移动舞台尺寸下发。
+   * 标签同样统一到**框外右上角**（2026-09-23）：bottom: 100% 飘在框顶
+   * 上方，右缘对齐框右缘。舞台顶部余量小（01 框顶在 9%），间隙收到 6px
+   * 保证不裁顶。舞台窄 → 放开 nowrap 限宽换行；标签右缘锚死在框内，
+   * 向左伸展只会占地图留白，不会越出舞台。
+   * 原先 03 贴框正下方（left: -56% 拉回舞台左缘）、01 落框下方的移动端
+   * 特例全部废弃。
+   */
+  .contextFocusLabel {
+    top: auto;
+    bottom: calc(100% + 6px);
+    right: -1px;
+    /* 标签的包含块是框本身，窄框（03 仅 84px 宽）会把 shrink-to-fit 压到
+     * 比文案还窄、导致「结果反馈」折成两行；width: max-content 让短标签
+     * 恒定单行，长文案仍被 max-width 截住换行。 */
+    width: max-content;
+    max-width: 230px;
+    white-space: normal;
+  }
+
+  .contextProductCaption {
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contextRevealItem,
+  .contextFocus,
+  .contextAction {
+    transition: none;
+  }
+
+  .contextRevealItem {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ── 09 地图编辑器（Key Design 04 · FROM FLOOR PLAN TO DIGITAL SPACE）── */
+
+/*
+ * 构图（2026-09-22 22 时二次改版，用户指定）：标题 → 5 格 Bento Grid
+ * （通用组件 components/ui/bento-grid.tsx，样式自带 module，无 Tailwind）
+ * → 编辑机制短注带 → 低权重 Outcome + 贡献边界。每格 = 素材图（真实
+ * 编辑界面截图，2026-09-23 用户提供）+ 证据状态 + 步骤名 + 说明 +
+ * 包含行；04 检测范围跨两列宽格，其余单列。素材边缘用 CSS mask 四边
+ * 羽化过渡（16px 渐隐到透明），与卡片背景自然融合。
+ */
+.chapterMapEditor {
+  padding-block: 172px 196px;
+}
+
+/* 格网与主舞台同内容轴（1160px）。格内样式在 bento-grid.module.css。 */
+.bentoWrap {
+  width: min(100%, 1160px);
+  margin: 72px auto 0;
+}
+
+/* 素材容器：next/image fill 的定位上下文。 */
+.bentoMedia {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 180px;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+/* 素材图：contain 保证 UI 截图完整不裁切；四边 mask 羽化 16px 渐隐。 */
+.bentoMediaImg {
+  object-fit: contain;
+  object-position: center;
+
+  /* 两层 linear-gradient + intersect 合成四边羽化：
+     水平渐变管左右边、垂直渐变管上下边，交集 = 四边同时渐隐。 */
+  -webkit-mask-image:
+    linear-gradient(to right, transparent, #000 16px, #000 calc(100% - 16px), transparent),
+    linear-gradient(to bottom, transparent, #000 16px, #000 calc(100% - 16px), transparent);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent, #000 16px, #000 calc(100% - 16px), transparent),
+    linear-gradient(to bottom, transparent, #000 16px, #000 calc(100% - 16px), transparent);
+  mask-composite: intersect;
+}
+
+.bentoStepIndex {
+  margin-right: 10px;
+  color: var(--cs-accent);
+  font-family: var(--font-number);
+  /* 2026-09-23 用户指定「序号与标题一样大」。同字号 18px 时 DINPro 数字
+     ink 仅 13px 高（canvas 实测），中文 18px ink 为 18px，视觉上序号偏小。
+     按字面比例补偿到 25px（25 × 13/18 ≈ 18px ink），视觉与标题等大。 */
+  font-size: 25px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  /* 25px 字号的默认行盒（≈1.2）会撑高 h3 标题行（line-height 1.4 = 25.2px），
+     锁 1 保持行盒高度不变。 */
+  line-height: 1;
+}
+
+.bentoStepBody {
+  display: block;
+}
+
+/* 编辑机制短注带：4 列 editorial（同「我的判断」列式语言，但无区块标题）。 */
+.mapMechanisms {
+  margin-top: 88px;
+}
+
+.mapMechanismsLabel {
+  margin: 0;
+  color: var(--cs-ink-faint);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+}
+
+.mapMechanismGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 14px 0 0;
+  padding: 0;
+  border-top: 1px solid var(--cs-rule-strong);
+  list-style: none;
+}
+
+.mapMechanism {
+  padding: 22px 24px 4px 0;
+  border-left: 1px solid var(--cs-rule);
+}
+
+.mapMechanism:first-child {
+  border-left: 0;
+  padding-left: 0;
+}
+
+.mapMechanismIndex {
+  color: var(--cs-ink-faint);
+  font-family: var(--font-number);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+}
+
+.mapMechanismTitle {
+  margin: 8px 0 0;
+  color: var(--cs-ink);
+  font-size: 16px;
+  /* 同 .bentoTitle：600 渲染成 Bold 黏连，降为真实存在的 500。 */
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.45;
+}
+
+.mapMechanismBody {
+  margin: 8px 0 0;
+  color: var(--cs-ink-soft);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.mapMechanismNote {
+  width: max-content;
+  margin: 10px 0 0;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgb(29 29 31 / 5%);
+  color: #6e6e73;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+@media (max-width: 1180px) {
+  .chapterMapEditor {
+    padding-block: 128px 144px;
+  }
+
+  .bentoWrap {
+    margin-top: 56px;
+  }
+
+  .mapMechanisms {
+    margin-top: 72px;
+  }
+
+  .mapMechanismGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 26px;
+  }
+
+  .mapMechanism:nth-child(odd) {
+    border-left: 0;
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .chapterMapEditor {
+    padding-block: 96px 112px;
+  }
+
+  .bentoWrap {
+    margin-top: 44px;
+  }
+
+  .mapMechanismGrid {
+    grid-template-columns: 1fr;
+    row-gap: 22px;
+  }
+
+  .mapMechanism {
+    padding-right: 0;
+  }
+
+  .mapMechanism:nth-child(odd) {
+    border-left: 0;
+  }
+}
+
+/* ══ 05 / 12 From Problems to Design Goals（section-05-problems-goals）══
+ * 2026-09-22 晚二次改版（用户参考图指定）：横向行结构 → 五张等宽卡片，
+ * 问题与目标同卡；早版「editorial 行结构、不做卡片」决定由本指令推翻。
+ * 2026-09-22 晚降噪（用户指令「卡片的元素太多了」）：PROBLEM / GOAL 两个
+ * 11px 英文辅助标签删除（上下结构 + 箭头已表达转化，文字标签冗余）；
+ * 目标 22 → 18px、问题 17px/500 → 15px/400、原则 15 → 14px、编号 15 → 13px。
+ * 卡面 = 白面板 --cs-panel + 1px --cs-rule 描边 + 18px 圆角 + resting 轻阴影。
+ * 卡内：编号（品牌蓝 mono）→ 问题（Secondary）→ 竖向转化箭头（品牌蓝）→
+ * 目标（视觉主角）+ 一句原则；GOAL 区贴底对齐（margin-top:auto），
+ * 横排扫视时五张卡目标块同基线。
+ * hover（用户触发、可逆）：抬升 + 阴影加深 + 卡底品牌蓝渐变光斑
+ * （::after opacity，不占布局、不进 residual 扫描）；reduced-motion 静止。
+ * 层级：Goal 18px/600 > Problem 15px/400 > 原则 14px/400（颜色更浅）>
+ * 编号 13px/600；中文实际信息全部 ≥14px（编号为无中文 mono 数字）。
+ * 响应式：>1180 五列 / ≤1180 三列 / ≤720 单列（重排而非缩放）。
+ * 入场：卡 01 → 05 轻微 stagger；终态 transform:none、无 filter、
+ * 无 will-change（hover 态例外，验收在非 hover 状态下扫残留）。 */
+
+.chapterProblemsGoals {
+  padding-block: 172px 196px;
+}
+
+/* 与 03/04 章同款 RevealOnView 容器：进入视口后放行 .revealItem。 */
+.pgReveal[data-entered="true"] .revealItem {
+  opacity: 1;
+  transform: none;
+}
+
+.pgFramework {
+  margin-top: 56px;
+}
+
+/* ── 五张 Problem × Goal 卡 ───────────────────────────────────────── */
+
+.pgList {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  /* 20px：卡与卡的横向呼吸；卡宽 251 → 248px，内容列仍 13 字/行，
+   * 不会让问题文案多折一行（2026-09-23 呼吸感改版）。 */
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pgCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  /* 竖向 28/30 给内容上下留气口；横向保持 22px——内容列 204px 正好
+   * 13 字/行，再宽一分 27 字的问题句就多折出一行孤字。 */
+  padding: 28px 22px 30px;
+  background: var(--cs-panel);
+  border: 1px solid var(--cs-rule);
+  border-radius: 18px;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
+  transition:
+    transform 0.28s cubic-bezier(0.25, 0.1, 0.25, 1),
+    box-shadow 0.28s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* hover 光斑：品牌蓝从卡底向上淡出，呼应「目标」一侧的指向。 */
+.pgCard::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 46%;
+  background: linear-gradient(
+    to top,
+    rgb(0 102 204 / 9%),
+    rgb(0 102 204 / 0)
+  );
+  opacity: 0;
+  transition: opacity 0.28s cubic-bezier(0.25, 0.1, 0.25, 1);
+  pointer-events: none;
+}
+
+/* hover 抬升：选择器带 .pgReveal[data-entered] 前缀（特异度 (0,4,0)），
+ * 压过入场放行规则 .pgReveal[data-entered="true"] .revealItem 的
+ * transform:none（(0,3,0)）——否则抬升会被它永久盖掉。 */
+.pgReveal[data-entered="true"] .pgCard:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 40px rgb(0 0 0 / 9%);
+}
+
+.pgCard:hover::after {
+  opacity: 1;
+}
+
+/* 编号：品牌蓝 mono（13px / 600，降噪版收小），与 03/04 章编号同语言。 */
+.pgIndex {
+  display: block;
+  margin-bottom: 16px;
+  color: var(--cs-accent);
+  font-family: var(--font-number);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  line-height: 1.5;
+}
+
+/* 问题：弱一级（Secondary Text）；降噪后 15px/400，比目标更安静。
+ * margin-bottom 16px = 问题→目标缝隙的下限：GOAL 贴底对齐时行高由
+ * 3 行文案的卡决定，没有这条下限它们的缝隙会被压成 0。 */
+.pgProblem {
+  margin: 0 0 16px;
+  color: var(--cs-ink-soft);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.65;
+}
+
+/* 竖向转化箭头：紧跟问题（固定间距），表示「由此转化」；
+ * 问题与 GOAL 之间的剩余空间由 .pgGoal 的 margin-top:auto 吸收。 */
+.pgArrow {
+  display: flex;
+  justify-content: flex-start;
+  color: var(--cs-accent);
+  margin: 14px 0 12px;
+}
+
+.pgArrowV {
+  display: block;
+  width: auto;
+  height: 22px;
+}
+
+/* GOAL 区：贴底对齐（吸收问题行数差），目标标题是卡内视觉主角。 */
+.pgGoal {
+  display: flex;
+  flex-direction: column;
+  margin-top: auto;
+}
+
+/* 目标标题：18px/600（降噪版从 22px 收敛），仍是卡内最大字。 */
+.pgGoalTitle {
+  margin: 0;
+  color: var(--cs-ink);
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+  /* 中文标题均衡断行，消除「…可视/化」式单字悬尾；
+   * 不支持的浏览器降级为默认断行，无害。 */
+  text-wrap: balance;
+}
+
+/* 一句原则：目标下的说明行，14px 档，颜色比问题更浅。 */
+.pgPrinciple {
+  margin: 12px 0 0;
+  color: #515154;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.7;
+}
+
+/* ── ≤1180：三列（5 张 3+2 自然换行），收窄卡内边距 ────────────────── */
+
+@media (max-width: 1180px) {
+  .chapterProblemsGoals {
+    padding-block: 128px 144px;
+  }
+
+  .pgFramework {
+    margin-top: 48px;
+  }
+
+  .pgList {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .pgCard {
+    padding: 26px 22px 28px;
+  }
+
+  .pgProblem {
+    font-size: 14px;
+  }
+
+  .pgGoalTitle {
+    font-size: 18px;
+  }
+}
+
+/* ── ≤720：单列纵向（重排而非缩放）───────────────────────────────── */
+
+@media (max-width: 720px) {
+  .chapterProblemsGoals {
+    padding-block: 96px 112px;
+  }
+
+  .pgFramework {
+    margin-top: 40px;
+  }
+
+  .pgList {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .pgCard {
+    padding: 26px 22px 28px;
+  }
+
+  .pgProblem {
+    font-size: 14px;
+  }
+
+  .pgGoalTitle {
+    font-size: 18px;
+  }
+
+  .pgPrinciple {
+    margin-top: 8px;
+    font-size: 14px;
+  }
+}
+
+/* hover 抬升属于用户触发动效，reduced-motion 下保持静止；
+ * 覆盖规则与抬升同特异度、源码靠后，确保压得住。 */
+@media (prefers-reduced-motion: reduce) {
+  .pgCard,
+  .pgCard::after {
+    transition: none;
+  }
+
+  .pgReveal[data-entered="true"] .pgCard:hover {
+    transform: none;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
+  }
+}
+
+/* ── 深色场景插画（卡顶，编号下方）──────────────────────────────────
+ * 风格源 = 用户发参考图：深底 #202329 + 灰白线框骨架 + 单强调色落在
+ * 「当前 / 正确」的语义位置。SVG 元素用 [data-r] 作动效钩子（规避
+ * CSS Modules 哈希、符合本站选择器铁律）；hover 选择器一律带
+ * .pgReveal[data-entered] 前缀，与卡抬升同源、同放行口径。
+ * 遮挡铁律：场景内的「卡片 / 面板」类元素必须带与底同色 fill 才有
+ * 真实遮挡，纯描边会互相透视（v4 修正）。 */
+
+.pgScene {
+  position: relative;
+  width: 100%;
+  /* viewBox 230×96 → 宽高比 2.4:1；padding-top 撑高、svg 绝对填满。 */
+  aspect-ratio: 230 / 96;
+  margin: 0 0 22px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #202329;
+}
+
+.pgScene > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* SVG 元素动效钩子：transform-box 让 transform 以自身为原点。
+ * 减淡一律用颜色 alpha（8 位 hex），不用 opacity——resting 时全场景
+ * computed opacity 必须为 1，否则会被残留扫描误判为「未放行」。 */
+.pgScene [data-r] {
+  transition: transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1),
+    stroke 0.35s cubic-bezier(0.25, 0.1, 0.25, 1),
+    fill 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* 01 上下文：锚点沿虚线滑向右面板，两面板描边明暗互换（stroke 颜色
+ * 过渡，非 opacity）。 */
+.pgReveal[data-entered="true"] .pgCard:hover .pgScene [data-r="pA"] {
+  stroke: #626770;
+}
+
+.pgReveal[data-entered="true"] .pgCard:hover .pgScene [data-r="pB"] {
+  stroke: #c6ccd4;
+}
+
+.pgReveal[data-entered="true"] .pgCard:hover .pgScene [data-r="anchor"] {
+  transform: translate(37px, 0);
+}
+
+/* 02 任务组织：散条靠拢、虚线点亮（stroke 提亮到不透明）、任务条放大。 */
+.pgReveal[data-entered="true"] .pgCard:hover .pgScene [data-r="dash"] {
+  stroke: #a78bfa;
+}
+
+.pgReveal[data-entered="true"] .pgCard:hover .pgScene [data-r="taskbar"] {
+  transform: scale(1.08);
+}
+
+.pgReveal[data-entered="true"] .pgCard:hover .pgScene [data-r="loose1"] {
+  transform: translateX(-12px);
+}
+
+.pgReveal[data-entered="true"] .pgCard:hover .pgScene [data-r="loose2"] {
+  transform: translateX(-16px);
+}
+
+.pgReveal[data-entered="true"] .pgCard:hover .pgScene [data-r="loose3"] {
+  transform: translateX(-12px);
+}
+
+/* 03 空间关系：路径描线重画 + 终点圈放大。 */
+.pgScene [data-r="flow"] {
+  stroke-dasharray: 1 1;
+  stroke-dashoffset: 0;
+}
+
+.pgReveal[data-entered="true"] .pgCard:hover .pgScene [data-r="flow"] {
+  animation: pgSceneRedraw 0.5s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+}
+
+.pgReveal[data-entered="true"] .pgCard:hover .pgScene [data-r="endpt"] {
+  transform: scale(1.3);
+}
+
+/* 04 数据验证：标注线描画 + 徽章放大上浮。 */
+.pgScene [data-r="ann"] {
+  stroke-dasharray: 1 1;
+  stroke-dashoffset: 0;
+}
+
+.pgReveal[data-entered="true"] .pgCard:hover .pgScene [data-r="ann"] {
+  animation: pgSceneRedraw 0.45s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+}
+
+.pgReveal[data-entered="true"] .pgCard:hover .pgScene [data-r="badge"] {
+  transform: scale(1.14) translateY(-2px);
+}
+
+/* 05 控制复杂度：前层上浮、后两层依次下沉，露出层次。 */
+.pgReveal[data-entered="true"] .pgCard:hover .pgScene [data-r="fpanel"] {
+  transform: translateY(-4px);
+}
+
+.pgReveal[data-entered="true"] .pgCard:hover .pgScene [data-r="mpanel"] {
+  transform: translateY(3px);
+}
+
+.pgReveal[data-entered="true"] .pgCard:hover .pgScene [data-r="bpanel"] {
+  transform: translateY(6px);
+}
+
+@keyframes pgSceneRedraw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* reduced-motion：插画内动效静止（与卡抬升同口径——transform 归 none、
+ * 无过渡无动画；opacity 允许瞬变，不算 motion）。 */
+@media (prefers-reduced-motion: reduce) {
+  .pgReveal[data-entered="true"] .pgCard:hover .pgScene [data-r] {
+    transform: none;
+  }
+
+  .pgScene [data-r] {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* ══ 06 / 12 · TURN DATA INTO ANSWERS ═══════════════════════════════
+ * 一张完整真实 Dashboard 承担证据；四个判断维度使用带分隔线的索引，
+ * 不重绘指标卡。Focus 只用局部 overlay 与细边界，不给截图添加 filter、
+ * transform 或 will-change，静止状态保持原始像素采样。 */
+
+.chapterRunningData {
+  padding-block: 172px 196px;
+}
+
+.runningReveal[data-entered="true"] .revealItem {
+  opacity: 1;
+  transform: none;
+}
+
+.runningHeader {
+  max-width: 900px;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.runningHeader .meta {
+  max-width: none;
+  justify-content: center;
+  margin-inline: auto;
+}
+
+.runningHeader .intro {
+  max-width: 720px;
+  margin-inline: auto;
+}
+
+.runningDataLayout {
+  /* 左：五个判断维度 tab 列；右：Focus 遮罩舞台。点击 tab 只动遮罩与 Focus 框。
+   * 不设 align-items，默认 stretch：左列拉伸到与右列图片等高（未选中项只留标题）。 */
+  display: grid;
+  grid-template-columns: minmax(300px, 352px) minmax(0, 1fr);
+  gap: 56px;
+  /* 与章节轴线（.inner = 1320）对齐：右缘图片列贴齐其他章内容边缘，
+   * 左列起点与各章标题同线（2026-09-23 用户定稿，原 1240 居中差 40px/侧）。 */
+  width: min(100%, 1320px);
+  margin: 88px auto 0;
+}
+
+/* grid item 允许收缩到内容以下：Mobile 上 920px 画布要靠 viewport 的横向滚动装下。 */
+.runningStage {
+  min-width: 0;
+}
+
+.runningFigure {
+  width: 100%;
+  margin: 0;
+}
+
+.runningViewport {
+  overflow: hidden;
+  border: 1px solid rgb(59 66 61 / 11%);
+  border-radius: 26px;
+  background: #ffffff;
+  box-shadow:
+    0 24px 54px rgb(29 29 31 / 9%),
+    0 4px 14px rgb(29 29 31 / 5%);
+}
+
+.runningCanvas {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2880 / 2672;
+  overflow: hidden;
+  background: #f7f8fa;
+}
+
+.runningImage {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+}
+
+/** 高亮框几何与 10 章一致，见 .answerFocus 的注释（洞 = 框的圆角轮廓）。 */
+.runningFocus {
+  position: absolute;
+  inset: var(--running-frame-y) auto auto var(--running-frame-x);
+  z-index: 2;
+  width: var(--running-frame-width);
+  height: var(--running-frame-height);
+  margin: calc(var(--running-frame-neg-y) * -1) calc(var(--running-frame-neg-x) * -1);
+  border: 1px solid rgb(38 166 122 / 58%);
+  border-radius: 13px;
+  background: rgb(38 166 122 / 2%);
+  /* 第一层 3px 光环；第二层即遮罩（2026-09-23 用户定稿墨色 20%）。 */
+  box-shadow:
+    0 0 0 3px rgb(38 166 122 / 7%),
+    0 0 0 9999px rgb(29 29 31 / 20%);
+  pointer-events: none;
+  transition:
+    inset 240ms ease,
+    width 240ms ease,
+    height 240ms ease,
+    border-color 240ms ease,
+    background-color 240ms ease;
+}
+
+.runningCaption {
+  margin-top: 14px;
+  color: var(--cs-ink-faint);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.runningContextNote {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  grid-column: 1 / -1;
+  width: 100%;
+  margin: 28px 0 0;
+  color: var(--cs-ink-soft);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.runningContextNote::before {
+  width: 28px;
+  height: 1px;
+  flex: none;
+  background: var(--cs-accent);
+  content: "";
+}
+
+.runningDimensions {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--cs-rule-strong);
+  border-bottom: 1px solid var(--cs-rule);
+  list-style: none;
+}
+
+.runningDimension {
+  position: relative;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.runningDimension + .runningDimension {
+  border-top: 1px solid var(--cs-rule);
+}
+
+/* 选中态只用文字颜色区分（标题转黑），不加底色、不加左轨。 */
+.runningDimensionLocked {
+  background: transparent;
+}
+
+.runningDimensionButton {
+  display: grid;
+  height: 100%;
+  width: 100%;
+  padding: 24px 20px 26px 26px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.runningDimensionButton:focus-visible {
+  outline: 2px solid var(--cs-accent);
+  outline-offset: -4px;
+}
+
+/* 编号与标题同一行、同字号（编号靠基线对齐，DIN 与思源混排视觉等高）。 */
+.runningDimensionHead {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.runningDimensionIndex {
+  flex: none;
+  color: var(--cs-ink-faint);
+  font-family: var(--font-number);
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+  transition: color 240ms ease;
+}
+
+.runningDimensionTitle {
+  min-width: 0;
+  color: var(--cs-ink-faint);
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+  transition: color 240ms ease;
+}
+
+.runningDimensionQuestion {
+  margin-top: 14px;
+  color: var(--cs-ink);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.65;
+}
+
+.runningDimensionBody {
+  margin-top: 10px;
+  color: var(--cs-ink-soft);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.75;
+}
+
+/* 未选中时问句+正文折叠为 0fr（只留编号+标题），锁定项与 hover 预览项展开。
+ * 09-23 用户指令「hover 时也要展开内容」：展开挂 Locked + Active，
+ * 推翻早前「只挂 Locked 防左列高度跳动」的决定。 */
+.runningDimensionExtra {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 240ms ease,
+    opacity 240ms ease;
+}
+
+.runningDimensionExtraInner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.runningDimensionLocked .runningDimensionExtra,
+.runningDimensionActive .runningDimensionExtra {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.runningDimensionActive .runningDimensionIndex {
+  color: rgb(38 166 122);
+}
+
+.runningDimensionActive .runningDimensionTitle {
+  color: var(--cs-ink);
+}
+
+@media (max-width: 1180px) {
+  .chapterRunningData {
+    padding-block: 128px 144px;
+  }
+
+  .runningDataLayout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 48px;
+    margin-top: 64px;
+  }
+
+  /* 窄屏堆叠：tab 列在上（两列网格收拢），图舞台在下；第 5 项通栏收尾。 */
+  .runningDimensions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    height: auto;
+    border-top: 0;
+  }
+
+  /* 窄屏没有「与图片等高」的诉求：五个维度全部展开，信息完整优先。 */
+  .runningDimensionExtra {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+
+  .runningDimension {
+    border-top: 1px solid var(--cs-rule);
+  }
+
+  .runningDimension:nth-child(2n) {
+    border-left: 1px solid var(--cs-rule);
+  }
+
+  .runningDimension:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .runningDimensionButton {
+    padding: 24px 18px 26px;
+  }
+}
+
+@media (max-width: 720px) {
+  .chapterRunningData {
+    padding-block: 96px 112px;
+  }
+
+  .runningHeader {
+    text-align: left;
+  }
+
+  /* .runningHeader .meta 的窄屏左对齐已收归顶部通用的 .meta 断点规则
+   * （见文件开头「窄屏：整组标签改成纵向堆叠」）。 */
+
+  .runningHeader .intro {
+    margin-inline: 0;
+  }
+
+  .runningDataLayout {
+    margin-top: 52px;
+  }
+
+  .runningViewport {
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-radius: 20px;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: thin;
+  }
+
+  .runningCanvas {
+    width: 920px;
+  }
+
+  .runningCaption {
+    padding-inline: 2px;
+  }
+
+  .runningContextNote {
+    align-items: flex-start;
+    margin-top: 24px;
+    font-size: 14px;
+  }
+
+  .runningContextNote::before {
+    margin-top: 11px;
+  }
+
+  .runningDimensions {
+    grid-template-columns: 1fr;
+  }
+
+  .runningDimension:nth-child(2n) {
+    border-left: 0;
+  }
+
+  .runningDimensionIndex,
+  .runningDimensionTitle {
+    font-size: 19px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .runningFocus,
+  .runningDimensionIndex,
+  .runningDimensionTitle,
+  .runningDimensionExtra {
+    transition: none;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────
+   10 / 12 · FROM ANSWER TO EXPLANATION
+   左侧六段结构索引 + 右侧同一份完整真实回答；
+   Hover 临时预览、Click 锁定，切换只动遮罩与 Focus 框。
+   ──────────────────────────────────────────────────────────────── */
+
+.answerLayout {
+  display: grid;
+  grid-template-columns: minmax(300px, 384px) minmax(0, 1fr);
+  gap: 56px;
+  /* 默认 stretch：左栏六段索引拉到与右侧主舞台底图同高（2026-09-23 用户要求）。 */
+  width: min(100%, 1160px);
+  margin: 88px auto 0;
+}
+
+/* grid item 允许收缩到内容以下：Mobile 上 920px 画布要靠 viewport 的横向滚动装下。 */
+.answerFigure {
+  min-width: 0;
+}
+
+.answerIndex {
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--cs-rule-strong);
+  border-bottom: 1px solid var(--cs-rule);
+  list-style: none;
+  /* 拉满行高后六段均匀分布占满整列；≤1180px 被 media query 的 grid 覆盖。 */
+  display: flex;
+  flex-direction: column;
+}
+
+.answerIndexItem {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+}
+
+.answerIndexItem + .answerIndexItem {
+  border-top: 1px solid var(--cs-rule);
+}
+
+/* 选中态只用文字颜色区分（标题转黑），不加左轨、不加底色——与 09 章 tab 同一套。 */
+
+.answerIndexButton {
+  display: grid;
+  width: 100%;
+  padding: 20px 18px 22px 22px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.answerIndexButton:focus-visible {
+  outline: 2px solid var(--cs-accent);
+  outline-offset: -4px;
+}
+
+/* 编号与标题同一行、同字号（编号靠基线对齐，DIN 与思源混排视觉等高）——同 09 章。 */
+.answerIndexHead {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.answerIndexNo {
+  flex: none;
+  color: var(--cs-ink-faint);
+  font-family: var(--font-number);
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+  transition: color 240ms ease;
+}
+
+.answerIndexName {
+  min-width: 0;
+  color: var(--cs-ink-faint);
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+  transition: color 240ms ease;
+}
+
+.answerIndexBody {
+  margin-top: 6px;
+  color: var(--cs-ink-faint);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.7;
+  transition: color 240ms ease;
+}
+
+.answerIndexItemActive .answerIndexNo {
+  color: var(--cs-accent);
+}
+
+.answerIndexItemActive .answerIndexName {
+  color: var(--cs-ink);
+}
+
+.answerIndexItemActive .answerIndexBody {
+  color: var(--cs-ink-soft);
+}
+
+.answerFigure {
+  width: min(100%, 680px);
+  margin: 0 auto;
+}
+
+.answerViewport {
+  overflow: hidden;
+  border: 1px solid rgb(59 66 61 / 11%);
+  border-radius: 26px;
+  background: #ffffff;
+  box-shadow:
+    0 24px 54px rgb(29 29 31 / 9%),
+    0 4px 14px rgb(29 29 31 / 5%);
+}
+
+.answerCanvas {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1182 / 1556;
+  overflow: hidden;
+  background: #f7f8fa;
+}
+
+.answerImage {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+}
+
+/**
+ * 高亮框：几何由 focus 坐标直出（focus = 最终高亮矩形，无内缩）。
+ *
+ * 遮罩（压暗层）不再用四段矩形拼——四段围出的洞是直角，框是圆角，
+ * 圆角外侧会留出没被压暗的亮斑（2026-09-23 用户截图指出）。改为在框
+ * 自身挂一层超大扩散 box-shadow：洞的形状 = 框的圆角轮廓，圆角天然
+ * 一致；shadow 不产生滚动区域，由画布 overflow:hidden 裁到画布边界。
+ *
+ * 注意必须用 inset 简写定位，单独写 top/left 会被同类简写按属性名排序
+ * 覆盖掉（历史坑，保留简写写法）。
+ */
+.answerFocus {
+  position: absolute;
+  inset: var(--answer-frame-y) auto auto var(--answer-frame-x);
+  z-index: 2;
+  width: var(--answer-frame-width);
+  height: var(--answer-frame-height);
+  margin: calc(var(--answer-frame-neg-y) * -1) calc(var(--answer-frame-neg-x) * -1);
+  border: 1px solid rgb(0 102 204 / 55%);
+  border-radius: 10px;
+  background: rgb(0 102 204 / 3%);
+  /* 第一层 3px 品牌蓝光环；第二层即遮罩（2026-09-23 用户定稿墨色 20%）。 */
+  box-shadow:
+    0 0 0 3px rgb(0 102 204 / 7%),
+    0 0 0 9999px rgb(29 29 31 / 20%);
+  pointer-events: none;
+  transition:
+    inset 240ms ease,
+    width 240ms ease,
+    height 240ms ease,
+    border-color 240ms ease,
+    background-color 240ms ease;
+}
+
+.answerCaption {
+  margin-top: 14px;
+  color: var(--cs-ink-faint);
+  font-size: 14px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+
+@media (max-width: 1180px) {
+  .answerLayout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 48px;
+    margin-top: 64px;
+  }
+
+  .answerIndex {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-top: 0;
+  }
+
+  .answerIndexItem:nth-child(2n + 1) {
+    border-top: 1px solid var(--cs-rule);
+  }
+
+  .answerIndexItem:nth-child(n + 3) {
+    border-top: 1px solid var(--cs-rule);
+  }
+
+  .answerIndexItem:nth-child(2n) {
+    border-left: 1px solid var(--cs-rule);
+  }
+
+  .answerIndexItem:nth-child(2n + 1) {
+    border-left: 0;
+  }
+
+}
+
+@media (max-width: 720px) {
+  .answerLayout {
+    gap: 40px;
+    margin-top: 52px;
+  }
+
+  .answerIndex {
+    grid-template-columns: 1fr;
+  }
+
+  .answerIndexItem {
+    border-left: 0 !important;
+  }
+
+  .answerIndexItem:nth-child(n + 2) {
+    border-top: 1px solid var(--cs-rule);
+  }
+
+  .answerIndexButton {
+    padding: 18px 16px 20px 20px;
+  }
+
+  .answerIndexNo,
+  .answerIndexName {
+    font-size: 18px;
+  }
+
+  .answerViewport {
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-radius: 20px;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: thin;
+  }
+
+  .answerCanvas {
+    width: 920px;
+  }
+
+  .answerCaption {
+    padding-inline: 2px;
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .answerFocus,
+  .answerIndexNo,
+  .answerIndexName,
+  .answerIndexBody {
+    transition: none;
+  }
+}
+
+
+/* ══ 11 / 12 · CONTROL COMPLEXITY BY ROLE ═══════════════════════════
+ * 通过角色与权限控制复杂度。
+ * 主舞台是 Role → Capability → Scope 三列自上而下对齐的 editorial 结构，
+ * 不是权限表格、不是后台截图墙，也不做 Bento / 大圆角卡片。
+ * 交互只改主动行与降权行的透明度与标记轨，终态无残留 transform / filter。 */
+
+.chapterRoleAccess {
+  padding-block: 172px 196px;
+}
+
+.roleAccessHeader {
+  max-width: 900px;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.roleAccessHeader .meta {
+  max-width: none;
+  justify-content: center;
+  margin-inline: auto;
+}
+
+.roleAccessHeader .intro {
+  max-width: 720px;
+  margin-inline: auto;
+}
+
+.roleAccessReveal .revealItem {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 560ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 560ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.roleAccessReveal[data-entered="true"] .revealItem {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── P0 主舞台：真实权限配置界面（全章唯一主视觉，占内容区 ~90%）── */
+
+.roleAccessStage {
+  width: min(100%, 1040px);
+  margin: 64px auto 0;
+}
+
+/* ── P2 三项机制：主界面下方的轻量注解（编号 + 标题 + 一句说明）── */
+
+.roleAccessDimensions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 40px;
+  width: min(100%, 1160px);
+  margin: 72px auto 0;
+}
+
+.roleAccessDimHead {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0;
+}
+
+/* 编号：品牌蓝 mono，与 03 / 04 / 05 / 10 章编号同一套语言。 */
+.roleAccessDimNum {
+  color: var(--cs-accent);
+  font-family: var(--font-number);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  line-height: 1.4;
+}
+
+.roleAccessDimName {
+  color: var(--cs-ink);
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+.roleAccessDimLead {
+  margin: 12px 0 0;
+  color: var(--cs-ink-soft);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.75;
+}
+
+/* ── 低权重 Caption：一句话收束 ───────────────────────────────────── */
+
+.roleAccessClosing {
+  width: min(100%, 1160px);
+  margin: 44px auto 0;
+  color: var(--cs-ink-faint);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.7;
+  text-align: center;
+}
+
+/* ── 主舞台截图：真实权限配置界面 ─────────────────────────────────── */
+
+.roleAccessImage {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid rgb(59 66 61 / 11%);
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow:
+    0 18px 42px rgb(29 29 31 / 8%),
+    0 3px 10px rgb(29 29 31 / 4%);
+}
+
+/* ── ≤1180：三列机制与主舞台同步收窄 ──────────────────────────────── */
+
+@media (max-width: 1180px) {
+  .chapterRoleAccess {
+    padding-block: 128px 144px;
+  }
+
+  .roleAccessStage {
+    margin-top: 56px;
+  }
+
+  .roleAccessDimensions {
+    gap: 28px;
+    margin-top: 56px;
+  }
+
+  .roleAccessDimName {
+    font-size: 17px;
+  }
+
+}
+
+/* ── ≤720：三项机制转纵向 ─────────────────────────────────────── */
+
+@media (max-width: 720px) {
+  .chapterRoleAccess {
+    padding-block: 96px 112px;
+  }
+
+  .roleAccessStage {
+    margin-top: 44px;
+  }
+
+  .roleAccessDimensions {
+    grid-template-columns: 1fr;
+    gap: 22px;
+    margin-top: 44px;
+  }
+
+  .roleAccessClosing {
+    margin-top: 36px;
+    text-align: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roleAccessReveal .revealItem {
+    transition: none;
+  }
+}
+
+
+/* ══ 12 / 12 · DESIGN REFLECTION ════════════════════════════════════
+ * 「从复杂能力，到清晰体验」（2026-09-23 整章重设计，取代旧「设计方法与复盘」）。
+ * 最后一章不是功能总结，也不是 KPI 页：章头一句核心立场 → 三张
+ * Reflection 卡（各带「对应章节」胶囊锚点，回扣前文）→ My Role 收尾。
+ *
+ * Reflection Card Layout（2026-09-23 晚二轮改版，按用户提供的外部组件
+ * 样式）：圆角 16 卡 + 细描边 + 半透明卡底 + 角落彩色光晕（radial-
+ * gradient 实现，不用 filter:blur——下方残留守卫禁 filter）+ 圆形
+ * 图标位；编号 DINPro；新样式不写 600（本机思源 600 会粘连到 Bold）。
+ * reveal 只做 fade + 10px 上移，章头 → 三卡 → My Role 依次错落；
+ * 终态无残留 transform / filter。 */
+
+.chapterImpact {
+  padding-block: 172px 200px;
+}
+
+/* ── 章头：居中（与 headerCentered 同语言）────────────────────────── */
+.impactHeader {
+  max-width: 900px;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.impactHeader .meta {
+  max-width: none;
+  justify-content: center;
+  margin-inline: auto;
+}
+
+/* 核心总结句：这一页的立场。比常规 intro 大一档，窄列断成两行，
+ * 读成一句慢下来的陈述而不是导语。 */
+.impactHeader .intro {
+  max-width: 620px;
+  margin-inline: auto;
+  font-size: 19px;
+  line-height: 1.8;
+}
+
+/* ── 入场：fade + 10px 上移，容器放行后按 --reveal-delay 错落 ─────── */
+.impactReveal .revealItem {
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 560ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 560ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.impactReveal[data-entered="true"] .revealItem {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── Reflection 卡片网格（2026-09-23 晚二轮改版，用户提供的外部组件
+ * 样式：圆角卡 + 细描边 + 半透明底 + 角落彩色光晕 + 圆形图标位）────
+ * 光晕用 radial-gradient 而非 filter:blur——终态残留守卫禁 filter。 */
+.impactReflectionList {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  width: min(100%, 1160px);
+  margin: 96px auto 0;
+  padding: 0;
+  list-style: none;
+}
+
+.impactReflection {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 28px 26px 30px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* 光晕：每卡一角，三卡分别 indigo / cyan / fuchsia（颜色 inline 传入）。 */
+.impactReflectionGlow {
+  position: absolute;
+  width: 240px;
+  height: 240px;
+  border-radius: 9999px;
+  pointer-events: none;
+}
+
+.impactReflection:nth-child(1) .impactReflectionGlow {
+  top: -92px;
+  left: -84px;
+}
+
+.impactReflection:nth-child(2) .impactReflectionGlow {
+  top: -110px;
+  right: -74px;
+}
+
+.impactReflection:nth-child(3) .impactReflectionGlow {
+  bottom: -104px;
+  right: -84px;
+}
+
+/* 卡顶行：圆形图标位（48px 描边圆环）+ DINPro 编号收右上角。 */
+.impactReflectionTop {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.impactReflectionIcon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--reflection-icon, var(--cs-accent));
+}
+
+.impactReflectionIcon svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* 编号：DINPro（全站数字/编号唯一字体；不用 mono）。 */
+.impactReflectionIndex {
+  color: var(--cs-ink-faint);
+  font-family: var(--font-number);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  padding-top: 4px;
+}
+
+/* Reflection 标题：卡内重音（24–28px；中文 600 会渲染成 Bold，
+ * 按站规用真实 Medium 500）。 */
+.impactReflectionTitle {
+  position: relative;
+  margin: 22px 0 0;
+  color: var(--cs-ink);
+  font-size: clamp(24px, 2.2vw, 28px);
+  font-weight: 500;
+  letter-spacing: -0.022em;
+  line-height: 1.4;
+}
+
+.impactReflectionBody {
+  position: relative;
+  /* 撑满剩余高度：把「对应章节」胶囊行压到卡片底边对齐。 */
+  flex: 1 1 auto;
+  margin: 12px 0 0;
+  color: var(--cs-ink-soft);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.9;
+}
+
+/* 对应章节：胶囊锚点行——参考组件 Card 3 的 chip 语言，整组可点。 */
+.impactReflectionRefs {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 22px 0 0;
+}
+
+.impactReflectionRefsLabel {
+  margin-right: 6px;
+  color: var(--cs-ink-faint);
+  /* 站规：含中文文本 ≥14px（12px 只允许纯英文/数字标签），层级靠颜色。 */
+  font-size: 14px;
+  letter-spacing: 0.12em;
+}
+
+.impactReflectionRef {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 12px 4px 5px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--cs-ink-soft);
+  font-size: 14px;
+  line-height: 1.6;
+  text-decoration: none;
+  transition:
+    color 160ms ease,
+    border-color 160ms ease;
+}
+
+/* 章号小徽：纯数字允许 12px（站规小字号豁免仅限英文/数字）。 */
+.impactReflectionRefIndex {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 7px;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--cs-ink-faint);
+  font-family: var(--font-number);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  line-height: 1.6;
+  transition: color 160ms ease;
+}
+
+.impactReflectionRef:hover {
+  border-color: var(--cs-accent);
+  color: var(--cs-accent);
+}
+
+.impactReflectionRef:hover .impactReflectionRefIndex {
+  color: var(--cs-accent);
+}
+
+/* ── My Role：设计贡献收尾，一条 hairline 终线 ───────────────────── */
+.impactRole {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 16px 56px;
+  width: min(100%, 1160px);
+  margin: 128px auto 0;
+  padding-top: 34px;
+  border-top: 1px solid var(--cs-rule);
+}
+
+.impactRoleLabel {
+  color: var(--cs-ink-faint);
+  font-family: var(--font-number);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+/* 四项英文能力域：按站规英文不与中文同栈，走 DINPro 档（--font-number）。 */
+.impactRoleItems {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 40px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.impactRoleItems li {
+  color: var(--cs-ink);
+  font-family: var(--font-number);
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.6;
+}
+
+/* ── ≤1180：章距收半，三卡转两卡（第三卡换行，与参考组件 md:2 同行为） */
+@media (max-width: 1180px) {
+  .chapterImpact {
+    padding-block: 128px 152px;
+  }
+
+  .impactReflectionList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 80px;
+  }
+
+  .impactReflection {
+    padding: 24px 22px 26px;
+  }
+
+  .impactRole {
+    margin-top: 104px;
+  }
+}
+
+/* ── ≤720：全部单列，编号/标题/正文降档，My Role 转纵向 ───────────── */
+@media (max-width: 720px) {
+  .chapterImpact {
+    padding-block: 96px 112px;
+  }
+
+  .impactHeader .intro {
+    font-size: 17px;
+  }
+
+  .impactReflectionList {
+    grid-template-columns: minmax(0, 1fr);
+    margin-top: 56px;
+  }
+
+  .impactReflection {
+    padding: 22px 18px 24px;
+  }
+
+  .impactReflectionTitle {
+    font-size: 22px;
+  }
+
+  .impactReflectionBody {
+    margin-top: 10px;
+    font-size: 15px;
+  }
+
+  .impactRole {
+    display: block;
+    margin-top: 80px;
+  }
+
+  .impactRoleItems {
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .impactReveal .revealItem {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

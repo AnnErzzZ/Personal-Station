@@ -1,0 +1,99 @@
+.root {
+  --entrance-duration: 560ms;
+  --entrance-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.fillWidth {
+  width: 100%;
+}
+
+.root[data-entrance-state="idle"][data-entrance-self="fade"] {
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+}
+
+.root[data-entrance-state="idle"][data-entrance-self="content"] {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0) scale(0.994);
+}
+
+.root[data-entrance-state="idle"][data-entrance-self="opacity"] {
+  opacity: 0;
+}
+
+.root[data-entrance-state="visible"][data-entrance-self] {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity var(--entrance-duration) var(--entrance-ease) var(--entrance-self-delay, 0ms),
+    transform var(--entrance-duration) var(--entrance-ease) var(--entrance-self-delay, 0ms);
+}
+
+.root[data-entrance-state="idle"] [data-entrance-item] {
+  opacity: 0;
+}
+
+.root[data-entrance-state="idle"] [data-entrance-item][data-entrance-variant="fade"] {
+  transform: translate3d(0, 18px, 0);
+}
+
+.root[data-entrance-state="idle"] [data-entrance-item][data-entrance-variant="content"] {
+  transform: translate3d(0, 14px, 0) scale(0.994);
+}
+
+.root[data-entrance-state="visible"] [data-entrance-item] {
+  opacity: 1;
+  transition: opacity var(--entrance-duration) var(--entrance-ease) var(--entrance-delay, 0ms);
+}
+
+.root[data-entrance-state="visible"]
+  [data-entrance-item]:is(
+    [data-entrance-variant="fade"],
+    [data-entrance-variant="content"]
+  ) {
+  transform: none;
+  transition:
+    opacity var(--entrance-duration) var(--entrance-ease) var(--entrance-delay, 0ms),
+    transform var(--entrance-duration) var(--entrance-ease) var(--entrance-delay, 0ms);
+}
+
+.root :is([data-entrance-step="title"]),
+.root[data-entrance-self-step="title"] {
+  --entrance-delay: 120ms;
+  --entrance-self-delay: 120ms;
+}
+
+.root :is([data-entrance-step="support"]),
+.root[data-entrance-self-step="support"] {
+  --entrance-delay: 260ms;
+  --entrance-self-delay: 260ms;
+}
+
+.root :is([data-entrance-step="primary"]),
+.root[data-entrance-self-step="primary"] {
+  --entrance-delay: 420ms;
+  --entrance-self-delay: 420ms;
+}
+
+.root :is([data-entrance-step="secondary"]),
+.root[data-entrance-self-step="secondary"] {
+  --entrance-delay: 560ms;
+  --entrance-self-delay: 560ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root,
+  .root[data-entrance-state] [data-entrance-item] {
+    opacity: 1 !important;
+    transition: none !important;
+  }
+
+  .root[data-entrance-state][data-entrance-self],
+  .root[data-entrance-state]
+    [data-entrance-item]:is(
+      [data-entrance-variant="fade"],
+      [data-entrance-variant="content"]
+    ) {
+    transform: none !important;
+  }
+}

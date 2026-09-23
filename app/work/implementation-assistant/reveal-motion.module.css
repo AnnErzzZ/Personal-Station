@@ -1,0 +1,28 @@
+.group {
+  width: 100%;
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  transition:
+    opacity 560ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 560ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.group[data-reveal-variant="content"] {
+  transform: translate3d(0, 14px, 0) scale(0.994);
+}
+
+.group[data-revealed="true"] {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .group,
+  .group[data-reveal-variant="content"] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

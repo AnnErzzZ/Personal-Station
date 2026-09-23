@@ -1,0 +1,683 @@
+.casePage {
+  --case-dark: #111113;
+  --case-text: #1c2024;
+  --case-text-subtle: #60646c;
+  --case-text-dark-muted: #777b84;
+  --case-border: #d9d9e0;
+  --case-accent: #e5484d;
+  width: 100%;
+  overflow-x: clip;
+  overflow-y: visible;
+  background: #ffffff;
+  color: var(--case-text);
+  /* 全站字体三档（定义在 styles/globals.css，与首页同一套）。 */
+  font-family: var(--font-cn);
+}
+
+.casePage :where(h1, h2, h3, p, dl, dd, ol) {
+  margin: 0;
+}
+
+.casePage ol {
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * 1024 高是 Figma 的版面基准：视口更高时把这一屏补足到视口高，再把 1024 的
+ * 构图整体下移，让主图在视口里垂直居中（1132px 及更矮的视口 lift = 0，
+ * 与 Figma 版面完全一致）；内部坐标与间距一点都不动。
+ * 06 / 08 那几屏用的是同一套约定（min-height: max(1024px, 100vh) + 居中）。
+ */
+.hero {
+  --case-hero-h: 1024px;
+  --case-hero-media-h: 916px;
+  --case-hero-media-top: 108px;
+  /* 主图在视口里居中；1024 基准及更矮的视口 lift = 0，构图一点不动。 */
+  --case-hero-lift: max(
+    0px,
+    calc((100vh - var(--case-hero-media-h)) / 2 - var(--case-hero-media-top))
+  );
+  position: relative;
+  height: max(var(--case-hero-h), 100vh);
+  overflow: hidden;
+  background: var(--case-dark);
+}
+
+.heroMedia {
+  position: absolute;
+  top: calc(108px + var(--case-hero-lift));
+  left: calc(50% - 296px);
+  width: 1221px;
+  height: 916px;
+}
+
+.heroMedia img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.heroContent {
+  position: absolute;
+  z-index: 1;
+  top: calc(371px + var(--case-hero-lift));
+  left: max(60px, calc(50% - 660px));
+  display: flex;
+  width: 569px;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.heroCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  color: #edeef0;
+}
+
+.heroCopy h1 {
+  display: flex;
+  flex-direction: column;
+  /* 中文大标题 → 中文栈（原 "Alimama ShuHeiTi" 本机未安装，一直在静默回退）。 */
+  font-family: var(--font-cn);
+  font-size: 64px;
+  font-weight: 800;
+  line-height: 1.203125;
+}
+
+.heroCopy h1 span {
+  display: block;
+}
+
+.heroDescription {
+  font-family: var(--font-cn);
+  font-size: 20px;
+  line-height: 1.8;
+}
+
+.heroDescription p:first-child {
+  font-weight: 400;
+}
+
+.heroDescription p:last-child {
+  color: #b0b4ba;
+  font-weight: 400;
+}
+
+.heroMeta {
+  display: flex;
+  gap: 40px;
+  align-items: center;
+  /* 混排：「角色/周期」与「产品设计/UX/UI」是中文，周期值是 `2026.03-2026.05`。
+     容器走中文栈保证中文正常；纯数字的周期值由下面 dd 覆盖为 DINPro。 */
+  font-family: var(--font-cn);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.heroMeta > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.heroMeta > div > div:last-child {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.heroMeta dt {
+  color: #b0b4ba;
+  font-weight: 400;
+}
+
+.heroMeta dd {
+  color: #edeef0;
+  font-weight: 500;
+}
+
+.metaIcon {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  place-items: center;
+  border: 1px solid #777b84;
+  border-radius: 50%;
+}
+
+.metaIcon img {
+  display: block;
+  width: 18px;
+  height: 18px;
+}
+
+.backgroundSection,
+.problemSection {
+  position: relative;
+  width: 100%;
+  padding-right: max(60px, calc(50% - 660px));
+  padding-left: max(60px, calc(50% - 660px));
+  background: #ffffff;
+}
+
+.backgroundSection {
+  display: flex;
+  height: 681px;
+  flex-direction: column;
+  gap: 64px;
+  padding-top: 120px;
+  padding-bottom: 120px;
+}
+
+.sectionHeader {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.sectionMeta {
+  display: flex;
+  width: 100%;
+  height: 18px;
+  align-items: center;
+  justify-content: space-between;
+  color: #8b8d98;
+  font-family: var(--font-number);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 18px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.sectionHeader h2 {
+  width: 100%;
+  color: var(--case-text);
+  /* 中文章节标题 → 中文栈（原 Alibaba PuHuiTi 属待清理的旧 display 字体）。 */
+  font-family: var(--font-cn);
+  font-size: 48px;
+  font-weight: 500;
+  line-height: 67px;
+}
+
+.projectCards {
+  display: grid;
+  height: 280px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  overflow: hidden;
+  border: 1px solid var(--case-border);
+  border-radius: 22px;
+}
+
+.projectCard {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 32px;
+  padding: 40px;
+}
+
+.projectCard + .projectCard {
+  border-left: 1px solid var(--case-border);
+}
+
+.projectCardIcon {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--case-text);
+}
+
+.projectCardIcon img {
+  display: block;
+  width: 18px;
+  height: 18px;
+}
+
+.projectCard > div {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.projectCard h3 {
+  color: #000000;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.projectCard p {
+  color: var(--case-text-subtle);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.problemSection {
+  display: flex;
+  height: 948px;
+  flex-direction: column;
+  gap: 80px;
+  padding-top: 120px;
+  padding-bottom: 120px;
+}
+
+.sectionDivider {
+  position: absolute;
+  top: 0;
+  left: max(60px, calc(50% - 660px));
+  display: block;
+  width: min(1320px, calc(100% - 120px));
+  height: 1px;
+}
+
+.whyGroup {
+  display: flex;
+  height: 708px;
+  flex: 0 0 708px;
+  flex-direction: column;
+  gap: 44px;
+}
+
+.whyGroup .sectionHeader,
+.legacyHeader {
+  height: 196px;
+  flex: 0 0 196px;
+}
+
+.legacyTransitionContent {
+  display: flex;
+  width: 100%;
+  max-width: 1320px;
+  height: 536px;
+  flex-direction: column;
+  gap: 80px;
+}
+
+.sectionIntro {
+  width: 811px;
+  max-width: 100%;
+  color: var(--case-text-subtle);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.8;
+}
+
+.sectionIntro strong {
+  color: var(--case-text);
+  font-weight: 400;
+}
+
+.problemPanel {
+  display: grid;
+  height: 468px;
+  flex: 0 0 468px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 64px;
+  padding: 48px;
+  overflow: hidden;
+  border: 1px solid #000000;
+  border-radius: 28px;
+  background: var(--case-dark);
+}
+
+.problemSteps {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.problemSteps li {
+  display: flex;
+  height: 42px;
+  flex: 0 0 42px;
+  gap: 24px;
+}
+
+.problemTrack {
+  display: flex;
+  width: 16px;
+  height: 42px;
+  flex: 0 0 16px;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.problemTrack > img:first-child {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+}
+
+.problemLine {
+  width: 16px;
+  height: 32px;
+  flex: 0 0 32px;
+}
+
+.problemText {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 12px;
+  line-height: 1;
+}
+
+.problemText strong {
+  color: #edeef0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.problemText > span {
+  color: var(--case-text-dark-muted);
+  font-size: 14px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.problemLabelGrid {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.problemLabelGrid div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 24px;
+  border: 1px solid rgba(217, 237, 254, 0.15);
+  border-radius: 22px;
+  background: rgba(221, 234, 248, 0.08);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.8;
+  white-space: nowrap;
+}
+
+.problemCardTitle {
+  flex: 0 0 auto;
+}
+
+.legacyFlow {
+  position: relative;
+  display: grid;
+  height: 260px;
+  flex: 0 0 260px;
+  grid-template-columns: repeat(9, 110px);
+  justify-content: space-between;
+}
+
+.legacyFlow li {
+  position: relative;
+  display: flex;
+  height: 260px;
+  flex-direction: column;
+}
+
+.flowTop {
+  justify-content: flex-start;
+}
+
+.flowBottom {
+  justify-content: flex-end;
+}
+
+.flowCopy {
+  display: flex;
+  width: 110px;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.flowCopy h3 {
+  color: var(--case-text);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.flowCopy p {
+  color: var(--case-text-subtle);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.flowMarker {
+  position: absolute;
+  top: 108px;
+  left: 0;
+  display: flex;
+  width: 151.25px;
+  height: 20px;
+  align-items: center;
+  gap: 8px;
+}
+
+.legacyFlow li:last-child .flowMarker {
+  width: 20px;
+}
+
+.flowMarker span {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--case-accent);
+  color: #ffffff;
+  font-family: var(--font-number);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.flowMarker img {
+  display: block;
+  width: 115.25px;
+  height: 1px;
+  flex: 0 0 115.25px;
+}
+
+@media (max-width: 1100px) {
+  .heroContent,
+  .backgroundSection,
+  .problemSection {
+    --page-gutter: 40px;
+  }
+
+  .heroContent {
+    left: var(--page-gutter);
+  }
+
+  .backgroundSection,
+  .problemSection {
+    height: auto;
+    padding-right: var(--page-gutter);
+    padding-left: var(--page-gutter);
+  }
+
+  .sectionDivider {
+    left: var(--page-gutter);
+    width: calc(100% - (var(--page-gutter) * 2));
+  }
+
+  .backgroundSection {
+    min-height: 681px;
+  }
+
+  .projectCards {
+    height: auto;
+  }
+
+  .projectCard {
+    min-height: 280px;
+    padding: 32px;
+  }
+
+  .whyGroup,
+  .whyGroup .sectionHeader,
+  .legacyHeader,
+  .legacyTransitionContent,
+  .problemPanel,
+  .legacyFlow {
+    height: auto;
+    flex-basis: auto;
+  }
+
+  .problemPanel {
+    grid-template-columns: 1fr;
+  }
+
+  .problemText > span {
+    line-height: 20px;
+    white-space: normal;
+  }
+
+  .legacyFlow {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .legacyFlow li,
+  .flowCopy {
+    width: 100%;
+    height: auto;
+  }
+
+  .legacyFlow li {
+    min-height: 76px;
+    padding-left: 48px;
+    justify-content: flex-start;
+  }
+
+  .flowMarker {
+    top: 0;
+    left: 0;
+    width: 20px;
+  }
+
+  .flowMarker img {
+    position: absolute;
+    top: 28px;
+    left: 9px;
+    width: 1px;
+    height: 80px;
+    object-fit: cover;
+  }
+}
+
+@media (max-width: 720px) {
+  .hero {
+    height: 820px;
+  }
+
+  .heroMedia {
+    top: 250px;
+    left: 2%;
+    width: 840px;
+    height: 630px;
+    opacity: 0.62;
+  }
+
+  .heroContent {
+    top: 96px;
+    left: 24px;
+    width: calc(100% - 48px);
+  }
+
+  .heroCopy h1 {
+    font-size: clamp(44px, 13vw, 58px);
+  }
+
+  .heroDescription {
+    font-size: 16px;
+  }
+
+  .heroMeta {
+    flex-wrap: wrap;
+    gap: 20px 32px;
+  }
+
+  .backgroundSection,
+  .problemSection {
+    --page-gutter: 24px;
+    padding-top: 80px;
+    padding-bottom: 80px;
+  }
+
+  .backgroundSection,
+  .problemSection,
+  .whyGroup,
+  .legacyTransitionContent {
+    gap: 56px;
+  }
+
+  .sectionHeader h2 {
+    font-size: 38px;
+    line-height: 1.35;
+  }
+
+  .projectCards {
+    grid-template-columns: 1fr;
+  }
+
+  .projectCard {
+    min-height: 240px;
+  }
+
+  .projectCard + .projectCard {
+    border-top: 1px solid var(--case-border);
+    border-left: 0;
+  }
+
+  .problemPanel {
+    gap: 40px;
+    padding: 28px 20px;
+    border-radius: 22px;
+  }
+
+  .problemSteps {
+    gap: 36px;
+  }
+
+  .problemSteps li {
+    height: auto;
+    min-height: 42px;
+  }
+
+  .problemLabelGrid {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+  }
+
+  .problemLabelGrid div {
+    min-height: 112px;
+  }
+
+  .sectionMeta {
+    font-size: 12px;
+  }
+}

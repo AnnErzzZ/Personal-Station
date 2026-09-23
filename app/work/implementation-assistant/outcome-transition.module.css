@@ -1,0 +1,64 @@
+.scene {
+  --outcome-scale: 1;
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  background: #fcfcfd;
+}
+
+.background {
+  position: absolute;
+  inset: 0;
+  background: #111113;
+  opacity: 0;
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.layer > * {
+  width: 100%;
+  transform: scale(var(--outcome-scale));
+  transform-origin: center center;
+}
+
+@media (max-width: 900px), (prefers-reduced-motion: reduce) {
+  .scene {
+    height: auto !important;
+    min-height: 0;
+  }
+
+  .sticky {
+    position: static;
+    height: auto;
+    overflow: visible;
+  }
+
+  .background {
+    display: none;
+  }
+
+  .layer {
+    position: static;
+    display: block;
+    opacity: 1 !important;
+    transform: none !important;
+    visibility: visible !important;
+  }
+
+  .layer > * {
+    transform: none;
+  }
+}

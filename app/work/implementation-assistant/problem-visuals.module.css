@@ -1,0 +1,852 @@
+.visual {
+  --pv-bright: #edeef0;
+  --pv-strong: #d9d9e0;
+  --pv-mid: rgba(237, 238, 240, 0.62);
+  --pv-soft: rgba(237, 238, 240, 0.34);
+  --pv-faint: rgba(237, 238, 240, 0.2);
+  --pv-ghost: rgba(237, 238, 240, 0.14);
+  --pv-surface: #212226;
+  --pv-warning: #ffc53d;
+  --pv-success: #5bb773;
+  display: block;
+  width: 100%;
+  max-width: 266px;
+  height: auto;
+  margin-top: 6px;
+  align-self: center;
+}
+
+[data-motion-card="flow-break"] .visual {
+  transform: translateY(4px) scale(1.06);
+  transform-origin: center;
+}
+
+[data-motion-card="repeat"] .visual {
+  transform: translateY(6px) scale(1.08);
+  transform-origin: center;
+}
+
+[data-motion-card="cross-tool"] .visual {
+  transform: translateY(4px) scale(1.03);
+  transform-origin: center;
+}
+
+[data-motion-card="guidance-gap"] .visual {
+  transform: translateY(5px) scale(1.06);
+  transform-origin: center;
+}
+
+/* 本地图标库 color 变量：图标内部用 currentColor，几何与线宽保持原始值 */
+.iconWarning {
+  color: var(--pv-warning);
+}
+
+.iconSuccess {
+  color: var(--pv-success);
+}
+
+.iconAccent {
+  color: var(--pv-warning);
+}
+
+.iconMuted {
+  color: rgba(237, 238, 240, 0.34);
+}
+
+.iconDecision {
+  color: var(--pv-strong);
+}
+
+/* 01 流程断点 */
+.flowRailDone {
+  fill: none;
+  stroke: var(--pv-strong);
+  stroke-linecap: round;
+  stroke-width: 2.2;
+}
+
+.flowNodeDone {
+  fill: var(--pv-surface);
+  stroke: var(--pv-bright);
+  stroke-width: 1.8;
+}
+
+.flowNodeDoneDot {
+  fill: var(--pv-bright);
+}
+
+.flowNodeBreakMask {
+  fill: var(--pv-surface);
+}
+
+.flowNodeBreakRing {
+  fill: rgba(255, 197, 61, 0.1);
+  stroke: rgba(255, 197, 61, 0.78);
+  stroke-width: 2;
+}
+
+.flowNodeBreak {
+  fill: var(--pv-warning);
+}
+
+.flowConnector {
+  fill: none;
+  stroke: var(--pv-warning);
+  stroke-dasharray: 4 5;
+  stroke-linecap: round;
+  stroke-width: 2;
+}
+
+.flowRailPending {
+  fill: none;
+  stroke: rgba(237, 238, 240, 0.26);
+  stroke-dasharray: 5 6;
+  stroke-linecap: round;
+  stroke-width: 1.8;
+}
+
+.flowNodePending {
+  fill: var(--pv-surface);
+  stroke: rgba(237, 238, 240, 0.32);
+  stroke-width: 1.8;
+}
+
+.flowNodePendingDot {
+  fill: rgba(237, 238, 240, 0.42);
+}
+
+/* 02 大量重复操作 */
+.repeatBox {
+  fill: rgba(237, 238, 240, 0.025);
+  stroke: rgba(237, 238, 240, 0.16);
+  stroke-width: 1.2;
+}
+
+.repeatDot {
+  fill: rgba(237, 238, 240, 0.32);
+}
+
+.repeatLine {
+  fill: none;
+  stroke: rgba(237, 238, 240, 0.3);
+  stroke-linecap: round;
+  stroke-width: 1.6;
+}
+
+.repeatLineSoft {
+  fill: none;
+  stroke: rgba(237, 238, 240, 0.16);
+  stroke-linecap: round;
+  stroke-width: 1.6;
+}
+
+.repeatItemAccent .repeatBox {
+  stroke: rgba(255, 197, 61, 0.55);
+  fill: rgba(255, 197, 61, 0.035);
+}
+
+.repeatItemAccent .repeatDot {
+  fill: var(--pv-warning);
+}
+
+.repeatItemAccent .repeatLine {
+  stroke: rgba(237, 238, 240, 0.42);
+}
+
+/* 03 跨工具 */
+.panelBox {
+  fill: rgba(237, 238, 240, 0.025);
+  stroke: rgba(237, 238, 240, 0.18);
+  stroke-width: 1.2;
+}
+
+.panelBlock {
+  fill: rgba(237, 238, 240, 0.24);
+}
+
+.panelLine {
+  fill: rgba(237, 238, 240, 0.22);
+}
+
+.panelLineSoft {
+  fill: rgba(237, 238, 240, 0.12);
+}
+
+.transferPath {
+  color: var(--pv-faint);
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-width: 2;
+}
+
+[data-motion-card="cross-tool"]
+  :is([data-part="forward-arrow"], [data-part="return-arrow"]) {
+  color: var(--pv-faint);
+}
+
+.taskBox {
+  fill: var(--pv-surface);
+  stroke: rgba(237, 238, 240, 0.44);
+  stroke-width: 1.2;
+}
+
+.taskDot {
+  fill: var(--pv-warning);
+}
+
+.taskLine {
+  fill: none;
+  stroke: rgba(237, 238, 240, 0.5);
+  stroke-linecap: round;
+  stroke-width: 1.6;
+}
+
+.taskLineSoft {
+  fill: none;
+  stroke: rgba(237, 238, 240, 0.24);
+  stroke-linecap: round;
+  stroke-width: 1.6;
+}
+
+/* 03 / 04 共用的极淡回程虚线 */
+.returnPath {
+  color: var(--pv-faint);
+  fill: none;
+  stroke: currentColor;
+  stroke-dasharray: 2 5;
+  stroke-linecap: round;
+  stroke-width: 1.4;
+}
+
+/* 04 缺少指引 / 防错 */
+.entryPath {
+  fill: none;
+  stroke: var(--pv-strong);
+  stroke-linecap: round;
+  stroke-width: 2;
+}
+
+.startNode {
+  fill: var(--pv-bright);
+}
+
+.wrongBranch {
+  fill: none;
+  stroke: var(--pv-warning);
+  stroke-linecap: round;
+  stroke-width: 2;
+}
+
+.correctBranch {
+  fill: none;
+  stroke: var(--pv-strong);
+  stroke-linecap: round;
+  stroke-width: 2;
+}
+
+.correctArrow .iconAccent {
+  color: var(--pv-strong);
+}
+
+.hesitationPath {
+  fill: none;
+  stroke: rgba(237, 238, 240, 0.2);
+  stroke-dasharray: 1.5 4.5;
+  stroke-linecap: round;
+  stroke-width: 1.4;
+}
+
+/* --------------------------------------------------------------- */
+/* SVG MOTION PASS                                                  */
+/* --------------------------------------------------------------- */
+
+/*
+ * 动画只在 motion scope 已进入过视口后挂载。paused 保留当前帧，
+ * running 恢复同一轮；SVG DOM 与所有静态 geometry 始终不变。
+ */
+[data-problem-motion="paused"] .visual * {
+  animation-play-state: paused !important;
+}
+
+:is([data-problem-motion="running"], [data-problem-motion="paused"])
+  [data-motion-card="flow-break"]
+  :is(
+    .flowNodeBreak,
+    .iconWarning,
+    .flowConnector,
+    .flowNodePending,
+    .flowNodePendingDot
+  ) {
+  animation-delay: var(--motion-offset);
+  animation-duration: 3s;
+  animation-fill-mode: both;
+  animation-iteration-count: infinite;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+:is([data-problem-motion="running"], [data-problem-motion="paused"])
+  [data-motion-card="flow-break"]
+  .flowNodeBreak {
+  animation-name: flowProgress, flowOpacity;
+  animation-timing-function:
+    cubic-bezier(0.22, 1, 0.36, 1),
+    cubic-bezier(0.4, 0, 0.2, 1);
+  transform-box: fill-box;
+  transform-origin: center;
+  will-change: opacity, transform;
+}
+
+:is([data-problem-motion="running"], [data-problem-motion="paused"])
+  [data-motion-card="flow-break"]
+  .iconWarning {
+  animation-name: flowWarning;
+  will-change: opacity;
+}
+
+:is([data-problem-motion="running"], [data-problem-motion="paused"])
+  [data-motion-card="flow-break"]
+  .flowConnector {
+  animation-name: flowConnectionAttempt;
+  will-change: opacity;
+}
+
+:is([data-problem-motion="running"], [data-problem-motion="paused"])
+  [data-motion-card="flow-break"]
+  :is(.flowNodePending, .flowNodePendingDot) {
+  animation-name: flowPendingWake;
+  will-change: opacity;
+}
+
+@keyframes flowProgress {
+  0%,
+  8% {
+    transform: translateX(-84px);
+  }
+  80%,
+  96% {
+    transform: translateX(0);
+  }
+  96.01%,
+  100% {
+    transform: translateX(-84px);
+  }
+}
+
+@keyframes flowOpacity {
+  0% {
+    opacity: 0;
+  }
+  8%,
+  88% {
+    opacity: 1;
+  }
+  96%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes flowWarning {
+  0%,
+  76% {
+    opacity: 0.38;
+  }
+  82%,
+  94% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.38;
+  }
+}
+
+@keyframes flowConnectionAttempt {
+  0%,
+  78% {
+    opacity: 0.35;
+  }
+  84%,
+  94% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0.35;
+  }
+}
+
+@keyframes flowPendingWake {
+  0%,
+  80% {
+    opacity: 0.45;
+  }
+  86%,
+  94% {
+    opacity: 0.75;
+  }
+  100% {
+    opacity: 0.45;
+  }
+}
+
+/* 02 大量重复操作：固定构图内逐项执行，已执行项保留弱完成态。 */
+:is([data-problem-motion="running"], [data-problem-motion="paused"])
+  [data-motion-card="repeat"]
+  [data-role="repeat-item"] {
+  animation-delay: var(--motion-offset);
+  animation-duration: 3s;
+  animation-fill-mode: both;
+  animation-iteration-count: infinite;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: color, opacity;
+}
+
+:is([data-problem-motion="running"], [data-problem-motion="paused"])
+  [data-motion-card="repeat"]
+  [data-role="repeat-item"]
+  .repeatBox {
+  stroke: currentColor;
+}
+
+:is([data-problem-motion="running"], [data-problem-motion="paused"])
+  [data-motion-card="repeat"]
+  [data-role="repeat-item"]
+  .repeatDot {
+  fill: currentColor;
+}
+
+:is([data-problem-motion="running"], [data-problem-motion="paused"])
+  [data-motion-card="repeat"]
+  [data-part="repeat-item-1"] {
+  animation-name: repeatExecute1;
+}
+
+:is([data-problem-motion="running"], [data-problem-motion="paused"])
+  [data-motion-card="repeat"]
+  [data-part="repeat-item-2"] {
+  animation-name: repeatExecute2;
+}
+
+:is([data-problem-motion="running"], [data-problem-motion="paused"])
+  [data-motion-card="repeat"]
+  [data-part="repeat-item-3"] {
+  animation-name: repeatExecute3;
+}
+
+:is([data-problem-motion="running"], [data-problem-motion="paused"])
+  [data-motion-card="repeat"]
+  [data-part="repeat-item-4"] {
+  animation-name: repeatExecute4;
+}
+
+:is([data-problem-motion="running"], [data-problem-motion="paused"])
+  [data-motion-card="repeat"]
+  [data-part="repeat-item-5"] {
+  animation-name: repeatExecute5;
+}
+
+:is([data-problem-motion="running"], [data-problem-motion="paused"])
+  [data-motion-card="repeat"]
+  [data-part="repeat-item-6"] {
+  animation-name: repeatExecute6;
+}
+
+@keyframes repeatExecute1 {
+  0%, 8.32% { color: rgba(237, 238, 240, 0.2); opacity: 0.62; }
+  10.42%, 15.63% { color: rgba(255, 197, 61, 0.78); opacity: 1; }
+  17.71%, 91.66% { color: rgba(237, 238, 240, 0.36); opacity: 0.78; }
+  100% { color: rgba(237, 238, 240, 0.2); opacity: 0.62; }
+}
+
+@keyframes repeatExecute2 {
+  0%, 15.62% { color: rgba(237, 238, 240, 0.2); opacity: 0.62; }
+  17.71%, 22.92% { color: rgba(255, 197, 61, 0.78); opacity: 1; }
+  25%, 91.66% { color: rgba(237, 238, 240, 0.36); opacity: 0.78; }
+  100% { color: rgba(237, 238, 240, 0.2); opacity: 0.62; }
+}
+
+@keyframes repeatExecute3 {
+  0%, 22.91% { color: rgba(237, 238, 240, 0.2); opacity: 0.62; }
+  25%, 30.21% { color: rgba(255, 197, 61, 0.78); opacity: 1; }
+  32.29%, 91.66% { color: rgba(237, 238, 240, 0.36); opacity: 0.78; }
+  100% { color: rgba(237, 238, 240, 0.2); opacity: 0.62; }
+}
+
+@keyframes repeatExecute4 {
+  0%, 30.2% { color: rgba(237, 238, 240, 0.2); opacity: 0.62; }
+  32.29%, 37.5% { color: rgba(255, 197, 61, 0.78); opacity: 1; }
+  39.58%, 91.66% { color: rgba(237, 238, 240, 0.36); opacity: 0.78; }
+  100% { color: rgba(237, 238, 240, 0.2); opacity: 0.62; }
+}
+
+@keyframes repeatExecute5 {
+  0%, 37.49% { color: rgba(237, 238, 240, 0.2); opacity: 0.62; }
+  39.58%, 44.79% { color: rgba(255, 197, 61, 0.78); opacity: 1; }
+  46.88%, 91.66% { color: rgba(237, 238, 240, 0.36); opacity: 0.78; }
+  100% { color: rgba(237, 238, 240, 0.2); opacity: 0.62; }
+}
+
+@keyframes repeatExecute6 {
+  0%, 44.78% { color: rgba(237, 238, 240, 0.2); opacity: 0.62; }
+  46.88%, 52.08% { color: rgba(255, 197, 61, 0.78); opacity: 1; }
+  54.17%, 91.66% { color: rgba(237, 238, 240, 0.36); opacity: 0.78; }
+  100% { color: rgba(237, 238, 240, 0.2); opacity: 0.62; }
+}
+
+/* 03 跨工具：任务卡是唯一位移对象，两个工具面板只做明暗切换。 */
+:is([data-problem-motion="running"], [data-problem-motion="paused"])
+  [data-motion-card="cross-tool"]
+  .visual
+  :is(
+    [data-part="task-card"],
+    [data-part="tool-panel-a"],
+    [data-part="tool-panel-b"],
+    .transferPath,
+    .returnPath,
+    [data-part="forward-arrow"],
+    [data-part="return-arrow"]
+  ) {
+  animation-delay: var(--motion-offset);
+  animation-duration: 3s;
+  animation-fill-mode: both;
+  animation-iteration-count: infinite;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+:is([data-problem-motion="running"], [data-problem-motion="paused"])
+  [data-motion-card="cross-tool"]
+  .visual
+  [data-part="task-card"] {
+  animation-name: taskTransfer;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  transform-box: fill-box;
+  transform-origin: center;
+  will-change: transform;
+}
+
+:is([data-problem-motion="running"], [data-problem-motion="paused"])
+  [data-motion-card="cross-tool"]
+  .visual
+  [data-part="tool-panel-a"] {
+  animation-name: toolPanelAState;
+  will-change: opacity;
+}
+
+:is([data-problem-motion="running"], [data-problem-motion="paused"])
+  [data-motion-card="cross-tool"]
+  .visual
+  [data-part="tool-panel-b"] {
+  animation-name: toolPanelBState;
+  will-change: opacity;
+}
+
+:is([data-problem-motion="running"], [data-problem-motion="paused"])
+  [data-motion-card="cross-tool"]
+  :is(.transferPath, [data-part="forward-arrow"]) {
+  animation-name: outboundPathState;
+  will-change: color, opacity;
+}
+
+:is([data-problem-motion="running"], [data-problem-motion="paused"])
+  [data-motion-card="cross-tool"]
+  :is(.returnPath, [data-part="return-arrow"]) {
+  animation-name: returnPathState;
+  will-change: color, opacity;
+}
+
+@keyframes taskTransfer {
+  0%,
+  12.5% {
+    transform: translateX(-20px);
+  }
+  37.5%,
+  50% {
+    transform: translateX(20px);
+  }
+  79.17%,
+  100% {
+    transform: translateX(-20px);
+  }
+}
+
+@keyframes toolPanelAState {
+  0%,
+  12.5% {
+    opacity: 1;
+  }
+  37.5%,
+  50% {
+    opacity: 0.62;
+  }
+  79.17%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes toolPanelBState {
+  0%,
+  12.5% {
+    opacity: 0.62;
+  }
+  37.5%,
+  50% {
+    opacity: 1;
+  }
+  79.17%,
+  100% {
+    opacity: 0.62;
+  }
+}
+
+@keyframes outboundPathState {
+  0%,
+  8% {
+    color: var(--pv-faint);
+    opacity: 0.36;
+  }
+  12.5%,
+  37.5% {
+    color: var(--pv-warning);
+    opacity: 0.94;
+  }
+  46%,
+  100% {
+    color: var(--pv-faint);
+    opacity: 0.36;
+  }
+}
+
+@keyframes returnPathState {
+  0%,
+  46% {
+    color: var(--pv-faint);
+    opacity: 0.3;
+  }
+  50%,
+  79.17% {
+    color: var(--pv-warning);
+    opacity: 0.92;
+  }
+  88%,
+  100% {
+    color: var(--pv-faint);
+    opacity: 0.3;
+  }
+}
+
+/* 04 缺少指引 / 防错：起点圆点沿既有三条路径完成错、退、对。 */
+:is([data-problem-motion="running"], [data-problem-motion="paused"])
+  [data-motion-card="guidance-gap"]
+  :is(
+    .startNode,
+    .iconDecision,
+    .wrongBranch,
+    .hesitationPath,
+    .correctBranch,
+    .iconWarning,
+    .iconSuccess
+  ) {
+  animation-delay: var(--motion-offset);
+  animation-duration: 3s;
+  animation-fill-mode: both;
+  animation-iteration-count: infinite;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+:is([data-problem-motion="running"], [data-problem-motion="paused"])
+  [data-motion-card="guidance-gap"]
+  .startNode {
+  animation-name: guidanceProgress, guidanceOpacity;
+  animation-timing-function:
+    cubic-bezier(0.22, 1, 0.36, 1),
+    cubic-bezier(0.4, 0, 0.2, 1);
+  transform-box: fill-box;
+  transform-origin: center;
+  will-change: opacity, transform;
+}
+
+:is([data-problem-motion="running"], [data-problem-motion="paused"])
+  [data-motion-card="guidance-gap"]
+  .iconDecision {
+  animation-name: questionPause;
+  will-change: opacity;
+}
+
+:is([data-problem-motion="running"], [data-problem-motion="paused"])
+  [data-motion-card="guidance-gap"]
+  .wrongBranch {
+  animation-name: wrongPathState;
+  will-change: opacity;
+}
+
+:is([data-problem-motion="running"], [data-problem-motion="paused"])
+  [data-motion-card="guidance-gap"]
+  .hesitationPath {
+  animation-name: returnTrace;
+  will-change: opacity;
+}
+
+:is([data-problem-motion="running"], [data-problem-motion="paused"])
+  [data-motion-card="guidance-gap"]
+  .correctBranch {
+  animation-name: correctPathState;
+  will-change: opacity;
+}
+
+:is([data-problem-motion="running"], [data-problem-motion="paused"])
+  [data-motion-card="guidance-gap"]
+  .iconWarning {
+  animation-name: guidanceWarning;
+  will-change: opacity;
+}
+
+:is([data-problem-motion="running"], [data-problem-motion="paused"])
+  [data-motion-card="guidance-gap"]
+  .iconSuccess {
+  animation-name: guidanceSuccess;
+  will-change: opacity;
+}
+
+@keyframes guidanceProgress {
+  0%,
+  6% {
+    transform: translate(0, 0);
+  }
+  20%,
+  30% {
+    transform: translate(74px, 0);
+  }
+  46%,
+  52% {
+    transform: translate(191px, -32px);
+  }
+  52.01%,
+  62% {
+    transform: translate(74px, 0);
+  }
+  84%,
+  96% {
+    transform: translate(191px, 29px);
+  }
+  96.01%,
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes guidanceOpacity {
+  0% {
+    opacity: 0;
+  }
+  6%,
+  46% {
+    opacity: 1;
+  }
+  52%,
+  62% {
+    opacity: 0;
+  }
+  66%,
+  90% {
+    opacity: 1;
+  }
+  96%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes questionPause {
+  0%,
+  16% {
+    opacity: 0.72;
+  }
+  20%,
+  30% {
+    opacity: 1;
+  }
+  34%,
+  100% {
+    opacity: 0.82;
+  }
+}
+
+@keyframes wrongPathState {
+  0%,
+  30% {
+    opacity: 0.34;
+  }
+  42%,
+  55% {
+    opacity: 0.95;
+  }
+  62%,
+  100% {
+    opacity: 0.42;
+  }
+}
+
+@keyframes returnTrace {
+  0%,
+  52% {
+    opacity: 0.28;
+  }
+  56%,
+  62% {
+    opacity: 0.9;
+  }
+  68%,
+  100% {
+    opacity: 0.28;
+  }
+}
+
+@keyframes correctPathState {
+  0%,
+  62% {
+    opacity: 0.32;
+  }
+  80%,
+  90% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0.42;
+  }
+}
+
+@keyframes guidanceWarning {
+  0%,
+  46% {
+    opacity: 0;
+  }
+  49%,
+  55% {
+    opacity: 1;
+  }
+  60%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes guidanceSuccess {
+  0%,
+  80% {
+    opacity: 0.36;
+  }
+  84%,
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.46;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-problem-motion] .visual * {
+    animation: none !important;
+  }
+}

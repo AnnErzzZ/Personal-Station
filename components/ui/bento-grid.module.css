@@ -1,0 +1,120 @@
+/*
+ * Bento Grid 通用组件样式（无 Tailwind，CSS Module 自带）。
+ * 6 列网格：默认 span 2（3/行），wide span 3（2/行等宽）；
+ * 颜色 / 圆角 / 阴影走案例页 `--cs-*` token（带回退值）。
+ */
+
+.bentoGrid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-auto-rows: minmax(28rem, auto);
+  gap: 16px;
+}
+
+.bentoItem {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  min-width: 0;
+  grid-column: span 2;
+  padding: 20px;
+  border: 1px solid var(--cs-rule, #e8e8ed);
+  border-radius: 20px;
+  background: var(--cs-panel, #ffffff);
+  transition:
+    box-shadow 200ms ease,
+    border-color 200ms ease;
+}
+
+.bentoItem:hover {
+  border-color: var(--cs-rule-strong, #d2d2d7);
+  box-shadow:
+    0 18px 44px rgb(16 24 40 / 8%),
+    0 4px 12px rgb(16 24 40 / 4%);
+}
+
+.bentoItemWide {
+  grid-column: span 3;
+}
+
+.bentoHeader {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.bentoBody {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  /* 2026-09-23 补复刻遗漏：hover 时文字整体右移（标题 + 描述一起），
+     缓动与卡片阴影过渡同节奏（200ms ease）。 */
+  transition: transform 200ms ease;
+}
+
+.bentoItem:hover .bentoBody {
+  transform: translateX(4px);
+}
+
+/* icon 槽：本项目用作证据状态标签的挂点。 */
+.bentoIcon {
+  display: flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.bentoTitle {
+  margin: 0;
+  color: var(--cs-ink, #1d1d1f);
+  font-size: 18px;
+  /* 中文字体真实字面只有 400/500/700，600 会整档渲染成 Bold 导致笔画黏连。 */
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+.bentoDescription {
+  color: var(--cs-ink-soft, #333333);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+@media (max-width: 1180px) {
+  .bentoGrid {
+    grid-auto-rows: minmax(26rem, auto);
+  }
+}
+
+@media (max-width: 720px) {
+  .bentoGrid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: auto;
+    gap: 12px;
+  }
+
+  .bentoItemWide {
+    grid-column: auto;
+  }
+
+  /* 单列下固定行高失效，素材位改用固定比例保证占位体量。 */
+  .bentoHeader {
+    flex: 0 0 auto;
+    aspect-ratio: 16 / 10;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bentoItem {
+    transition: none;
+  }
+
+  .bentoBody {
+    transition: none;
+  }
+
+  .bentoItem:hover .bentoBody {
+    transform: none;
+  }
+}

@@ -1,0 +1,467 @@
+/*
+ * Heyispace OS Case Study：Hero → MacBook Scroll → 02 Project Context。
+ *
+ * 2026-09-23 首屏重构：旧的 310vh sticky scene（--ho-p 进度派生 +
+ * CSS scroll-driven animation，见备份 .workbuddy/backup-macbook-scroll/）
+ * 整体下线，舞台效果由 Aceternity MacbookScroll 接管：
+ *   · heroScene   = MacBook 场景 + 项目背景的公共容器（顶部导航是全站
+ *                   统一的 app/work/CaseNav，fixed 吸顶，不占流内高度）；
+ *   · macStage    = MacBook 场景，overflow hidden 裁切线就是与
+ *                   02 Project Context 的衔接线；
+ *   · contextStandalone = 项目背景独立节，RevealOnView 入场。
+ * 进度驱动的动画全部在组件内（motion/react），本文件不再持有任何
+ * 场景进度变量；hero-transition.ts 与其单测已随旧场景删除。
+ */
+
+.heroScene {
+  /* ── 布局量 ───────────────────────────────────────────── */
+  /* 顶部 padding 补回旧 sticky 导航占掉的流内高度（64px 导航 + 1px 分隔线），
+     顶部导航改为全站统一 CaseNav（fixed，不占流）后 MacBook 构图保持不动。 */
+  --ho-context-max: 1080px;
+  --ho-context-gutter: 48px;
+  --ho-card-gap: 14px;
+  --ho-card-radius: 18px;
+  --ho-card-pad: 22px;
+  --ho-badge-size: 40px;
+
+  /* ── 浅色色板（Duo 轮，与旧场景一致） ─────────────────── */
+  /* 页面底色：Hero / MacBook 场景与 02–07 章节同用 #f5f5f7。 */
+  --ho-page-bg: #f5f5f7;
+  --ho-ink: #1d1d1f;
+  --ho-ink-soft: #515154;
+  --ho-ink-faint: #6e6e73;
+  --ho-rule: rgb(0 0 0 / 10%);
+  --ho-rule-strong: rgb(0 0 0 / 16%);
+  --ho-accent: #0066cc;
+
+  position: relative;
+  padding-top: 65px;
+  color: var(--ho-ink);
+  background: var(--ho-page-bg);
+}
+
+/* ── Hero 文案：MacbookScroll 的 title 插槽，随滚动整体淡出 ──
+   淡出 / 上移的节奏由组件内置 textOpacity（0–0.2）与
+   textTransform（0–0.3）驱动，这里只负责排版。 */
+
+.heroCopy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 1248px;
+  margin: clamp(56px, 9vh, 88px) auto 0;
+  padding-inline: 24px;
+  text-align: center;
+}
+
+/* 组件根在 md 起自带 pt-20（80px），桌面档不再另加大间距。 */
+@media (min-width: 768px) {
+  .heroCopy {
+    margin-top: 8px;
+    padding-inline: 48px;
+  }
+}
+
+.eyebrow {
+  margin: 0 0 18px;
+  color: var(--ho-ink-soft);
+  font-size: 13px;
+  /* 降噪轮（2026-09-23）：标签不得比正文重，600 → 500。 */
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.heroCopy h1 {
+  margin: 0;
+  color: var(--ho-ink);
+  /* 68–76px 目标区间：1440→74.9px，1920+ 封顶 75px，1280→66.6px。 */
+  font-size: clamp(44px, 5.2vw, 75px);
+  /*
+   * 中文 Display 档：本站字体已清零 600 静态档（VF 会粘连到 700），
+   * 声明一律 400/500；层级由字号与颜色承担。
+   */
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+
+.heroLead {
+  max-width: 680px;
+  margin: 16px 0 0;
+  color: var(--ho-ink-soft);
+  /* 正文 16px 下限（typography 轮）：15.5px 起点会让笔记本档低于正文底线。 */
+  font-size: clamp(16px, 1.18vw, 17px);
+  /*
+   * 500(Medium) 让辅助文字有实体感，层级靠颜色而不是透明度；
+   * 450 在思源黑体里解析为 Regular(400)，不作为声明值使用。
+   */
+  font-weight: 500;
+  line-height: 1.65;
+  letter-spacing: 0.005em;
+}
+
+/* ── Hero CTA 行（Duo 排版） ───────────── */
+
+.heroActions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 24px 0 0;
+}
+
+/* ── Hero 滚动提示（与首页首屏 .scrollHint 同款） ────────────
+   结构与动画逐字取自 app/home.module.css：鼠标滚轮点自上而下循环、
+   双箭头错峰流动，1.8s 同周期。差异只有两处：白底场景不需要首页的
+   反白色，用本页 --ho-ink-faint；外层是链接（点击锚到 02 章）。 */
+
+.scrollHint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: var(--ho-ink-faint);
+  font-family: var(--meta-font);
+  /* 14px 中文底线（typography 门禁）：「向下查看项目」是中文标签，
+     不吃 12px 纯英文 metadata 档；显式 400 抵消 title 槽包装层
+     Tailwind font-bold 的继承泄漏。 */
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.scrollHint:hover {
+  color: var(--ho-ink-soft);
+}
+
+.scrollHintMark {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.scrollMouse {
+  display: block;
+  width: 18px;
+  height: 28px;
+  color: inherit;
+}
+
+/* 滚轮点：胶囊内自上而下滚动，末段淡出，循环 1.8s（与双箭头同周期）。 */
+.scrollWheelDot {
+  animation: hoWheelRoll 1.8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+
+@keyframes hoWheelRoll {
+  0% { transform: translateY(0); opacity: 0; }
+  18% { opacity: 1; }
+  62% { transform: translateY(9px); opacity: 1; }
+  78%, 100% { transform: translateY(9px); opacity: 0; }
+}
+
+.scrollChevrons {
+  display: block;
+  width: 11px;
+  height: 11px;
+  color: inherit;
+}
+
+/* 双箭头：同一条呼吸曲线错峰 0.3s，形成向下流动感。 */
+.scrollChevron {
+  animation: hoChevronFlow 1.8s ease-in-out infinite;
+}
+
+.scrollChevron:nth-of-type(2) {
+  animation-delay: 0.3s;
+}
+
+@keyframes hoChevronFlow {
+  0%, 100% { opacity: 0.15; transform: translateY(-0.5px); }
+  45% { opacity: 1; transform: translateY(0.5px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrollWheelDot,
+  .scrollChevron {
+    animation: none;
+  }
+}
+
+/* ── MacBook 场景 ─────────────────────────────────────────── */
+
+/*
+ * macStage：MacbookScroll 的裁切容器。
+ * overflow hidden 有两个职责：开盖放大段超出左右时不撑破页面；
+ * 行程末段组件把整机 translate 下压，画面沿本容器底边被裁掉，
+ * 02 Project Context 从这条线滚入 —— 这就是两章的衔接。
+ */
+.macStage {
+  position: relative;
+  overflow: hidden;
+  background: var(--ho-page-bg);
+}
+
+/* ── 02 Project Context：独立节，RevealOnView 入场 ────────── */
+
+/*
+ * 入场（2026-09-23）：旧场景的 --ho-ctx-* 进度淡入换成进入视口
+ * 触发一次（RevealOnView 写 data-entered）。标题先进，卡片组
+ * 错峰 0.12s 跟上，位移幅度与旧场景一致（14 / 16px）。
+ */
+.contextReveal .contextTitle,
+.contextReveal .contextFacts {
+  opacity: 0;
+  transform: translate3d(0, 16px, 0);
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s ease;
+}
+
+.contextReveal .contextTitle {
+  transform: translate3d(0, 14px, 0);
+}
+
+.contextReveal .contextFacts {
+  transition-delay: 0.12s;
+}
+
+.contextReveal[data-entered="true"] .contextTitle,
+.contextReveal[data-entered="true"] .contextFacts {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contextReveal .contextTitle,
+  .contextReveal .contextFacts {
+    transition: none;
+  }
+}
+
+.contextStandalone {
+  display: flex;
+  justify-content: center;
+  padding: clamp(72px, 12vh, 128px) var(--ho-context-gutter)
+    clamp(96px, 14vh, 152px);
+  background: var(--ho-page-bg);
+}
+
+.contextInner {
+  display: flex;
+  flex-direction: column;
+  /* 标题区居中：标题对齐内容轴中心。卡片组是 grid，照旧整轴铺开。 */
+  width: min(calc(100% - 2 * var(--ho-context-gutter)), var(--ho-context-max));
+  text-align: center;
+}
+
+.contextTitle {
+  margin: 0;
+  color: var(--ho-ink);
+  font-size: clamp(30px, 4.45vh, 45px);
+  /* 560 是无效字重（解析到 Bold），规范为 600——思源黑体下两者渲染一致。 */
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+}
+
+/* ── Project Context：三张左对齐信息卡（Apple 环境页排版） ─── */
+
+.contextFacts {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--ho-card-gap);
+  margin-top: var(--ho-context-gap, clamp(24px, 3.2vh, 42px));
+}
+
+/*
+ * 排版对齐参考稿（Apple 环境页价值观卡）：
+ * 白底大圆角、极淡描边 + 柔和投影，内容全部左对齐；
+ * 图标 → 标题的间距明显大于标题 → 正文，形成两级呼吸。
+ * 顶部图标先以描边圆圈占位，出稿后替换成真实图标。
+ */
+.contextCard {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: var(--ho-card-pad) 26px calc(var(--ho-card-pad) + 4px);
+  border: 1px solid rgb(0 0 0 / 6%);
+  border-radius: var(--ho-card-radius);
+  background: #ffffff;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 4%);
+  text-align: left;
+  /* hover 抬升的过渡；入场动画挂在 .contextFacts 组上，互不冲突。 */
+  transition:
+    transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 0.45s cubic-bezier(0.22, 0.61, 0.36, 1),
+    border-color 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.contextCardIcon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 淡彩圆角方徽章（2026-09-23 定稿，复盘卡片风格）：tint 底 + 主色线性
+     图标；色板由各卡内联注入 --badge-accent / --badge-tint / --icon-soft。 */
+  color: var(--badge-accent, var(--ho-ink));
+  background-color: var(--badge-tint, transparent);
+  width: var(--ho-badge-size);
+  height: var(--ho-badge-size);
+  margin-bottom: clamp(18px, 2.4vh, 24px);
+  /* 徽章反白过渡比卡片抬升略快，先「点亮」再升起。 */
+  border-radius: 12px;
+  transition:
+    background-color 0.35s ease,
+    color 0.35s ease,
+    transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.contextCardIcon svg {
+  display: block;
+}
+
+.contextCardTitle {
+  margin: 0 0 clamp(8px, 1.2vh, 11px);
+  color: var(--ho-ink);
+  /* Card Title 20px 档（typography 轮）：原 14–17px 与正文几乎同大，
+     读不出「卡标题」。900 高 → 19.8px，1080+ → 22px。 */
+  font-size: clamp(18px, 2.2vh, 22px);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+}
+
+.contextCardBody {
+  margin: 0;
+  color: var(--ho-ink-soft);
+  /* 卡片正文 14px 下限（typography 轮）：原 12.5px 起点违反中文可读底线。
+     900 高 → 14.9px，780 矮窗 → 14px。 */
+  font-size: clamp(14px, 1.65vh, 15px);
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+/*
+ * Hover 交互（2026-09-23，仅指针设备）：
+ * 卡片抬升 4px + 投影加深 + 描边微深；徽章从淡彩底浮现品牌色圆片——
+ * 白图形 + 1.05 微放大，形成「点亮」的焦点转移。
+ * 纯 CSS :hover，触屏不受影响（hover:none 下整块不生效）。
+ */
+@media (hover: hover) {
+  .contextCard:hover {
+    transform: translateY(-4px);
+    border-color: rgb(0 0 0 / 10%);
+    box-shadow:
+      0 16px 36px rgb(0 0 0 / 8%),
+      0 4px 10px rgb(0 0 0 / 4%);
+  }
+
+  .contextCard:hover .contextCardIcon {
+    background-color: var(--badge-accent, var(--ho-ink));
+    color: #ffffff;
+    transform: scale(1.05);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contextCard,
+  .contextCardIcon {
+    transition: none;
+  }
+}
+
+/* ── 响应式 ───────────────────────────────────────────────── */
+
+@media (max-width: 1100px) and (min-width: 901px) {
+  .contextCard {
+    padding-inline: 20px;
+  }
+}
+
+/*
+ * 移动端（≤900）：MacBook 场景由组件自身的 scale 档（0.6 / sm 0.75）
+ * 缩放；文案与项目背景回到旧静态回退的排版。
+ */
+@media (max-width: 900px) {
+  .contextInner {
+    width: 100%;
+    max-width: 760px;
+    padding: 0 0 24px;
+  }
+
+  .heroLead br {
+    display: none;
+  }
+
+  .heroActions {
+    flex-wrap: wrap;
+  }
+
+  .contextFacts {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 32px;
+  }
+
+  .contextCard {
+    padding: 20px 22px 24px;
+  }
+
+  .contextCardIcon {
+    width: 34px;
+    height: 34px;
+    margin-bottom: 16px;
+  }
+
+  .contextCardTitle {
+    margin-bottom: 8px;
+  }
+}
+
+/* 真窄屏的单栏卡片是左对齐的，标题区跟着左对齐。 */
+@media (max-width: 900px) {
+  .contextInner {
+    text-align: start;
+  }
+}
+
+@media (max-width: 620px) {
+  .heroCopy {
+    align-items: flex-start;
+    margin-top: 58px;
+    padding-inline: 20px;
+    text-align: left;
+  }
+
+  .eyebrow {
+    /* 纯英文 eyebrow 的装饰档下限 12px（typography 轮）。 */
+    font-size: 12px;
+  }
+
+  .heroCopy h1 {
+    font-size: clamp(40px, 11.4vw, 54px);
+    line-height: 1.16;
+  }
+
+  .heroLead {
+    line-height: 1.7;
+  }
+
+  .heroActions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .contextStandalone {
+    padding-inline: 20px;
+  }
+}

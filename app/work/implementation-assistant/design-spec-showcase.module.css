@@ -1,0 +1,377 @@
+.section {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-height: max(1024px, 100vh);
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #fcfcfd;
+  color: #1c2024;
+  font-family: var(--font-cn),
+    sans-serif;
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  height: 1024px;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.meta {
+  position: absolute;
+  top: 44px;
+  left: calc(50% - 640px);
+  display: flex;
+  width: 238px;
+  align-items: center;
+  justify-content: space-between;
+  color: #8b8d98;
+  font-family: var(--font-number);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 18px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Figma 里这一屏展示的字体就是 PingFang SC，展示字与说明字分角色还原。
+   ⚠ 2026-09-21 全站字体统一时**刻意保留**：这是字体样张本身，
+   换成 display/number/cn token 会破坏「展示该字体」的语义。
+   本机已装 PingFang SC（PingFangSC-*.otf），能真实渲染，不是回退。 */
+.typefaceName,
+.specimenName,
+.specimenDetail {
+  font-family: "PingFang SC Medium", "PingFang SC", "苹方-简",
+    "Source Han Sans CN", "Microsoft YaHei", sans-serif;
+  font-size-adjust: none;
+  font-synthesis: none;
+  font-style: normal;
+}
+
+/* Figma「Label 3 MID」：Source Han Sans CN / 16px / 500 / line-height 100% / #1C2024 */
+.labelTypeface,
+.labelColor,
+.labelIcon {
+  position: absolute;
+  color: #1c2024;
+  font-family: var(--font-cn);
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  letter-spacing: normal;
+  line-height: 100%;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.labelTypeface {
+  top: 85px;
+  left: calc(50% - 640px);
+}
+
+.labelColor {
+  top: 85px;
+  left: calc(50% - 38px);
+}
+
+.labelIcon {
+  top: 662px;
+  left: calc(50% - 38px);
+}
+
+.labelElements {
+  position: absolute;
+  top: 966px;
+  left: calc(50% - 637px);
+  color: #8b8d98;
+  font-family: var(--font-number);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  line-height: 16px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.typefaceName {
+  position: absolute;
+  top: 132px;
+  left: calc(50% - 640px);
+  color: #1c2024;
+  font-size: 48px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 62px;
+  white-space: nowrap;
+}
+
+.typeSpecimens {
+  position: absolute;
+  top: 224px;
+  left: calc(50% - 640px);
+  display: grid;
+  width: 340px;
+  grid-template-columns: 121px auto;
+  row-gap: 28px;
+}
+
+.typeSpecimen {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 四档只差字号；family / weight / letter-spacing 保持同一套 Typography Style。 */
+.specimenName {
+  color: #b9bbc6;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 26px;
+  white-space: nowrap;
+}
+
+.specimen-title {
+  font-size: 16px;
+}
+
+.specimen-subtitle {
+  font-size: 16px;
+}
+
+.specimen-body {
+  font-size: 14px;
+}
+
+.specimen-label {
+  font-size: 12px;
+}
+
+.specimenDetail {
+  margin-top: 2px;
+  color: #60646c;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.swatchColumn {
+  position: absolute;
+  top: 129px;
+  left: calc(50% - 38px);
+  display: flex;
+  width: 330px;
+  flex-direction: column;
+  gap: 19.33px;
+}
+
+.swatch {
+  position: relative;
+  width: 100%;
+  border-radius: 8px;
+}
+
+.swatchText {
+  position: absolute;
+  top: 17px;
+  left: 13px;
+  display: flex;
+  flex-direction: column;
+  color: #ffffff;
+  font-family: var(--font-number);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.swatchName {
+  font-size: 11px;
+  line-height: 14px;
+}
+
+.swatchHex {
+  margin-top: 6px;
+  font-size: 11px;
+  line-height: 14px;
+}
+
+.ramp {
+  position: absolute;
+  top: 129px;
+  left: calc(50% + 311px);
+  display: grid;
+  overflow: hidden;
+  width: 330px;
+  height: 494px;
+  border-radius: 8px;
+  grid-template-rows: repeat(12, 1fr);
+}
+
+.rampRow {
+  display: flex;
+  align-items: center;
+}
+
+.rampLabel {
+  margin-left: 11px;
+  color: #60646c;
+  font-family: var(--font-number);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 14px;
+}
+
+.rampRowDark .rampLabel {
+  color: #fcfcfd;
+}
+
+.monogram {
+  position: absolute;
+  top: 429px;
+  left: calc(50% - 645px);
+  color: #d6d6de;
+  /* 480px 的装饰拉丁字母形 → 英文视觉大标题档（Impact）。
+     absolute + line-height:1，字形盒变化不会推动版面。 */
+  font-family: var(--font-display);
+  font-size: 480px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.board {
+  position: absolute;
+  top: 706px;
+  left: calc(50% - 38px);
+  width: 679px;
+  height: 277px;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid #e7e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.boardImage {
+  display: block;
+  width: 677px;
+  height: 277px;
+  object-fit: contain;
+  object-position: left top;
+}
+
+/* Figma 中元素板顶部有一层白色渐变，遮住部分图标内容后向下恢复正常可见。 */
+.boardFade {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 72px;
+  background: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    rgb(255 255 255 / 88%) 42%,
+    rgb(255 255 255 / 0%) 100%
+  );
+  pointer-events: none;
+}
+
+@media (max-width: 1339px) {
+  .section {
+    display: block;
+    min-height: 0;
+    padding: 96px 40px;
+  }
+
+  .stage {
+    display: flex;
+    height: auto;
+    flex-direction: column;
+    gap: 64px;
+  }
+
+  .meta,
+  .labelTypeface,
+  .labelColor,
+  .labelElements,
+  .typefaceName,
+  .typeSpecimens,
+  .swatchColumn,
+  .ramp,
+  .monogram,
+  .board {
+    position: static;
+    left: auto;
+    top: auto;
+    width: 100%;
+    max-width: 677px;
+  }
+
+  .meta {
+    max-width: 238px;
+  }
+
+  .monogram {
+    font-size: 220px;
+    line-height: 0.9;
+  }
+
+  .swatchColumn {
+    gap: 12px;
+  }
+
+  .ramp {
+    max-width: 330px;
+    height: auto;
+    grid-template-rows: repeat(12, 41px);
+  }
+
+  .board {
+    height: auto;
+    max-width: 679px;
+  }
+
+  .boardImage {
+    width: 100%;
+    height: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .section {
+    padding: 80px 24px;
+  }
+
+  .stage {
+    gap: 48px;
+  }
+
+  .meta {
+    font-size: 12px;
+  }
+
+  .typefaceName {
+    font-size: 40px;
+    line-height: 48px;
+  }
+
+  .monogram {
+    font-size: 150px;
+  }
+
+  .swatchColumn,
+  .board {
+    max-width: 100%;
+  }
+}
+

@@ -1,0 +1,167 @@
+.section {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-height: max(1024px, 100vh);
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #fcfcfd;
+  color: #1c2024;
+  font-family: var(--font-cn),
+    sans-serif;
+}
+
+/* 1024 高是 Figma 的版面基准；视口更高时整块内容垂直居中，不拉伸内部间距。 */
+.stage {
+  position: relative;
+  width: 100%;
+  height: 1024px;
+}
+
+.header {
+  position: absolute;
+  top: 385.5px;
+  left: max(60px, calc(50% - 660px));
+  display: flex;
+  width: 436px;
+  max-width: calc(100% - 120px);
+  flex-direction: column;
+  gap: 12px;
+}
+
+.meta {
+  display: flex;
+  width: 238px;
+  max-width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  color: #8b8d98;
+  font-family: var(--font-number);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 18px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.title {
+  color: #1c2024;
+  /* 中文章节标题 → 中文栈（原 Alibaba PuHuiTi 属待清理的旧 display 字体）。 */
+  font-family: var(--font-cn);
+  font-size: 48px;
+  font-weight: 500;
+  line-height: 67px;
+}
+
+.body {
+  color: #60646c;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.8;
+}
+
+.article {
+  position: absolute;
+  top: 158.5px;
+  left: max(560px, calc(50% - 144px));
+  width: 864px;
+  height: 705px;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 24px 0 0 24px;
+}
+
+/* Figma 里描边从左向右衰减到透明，只有描边渐变，图片本身不动。 */
+.article::after {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    #e8e8ec 0%,
+    #e8e8ec 24%,
+    rgb(232 232 236 / 62%) 52%,
+    rgb(232 232 236 / 22%) 78%,
+    rgb(232 232 236 / 0%) 100%
+  );
+  content: "";
+  pointer-events: none;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+
+.articleImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: left top;
+}
+
+@media (max-width: 1339px) {
+  .section {
+    min-height: 0;
+    padding: 120px 40px;
+  }
+
+  .stage {
+    height: auto;
+  }
+
+  .header {
+    position: static;
+    width: 100%;
+    max-width: 560px;
+  }
+
+  .article {
+    position: static;
+    width: 100%;
+    max-width: 864px;
+    height: auto;
+    margin-top: 64px;
+    aspect-ratio: 864 / 705;
+    border-radius: 24px;
+  }
+
+  .articleImage {
+    height: 100%;
+  }
+}
+
+@media (max-width: 720px) {
+  .section {
+    padding: 80px 24px;
+  }
+
+  .meta {
+    font-size: 12px;
+  }
+
+  .title {
+    font-size: 38px;
+    line-height: 1.35;
+  }
+
+  .body {
+    font-size: 15px;
+  }
+
+  .bodyBreak {
+    display: none;
+  }
+
+  .article {
+    margin-top: 48px;
+    border-radius: 16px;
+  }
+}

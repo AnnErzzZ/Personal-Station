@@ -1,0 +1,55 @@
+.root {
+  position: relative;
+  display: inline-flex;
+  max-width: fit-content;
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1.25rem;
+  font-weight: inherit;
+  /* 2026-09-21：移除 backdrop-filter: blur(10px)。尾页标题横贯全屏，
+     毛玻璃把标题矩形带背后的视频内容整体糊掉（Anner 截图反馈）。
+     组件当前唯一使用方就是尾页 endTitle，直接删即可；root 盒本身透明，
+     无 blur 后不产生任何视觉残留。 */
+  transition: box-shadow 500ms ease-out;
+}
+
+.withBorder {
+  padding: 0.35rem 0.75rem;
+}
+
+.overlay {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.overlay::before {
+  position: absolute;
+  z-index: -1;
+  top: 50%;
+  left: 50%;
+  width: calc(100% - 2px);
+  height: calc(100% - 2px);
+  border-radius: inherit;
+  background-color: #120f17;
+  content: "";
+  transform: translate(-50%, -50%);
+}
+
+.content {
+  position: relative;
+  z-index: 2;
+  display: inline-block;
+  color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root {
+    transition: none;
+  }
+}

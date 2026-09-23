@@ -1,0 +1,441 @@
+.guidedExperience {
+  --guided-background: 255 255 255;
+  --phone-scale: 1.917;
+  --phone-x: 0px;
+  --phone-y: 0px;
+  --phone-bridge-scale: 0.92;
+  width: 100%;
+  font-family: var(--font-cn);
+}
+
+.motionExperience {
+  position: relative;
+  background: rgb(var(--guided-background));
+}
+
+.stickyStage {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  min-height: 720px;
+  overflow: hidden;
+  background: rgb(var(--guided-background));
+}
+
+.outgoing,
+.incoming {
+  position: absolute;
+  inset: 0;
+  will-change: opacity, transform;
+}
+
+.outgoing {
+  display: grid;
+  padding: 48px max(60px, calc(50% - 660px));
+  place-items: center;
+  opacity: 1;
+}
+
+.incoming {
+  color: #edeef0;
+  opacity: 0;
+  transform: translate3d(0, 24px, 0);
+}
+
+.chapterHeading {
+  position: absolute;
+  z-index: 2;
+  top: calc(50% - 338px);
+  left: 50%;
+  display: flex;
+  width: min(520px, calc(100% - 120px));
+  transform: translateX(-50%);
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.chapterMeta {
+  display: flex;
+  width: max-content;
+  max-width: 100%;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  color: #777b84;
+  font-family: var(--font-number);
+  font-size: 14px;
+  line-height: 18px;
+  text-transform: uppercase;
+}
+
+.chapterHeading h2 {
+  margin: 0;
+  color: #edeef0;
+  font-family: var(--font-cn);
+  font-size: 48px;
+  font-weight: 500;
+  line-height: 67px;
+  white-space: nowrap;
+}
+
+.stageContent {
+  position: absolute;
+  top: calc(50% - 161px);
+  left: 50%;
+  width: min(1320px, calc(100% - 120px));
+  height: 499px;
+  transform: translateX(-50%);
+}
+
+.copyViewport {
+  position: absolute;
+  top: 0;
+  left: 7.083333%;
+  width: 35.227273%;
+  height: 100%;
+}
+
+.copyLayer {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  opacity: 0;
+  will-change: opacity;
+}
+
+.copyLayer:first-child {
+  opacity: 1;
+}
+
+.copyLayer {
+  translate: 0 -50%;
+}
+
+.mechanismLabel,
+.phaseBody p {
+  margin: 0;
+}
+
+.copyLayer,
+.staticCopy {
+  gap: 12px;
+}
+
+.mechanismLabel {
+  color: #5bb773;
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  gap: 8px;
+  /* 原为 "Strong"（Figma 的标签面，**本机未安装**，一直在回退）→
+     小写 uppercase 拉丁标签，按规则归普通 UI 字形。 */
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.mechanismName {
+  /* ⚠ 原注释：Figma's Strong label box is 140px, scaleX(0.778) 是为
+     「未安装的 Strong 面」凑出 140px 盒宽的补偿。2026-09-21 换成已安装的
+     UI 拉丁后，这个 0.778 已不是该字面的正确补偿值。
+     **未擅自重算**（改 scaleX 属于调版式，超出「只统一 family」的范围）——
+     若实测宽度不合适，请确认后按新字面重推这个系数。 */
+  display: inline-block;
+  width: 140px;
+  font-family: var(--font-ui);
+  font-weight: 400;
+  transform: scaleX(0.778);
+  transform-origin: left center;
+  white-space: nowrap;
+}
+
+.mechanismIndex {
+  font-family: var(--font-number);
+  font-weight: 400;
+  line-height: 24px;
+  white-space: nowrap;
+}
+
+.copyContent {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.copyContent h3,
+.staticCopy h3 {
+  margin: 0;
+  color: #edeef0;
+  font-family: var(--font-cn);
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.phaseBody {
+  display: flex;
+  margin: 0;
+  flex-direction: column;
+  gap: 12px;
+  color: #b0b4ba;
+  font-family: var(--font-cn);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.phoneViewport {
+  position: absolute;
+  top: 0;
+  left: 45.340909%;
+  width: 47.575758%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.phoneMotion {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 327.626px;
+  height: 667.428px;
+  transform: translateX(calc(-50% + var(--phone-x)))
+    translateY(var(--phone-y)) scale(var(--phone-scale))
+    scale(var(--phone-bridge-scale));
+  transform-origin: center top;
+  will-change: transform;
+}
+
+.phoneShell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 24px 32px rgba(0, 0, 0, 0.28));
+}
+
+.phoneScreen {
+  position: absolute;
+  z-index: 1;
+  top: 2.108551%;
+  left: 5.171042%;
+  width: 89.498807%;
+  height: 95.119094%;
+  overflow: hidden;
+  border-radius: 10.67% / 4.93%;
+  background: #f8f8fa;
+}
+
+.mockupFrame {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+}
+
+.screenPhase,
+.overlayPhase {
+  position: absolute;
+  inset: 0;
+}
+
+.screenPhase,
+.overlayPhase {
+  opacity: 0;
+  will-change: opacity;
+}
+
+.screenPhase:first-child,
+.overlayPhase:first-of-type {
+  opacity: 1;
+}
+
+.screenPhase img {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+
+.screenImageFit {
+  position: absolute;
+  display: block;
+}
+
+.screenImageFit img {
+  object-fit: fill;
+}
+
+.overlayPhase,
+.phaseOverlays {
+  z-index: 3;
+  pointer-events: none;
+}
+
+.phaseOverlays {
+  position: absolute;
+  inset: 0;
+}
+
+.phaseOverlay {
+  position: absolute;
+  display: block;
+}
+
+.phaseOverlay img {
+  object-fit: contain;
+}
+
+.staticFallback {
+  display: none;
+}
+
+.staticOutgoing {
+  padding: 96px max(40px, calc(50% - 660px));
+  background: #ffffff;
+}
+
+.staticGuided {
+  padding: 120px max(40px, calc(50% - 660px));
+  background: #111113;
+  color: #edeef0;
+}
+
+.staticGuided .chapterHeading {
+  position: relative;
+  top: auto;
+  left: auto;
+  width: 100%;
+  transform: none;
+}
+
+.staticSequence {
+  display: flex;
+  margin-top: 96px;
+  flex-direction: column;
+  gap: 120px;
+}
+
+.staticPhase {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1.2fr);
+  align-items: center;
+  gap: 64px;
+}
+
+.staticCopy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.staticScreens {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 20px;
+}
+
+.staticPhone {
+  width: min(280px, 100%);
+  height: auto;
+  aspect-ratio: 1257 / 2561;
+  flex: 0 1 280px;
+}
+
+.staticScreens:has(.staticPhone:nth-child(2)) .staticPhone {
+  width: min(210px, 31%);
+  flex-basis: 210px;
+}
+
+@media (max-width: 900px) {
+  .motionExperience {
+    display: none;
+  }
+
+  .staticFallback {
+    display: block;
+  }
+
+  .staticOutgoing,
+  .staticGuided {
+    padding-right: 24px;
+    padding-left: 24px;
+  }
+
+  .staticOutgoing {
+    padding-top: 80px;
+    padding-bottom: 80px;
+  }
+
+  .staticGuided {
+    padding-top: 88px;
+    padding-bottom: 96px;
+  }
+
+  .chapterHeading {
+    gap: 10px;
+  }
+
+  .chapterMeta {
+    width: 100%;
+    justify-content: space-between;
+    gap: 0;
+    font-size: 12px;
+  }
+
+  .chapterHeading h2 {
+    font-size: clamp(32px, 9vw, 44px);
+    line-height: 1.28;
+    white-space: normal;
+  }
+
+  .staticSequence {
+    margin-top: 72px;
+    gap: 96px;
+  }
+
+  .staticPhase {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .staticScreens {
+    width: calc(100% + 24px);
+    justify-content: flex-start;
+    padding-right: 24px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+  }
+
+  .staticPhone,
+  .staticScreens:has(.staticPhone:nth-child(2)) .staticPhone {
+    width: min(78vw, 320px);
+    flex: 0 0 min(78vw, 320px);
+    scroll-snap-align: start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motionExperience {
+    display: none;
+  }
+
+  .staticFallback {
+    display: block;
+  }
+}

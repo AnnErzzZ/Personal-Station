@@ -1,0 +1,136 @@
+/* 案例页顶部导航：与首页 app/home/site-nav.module.css 同一套版式契约 ——
+   fixed 吸顶 + 毛玻璃 + 三栏 grid（品牌 / 面包屑 / 身份）+ 同字体档。
+   差异只有两处：
+   · 首页导航在首屏隐藏、滚过后进入；案例页没有这个状态，导航常驻可见。
+   · 深色首屏配色由 CaseNav 滚动检测写 data-dark（首页的 data-dark 由
+     SiteNav 自己的状态写），token 值与 site-nav.module.css 引用的
+     app/home.module.css .home 变量逐字一致 —— 案例页不在 .home 作用域
+     内，这里自带一份，两边值必须同步改。 */
+
+.nav {
+  --ink: #111113;
+  --text-meta: #5f6268;
+  --dark-text: #edeef0;
+  --dark-meta: #8b8f98;
+
+  position: fixed;
+  z-index: 40;
+  top: 0;
+  right: 0;
+  left: 0;
+  background: transparent;
+  backdrop-filter: blur(14px);
+}
+
+.inner {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  height: 62px;
+  /* 与首页同一条对齐轴：--gutter = max(24px, calc(50% - 660px))，
+     品牌区与右侧身份区跟首页各 Section 文案落在同一竖线上。 */
+  padding-inline: max(24px, calc(50% - 660px));
+  align-items: center;
+  gap: 24px;
+}
+
+.mark {
+  justify-self: start;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+/* 中间面包屑：作品（点回首页）/ 当前案例名。
+   含中文（「作品」），14px 底线，不随 12–13px 英文档。 */
+.crumb {
+  justify-self: center;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  color: var(--text-meta);
+}
+
+.crumb a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 160ms ease;
+}
+
+.crumb a:hover {
+  color: var(--ink);
+}
+
+.crumb strong {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* 右侧身份说明：与首页 site-nav 逐字同款（主行身份、副行补充）。 */
+.identity {
+  justify-self: end;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-align: right;
+}
+
+.identitySub {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--text-meta);
+}
+
+/* 深色首屏配色（implementation-assistant 的整屏深色 Hero）。 */
+.nav[data-dark="true"] .mark,
+.nav[data-dark="true"] .identity,
+.nav[data-dark="true"] .crumb strong {
+  color: var(--dark-text);
+}
+
+.nav[data-dark="true"] .identitySub,
+.nav[data-dark="true"] .crumb {
+  color: var(--dark-meta);
+}
+
+.nav[data-dark="true"] .crumb a:hover {
+  color: #ffffff;
+}
+
+@media (max-width: 900px) {
+  .identity {
+    display: none;
+  }
+
+  .inner {
+    grid-template-columns: auto 1fr;
+  }
+
+  .crumb {
+    justify-self: end;
+  }
+}
+
+@media (max-width: 720px) {
+  .inner {
+    height: 56px;
+  }
+
+  .mark {
+    font-size: 11.5px;
+    letter-spacing: 0.06em;
+  }
+}
