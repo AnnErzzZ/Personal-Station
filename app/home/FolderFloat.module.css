@@ -330,35 +330,38 @@
    （不要在这里写 `transform: none` 来「让位」：none 同样是具体规则的声明，
    只会以更高权重把卡片钉回锚点原点。） */
 
-/* ---- hover 半开（仅 trigger="click" 的鼠标设备）：前盖掀起一半，
-   两张卡片从文件夹口探出一截顶边示意「里面有两张」，点击才真正弹出。
-   卡片保持 pointer-events: none / aria-hidden —— 纯示意，不可点。 */
-@media (hover: hover) and (pointer: fine) {
-  .root[data-peek]:not([data-open]) .front {
-    transform: perspective(600px) rotateX(calc(-1 * var(--ff-peek)));
-    transition-duration: 240ms;
-  }
+/* ---- 半开（探出）：前盖掀起一半，两张卡片从文件夹口探出一截顶边
+   示意「里面有两张」，点击才真正弹出。卡片保持 pointer-events: none /
+   aria-hidden —— 纯示意，不可点。
 
-  .root[data-variant="projects"][data-peek]:not([data-open]) .item {
-    opacity: 1;
-    visibility: visible;
-    /* 裁剪盒在 :not([data-open]) 全态规则里（收起/peek 共用）。这里只管
-       peek 的进入曲线。注：peek 的 -64px 也是锚点坐标系的值（锚点宽 = 0），
-       与卡宽无关，所以本站换了卡宽也不受影响。 */
-    transition:
-      transform 320ms var(--ff-ease-out),
-      opacity 0s linear,
-      visibility 0s linear;
-  }
+   ⚠ 2026-09-24（Anner）起这是**静止态**（使用方常传 preview），不再只在
+   鼠标悬停时出现，所以样式从 `@media (hover: hover) and (pointer: fine)`
+   里挪了出来 —— 触屏设备同样能看到「文件夹里有项目」。悬停只额外把整组
+   微微放大（见文件末尾 projects 的 hover 规则），不再换姿态。 */
+.root[data-peek]:not([data-open]) .front {
+  transform: perspective(600px) rotateX(calc(-1 * var(--ff-peek)));
+  transition-duration: 240ms;
+}
 
-  .root[data-variant="projects"][data-peek]:not([data-open]) .item[data-index="0"] {
-    transform: translate(calc(-50% - 16px), -58%) rotate(-1.6deg) scale(0.58);
-  }
+.root[data-variant="projects"][data-peek]:not([data-open]) .item {
+  opacity: 1;
+  visibility: visible;
+  /* 裁剪盒在 :not([data-open]) 全态规则里（收起/peek 共用）。这里只管
+     peek 的进入曲线。注：peek 的 -64px 也是锚点坐标系的值（锚点宽 = 0），
+     与卡宽无关，所以本站换了卡宽也不受影响。 */
+  transition:
+    transform 320ms var(--ff-ease-out),
+    opacity 0s linear,
+    visibility 0s linear;
+}
 
-  .root[data-variant="projects"][data-peek]:not([data-open]) .item[data-index="1"] {
-    transform: translate(calc(-50% + 18px), -55%) rotate(1.4deg) scale(0.58);
-    transition-delay: 40ms;
-  }
+.root[data-variant="projects"][data-peek]:not([data-open]) .item[data-index="0"] {
+  transform: translate(calc(-50% - 16px), -58%) rotate(-1.6deg) scale(0.58);
+}
+
+.root[data-variant="projects"][data-peek]:not([data-open]) .item[data-index="1"] {
+  transform: translate(calc(-50% + 18px), -55%) rotate(1.4deg) scale(0.58);
+  transition-delay: 40ms;
 }
 
 /* ---- 待机漂浮：文件夹（连同探出的卡片）一起上下微微浮动，
@@ -383,12 +386,27 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .root:not([data-open]) .trigger:hover {
+  /* 非 projects 变体：悬停反馈是「触发器自己放大 + 兄弟元素归位」。 */
+  .root:not([data-open]):not([data-variant="projects"]) .trigger:hover {
     transform: scale(1.02);
   }
 
-  .root:not([data-open]) .trigger:hover ~ * {
+  .root:not([data-open]):not([data-variant="projects"]) .trigger:hover ~ * {
     transform: none;
+  }
+
+  /* projects 变体（使用方常传 preview，探出姿态即默认态）：悬停不再换姿态，
+     只把**整组**（文件夹 + 探出的卡片）微微放大。
+     2026-09-24（Anner）：「默认状态改成探出，hover 改成微微放大」。
+     用 scale 属性而不是 transform —— 根元素身兼 translate 漂浮动画，前盖又
+     自带宽高比 perspective，写 transform 会互相覆盖；scale 在元素最终阶段
+     合成，三者互不干扰。 */
+  .root[data-variant="projects"]:not([data-open]) {
+    transition: scale 260ms var(--ff-ease-out);
+  }
+
+  .root[data-variant="projects"]:not([data-open]):hover {
+    scale: 1.035;
   }
 
   .root[data-open]:not([data-variant="projects"]) .item:hover {

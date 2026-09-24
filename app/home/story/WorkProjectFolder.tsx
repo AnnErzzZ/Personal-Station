@@ -679,7 +679,11 @@ export default function WorkProjectFolder({
                 sublabel={sub}
                 trigger="click"
                 open={contentsOpen}
-                preview={phase === "opening" && !contentsOpen}
+                /* 2026-09-24（Anner）：探出姿态就是**默认态** —— 收起时两张卡
+                   一直在文件夹口探着（原来只在 hover/开箱瞬间才探出）。悬停不再
+                   换姿态，只把整组微微放大（见 FolderFloat.module.css 的 projects
+                   hover 规则）。所以这里只要「内容没展开」就保持 preview。 */
+                preview={!contentsOpen}
                 defaultOpen={false}
                 closeOnSelect={false}
                 physics={false}
