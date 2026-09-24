@@ -5,6 +5,9 @@ import { siteAsset } from "@/lib/site-asset";
 import "@/styles/globals.css";
 
 export const metadata: Metadata = {
+  // 站点正式地址（GitHub Pages 自定义域名）。给出 metadataBase 后，
+  // 相对路径的分享图 / canonical 才会解析成绝对 URL。
+  metadataBase: new URL("https://wuzirong.cn"),
   title: {
     default: "伍子荣 Zirong Wu｜Product Designer",
     template: "%s｜伍子荣 Zirong Wu",

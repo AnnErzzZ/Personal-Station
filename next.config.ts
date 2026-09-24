@@ -10,7 +10,11 @@ const nextConfig: NextConfig = {
   ...(process.env.GITHUB_PAGES === "true"
     ? {
         output: "export",
-        basePath: "/Personal-Station",
+        // 自定义域名 wuzirong.cn 直接吃站点根（域名声明在 public/CNAME），
+        // 所以不能再带 /Personal-Station 这个项目页前缀：带了以后域名根下的
+        // HTML 会去请求 /Personal-Station/_next/...，在没有该前缀的域名上全 404。
+        // 旧地址 annerzzz.github.io/Personal-Station/ 由 GitHub Pages 301 到新域名。
+        // 配套约定：NEXT_PUBLIC_BASE_PATH 保持未设置（lib/site-asset.ts 会退化成原样返回）。
         trailingSlash: true,
         images: { unoptimized: true },
         distDir: ".next-pages",
