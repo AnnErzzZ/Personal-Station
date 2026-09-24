@@ -30,7 +30,14 @@
 
 html {
   background: var(--color-background);
-  scroll-behavior: smooth;
+  /*
+   * 刻意写 auto：Next 的 App Router 在路由切换时会把滚动归零，浏览器前进 /
+   * 后退的恢复也读同一个属性。这里一旦是 smooth，新页面就会「从下面滚上来」
+   * —— 2026-09-24 实测：在首页 4200px 处点进案例页，scrollY 用了约 1s 从
+   * 4200 动画到 0，看起来像页面没在首屏加载。站内锚点的平滑滚动改由
+   * components/SmoothAnchor 按需发起，不再依赖这条全局规则。
+   */
+  scroll-behavior: auto;
 }
 
 body {
@@ -47,10 +54,4 @@ a {
 
 main > section[id] {
   scroll-margin-top: 84px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
 }

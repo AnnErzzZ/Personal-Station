@@ -1,7 +1,7 @@
-import CaseNav from "../CaseNav";
 import HeroVisual from "./HeroVisual";
 import HeroWaves from "./HeroWaves";
 import Section01ProjectContext from "./Section01ProjectContext";
+import SmoothAnchor from "@/components/SmoothAnchor";
 import styles from "./page.module.css";
 
 export default function HeroTransition() {
@@ -13,7 +13,6 @@ export default function HeroTransition() {
     >
       {/* 首屏渐变波浪背景（React Bits GradientWaves），随滚动淡出。 */}
       <HeroWaves />
-      <CaseNav projectLabel="HEYISPACE OS" />
 
       <header className={styles.heroCopy}>
         <p className={styles.eyebrow}>CASE STUDY · 2026</p>
@@ -24,7 +23,11 @@ export default function HeroTransition() {
           配置自动化策略、查看运行数据，也可以通过 Agent 查询空间运行情况。
         </p>
         <div className={styles.heroActions}>
-          <a className={styles.scrollHint} href="#heyispace-hero-image" aria-label="向下查看项目">
+          <SmoothAnchor
+            className={styles.scrollHint}
+            href="#heyispace-hero-image"
+            aria-label="向下查看项目"
+          >
             <span>向下查看项目</span>
             <span className={styles.scrollHintMark} aria-hidden="true">
               <svg className={styles.scrollMouse} viewBox="0 0 18 28" fill="none" aria-hidden="true">
@@ -36,7 +39,7 @@ export default function HeroTransition() {
                 <path className={styles.scrollChevron} d="M1 6.5L6 11L11 6.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
               </svg>
             </span>
-          </a>
+          </SmoothAnchor>
         </div>
       </header>
       {/* 主图 + 01 文案 + 三卡是同一块舞台（2026-09-24 收口）：整组一起吸顶、

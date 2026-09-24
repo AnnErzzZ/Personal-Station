@@ -2,6 +2,7 @@
 
 import type { CSSProperties, ReactNode } from "react";
 
+import SmoothAnchor from "@/components/SmoothAnchor";
 import { Chapter, SectionHeader } from "./CaseSection";
 import RevealOnView from "./RevealOnView";
 import {
@@ -158,7 +159,7 @@ export default function Section12ImpactReflection() {
                     对应章节
                   </span>
                   {item.refs.map((ref) => (
-                    <a
+                    <SmoothAnchor
                       className={styles.impactReflectionRef}
                       data-impact-ref=""
                       href={ref.href}
@@ -171,7 +172,7 @@ export default function Section12ImpactReflection() {
                         {ref.index}
                       </span>
                       <span data-impact-ref-label="">{ref.label}</span>
-                    </a>
+                    </SmoothAnchor>
                   ))}
                 </div>
               </li>

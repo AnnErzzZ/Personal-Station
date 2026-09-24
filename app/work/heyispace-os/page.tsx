@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import CaseNav from "../CaseNav";
 import HeroTransition from "./HeroTransition";
 import Section03UsersTasks from "./Section03UsersTasks";
 import Section04Complexity from "./Section04Complexity";
@@ -21,6 +22,11 @@ export const metadata: Metadata = {
 export default function HeyispaceOsPage() {
   return (
     <main>
+      {/* 顶部导航：与合一实施助手同款，挂在 main 下、**不在 Hero 场景内**。
+          Hero 场景为了压住波浪背景自成一个堆叠上下文（page.module.css 的
+          isolation: isolate），导航留在里面就会被后面章节的浮层整块盖掉
+          （2026-09-24 修：向下滚动时导航消失）。 */}
+      <CaseNav projectLabel="HEYISPACE OS" />
       {/* 01 Hero：主图随页面滚动完整露出，再进入项目背景。 */}
       <HeroTransition />
       {/* 03 / 12 · Users & Tasks */}

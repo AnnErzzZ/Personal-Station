@@ -51,11 +51,6 @@
   -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent 100%);
 }
 
-.heroScene :global([data-ho-case-nav]) {
-  /* 波浪背景要透进导航毛玻璃，实心底会让首屏顶端出现一条生硬分界。 */
-  background: transparent;
-}
-
 /* ── Hero 文案与主图 ─────────────── */
 
 .heroCopy {
