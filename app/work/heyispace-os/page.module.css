@@ -1,31 +1,19 @@
-/*
- * Heyispace OS Case Study：Hero → MacBook Scroll → 02 Project Context。
- *
- * 2026-09-23 首屏重构：旧的 310vh sticky scene（--ho-p 进度派生 +
- * CSS scroll-driven animation，见备份 .workbuddy/backup-macbook-scroll/）
- * 整体下线，舞台效果由 Aceternity MacbookScroll 接管：
- *   · heroScene   = MacBook 场景 + 项目背景的公共容器（顶部导航是全站
- *                   统一的 app/work/CaseNav，fixed 吸顶，不占流内高度）；
- *   · macStage    = MacBook 场景，overflow hidden 裁切线就是与
- *                   02 Project Context 的衔接线；
- *   · contextStandalone = 项目背景独立节，RevealOnView 入场。
- * 进度驱动的动画全部在组件内（motion/react），本文件不再持有任何
- * 场景进度变量；hero-transition.ts 与其单测已随旧场景删除。
- */
+/* Heyispace OS hero image and project context. */
 
 .heroScene {
   /* ── 布局量 ───────────────────────────────────────────── */
-  /* 顶部 padding 补回旧 sticky 导航占掉的流内高度（64px 导航 + 1px 分隔线），
-     顶部导航改为全站统一 CaseNav（fixed，不占流）后 MacBook 构图保持不动。 */
-  --ho-context-max: 1080px;
-  --ho-context-gutter: 48px;
+  /* 内容轴与 sections.module.css 的 --cs-gutter 公式同源：
+     max(60px, 50% - 660px) 的两侧留白 → 内容宽 min(100% - 120px, 1320px)。
+     三张卡片与章节内容严格同轴（2026-09-24 对齐要求）。 */
+  --ho-content-max: 1320px;
+  --ho-content-inset: max(60px, calc(50% - 660px));
   --ho-card-gap: 14px;
   --ho-card-radius: 18px;
   --ho-card-pad: 22px;
   --ho-badge-size: 40px;
 
   /* ── 浅色色板（Duo 轮，与旧场景一致） ─────────────────── */
-  /* 页面底色：Hero / MacBook 场景与 02–07 章节同用 #f5f5f7。 */
+  /* 页面底色：Hero 与 03+ 章节同用 #f5f5f7。 */
   --ho-page-bg: #f5f5f7;
   --ho-ink: #1d1d1f;
   --ho-ink-soft: #515154;
@@ -35,14 +23,40 @@
   --ho-accent: #0066cc;
 
   position: relative;
+  /* HeroWaves 背景层用 z-index:-1 压到正文之下：heroScene 需要自成
+     堆叠上下文，否则负 z-index 会沉到本 section 的 #f5f5f7 底色后面。 */
+  isolation: isolate;
   padding-top: 65px;
   color: var(--ho-ink);
   background: var(--ho-page-bg);
 }
 
-/* ── Hero 文案：MacbookScroll 的 title 插槽，随滚动整体淡出 ──
-   淡出 / 上移的节奏由组件内置 textOpacity（0–0.2）与
-   textTransform（0–0.3）驱动，这里只负责排版。 */
+/* ── Hero 首屏渐变波浪背景（React Bits GradientWaves）────────
+   只覆盖第一屏（100svh），挂 z-index:-1：在 heroScene 底色之上、
+   全部正文之下。滚动淡出由 HeroWaves 客户端组件驱动（rAF + scroll，
+   滚过 0.7 个视口归零并 visibility:hidden）。层内 pointer-events:none，
+   视差由组件内部监听 window 实现。滚过首屏后容器离开视口，
+   组件内部 IntersectionObserver 自动停渲染循环。 */
+.heroWavesLayer {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 100vh;
+  height: 100svh;
+  z-index: -1;
+  pointer-events: none;
+  will-change: opacity;
+  /* 底缘溶解：滚动中途层底边还压在视口里，让波纹在层内先淡掉，
+     避免出现一条直线切边（09-24 截图验收发现）。 */
+  mask-image: linear-gradient(to bottom, #000 72%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent 100%);
+}
+
+.heroScene :global([data-ho-case-nav]) {
+  /* 波浪背景要透进导航毛玻璃，实心底会让首屏顶端出现一条生硬分界。 */
+  background: transparent;
+}
+
+/* ── Hero 文案与主图 ─────────────── */
 
 .heroCopy {
   display: flex;
@@ -50,17 +64,40 @@
   align-items: center;
   width: 100%;
   max-width: 1248px;
-  margin: clamp(56px, 9vh, 88px) auto 0;
+  margin: clamp(72px, 9vh, 100px) auto 0;
   padding-inline: 24px;
   text-align: center;
 }
 
-/* 组件根在 md 起自带 pt-20（80px），桌面档不再另加大间距。 */
-@media (min-width: 768px) {
-  .heroCopy {
-    margin-top: 8px;
-    padding-inline: 48px;
-  }
+.heroVisualTrack {
+  margin-top: clamp(72px, 11vh, 120px);
+}
+
+.heroVisualTrack::after {
+  display: block;
+  height: clamp(132px, 18vh, 180px);
+  content: "";
+}
+
+.heroVisual {
+  position: sticky;
+  /* 吸顶位 = 导航实测高度 + 20px 缝（HeroVisual 写 --ho-hero-top）；
+     SSR 兜底 65px。不再写死，导航改高也不会压住主图。 */
+  top: var(--ho-hero-top, 65px);
+  /* 宽度由 HeroVisual 实测「首屏剩余高度 × 图片宽高比」写进 --ho-hero-w：
+     主图、标题行、三卡因此总能完整同屏，顶部不再被顶出窗口。
+     SSR 兜底 1080（= 旧设计值），hydrate 后按窗口高度收敛；
+     上限取内容轴（与卡片组、章节内容同轴）。 */
+  width: min(var(--ho-hero-w, 1080px), calc(100% - 2 * var(--ho-content-inset)));
+  margin: 0 auto;
+  scroll-margin-top: var(--ho-hero-top, 65px);
+}
+
+.heroImage {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 18px;
 }
 
 .eyebrow {
@@ -116,7 +153,7 @@
 /* ── Hero 滚动提示（与首页首屏 .scrollHint 同款） ────────────
    结构与动画逐字取自 app/home.module.css：鼠标滚轮点自上而下循环、
    双箭头错峰流动，1.8s 同周期。差异只有两处：白底场景不需要首页的
-   反白色，用本页 --ho-ink-faint；外层是链接（点击锚到 02 章）。 */
+   反白色，用本页 --ho-ink-faint；外层是链接（点击锚到主图）。 */
 
 .scrollHint {
   display: flex;
@@ -126,8 +163,7 @@
   color: var(--ho-ink-faint);
   font-family: var(--meta-font);
   /* 14px 中文底线（typography 门禁）：「向下查看项目」是中文标签，
-     不吃 12px 纯英文 metadata 档；显式 400 抵消 title 槽包装层
-     Tailwind font-bold 的继承泄漏。 */
+     不吃 12px 纯英文 metadata 档。 */
   font-size: 14px;
   font-weight: 400;
   letter-spacing: 0.18em;
@@ -193,98 +229,53 @@
   }
 }
 
-/* ── MacBook 场景 ─────────────────────────────────────────── */
+/* ── 空间管理工作台 ─────────── */
 
-/*
- * macStage：MacbookScroll 的裁切容器。
- * overflow hidden 有两个职责：开盖放大段超出左右时不撑破页面；
- * 行程末段组件把整机 translate 下压，画面沿本容器底边被裁掉，
- * 02 Project Context 从这条线滚入 —— 这就是两章的衔接。
- */
-.macStage {
-  position: relative;
-  overflow: hidden;
-  background: var(--ho-page-bg);
-}
-
-/* ── 02 Project Context：独立节，RevealOnView 入场 ────────── */
-
-/*
- * 入场（2026-09-23）：旧场景的 --ho-ctx-* 进度淡入换成进入视口
- * 触发一次（RevealOnView 写 data-entered）。标题先进，卡片组
- * 错峰 0.12s 跟上，位移幅度与旧场景一致（14 / 16px）。
- */
-.contextReveal .contextTitle,
-.contextReveal .contextFacts {
-  opacity: 0;
-  transform: translate3d(0, 16px, 0);
-  transition:
-    opacity 0.7s ease,
-    transform 0.7s ease;
-}
-
-.contextReveal .contextTitle {
-  transform: translate3d(0, 14px, 0);
-}
-
-.contextReveal .contextFacts {
-  transition-delay: 0.12s;
-}
-
-.contextReveal[data-entered="true"] .contextTitle,
-.contextReveal[data-entered="true"] .contextFacts {
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .contextReveal .contextTitle,
-  .contextReveal .contextFacts {
-    transition: none;
-  }
-}
-
-.contextStandalone {
+.contextScene {
   display: flex;
-  justify-content: center;
-  padding: clamp(72px, 12vh, 128px) var(--ho-context-gutter)
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  /* 横向留白与章节内容轴同源（sections.module.css 的 --cs-gutter），
+     卡片组因此与下方 section 内容左右边界严格对齐。
+     顶部留白克制：主图吸顶时「主图 + 标题 + 三卡」要能完整同屏。 */
+  padding: clamp(40px, 5vh, 64px) var(--ho-content-inset)
     clamp(96px, 14vh, 152px);
   background: var(--ho-page-bg);
 }
 
-.contextInner {
-  display: flex;
-  flex-direction: column;
-  /* 标题区居中：标题对齐内容轴中心。卡片组是 grid，照旧整轴铺开。 */
-  width: min(calc(100% - 2 * var(--ho-context-gutter)), var(--ho-context-max));
-  text-align: center;
-}
-
 .contextTitle {
+  /* 标题与主图的构图间距由 contextScene 顶部 padding 承担，不再叠加。 */
   margin: 0;
   color: var(--ho-ink);
   font-size: clamp(30px, 4.45vh, 45px);
-  /* 560 是无效字重（解析到 Bold），规范为 600——思源黑体下两者渲染一致。 */
   font-weight: 500;
   letter-spacing: -0.035em;
   line-height: 1.2;
 }
 
-/* ── Project Context：三张左对齐信息卡（Apple 环境页排版） ─── */
+/* ── 三张左对齐信息卡（Apple 环境页排版） ────────────────── */
 
+/*
+ * 卡片组宽度对齐旧 contextInner：内容轴最宽 1080，两侧 gutter。
+ * 场景层 pointer-events 已关，卡片自身重新开启（hover 可用）。
+ */
 .contextFacts {
   position: relative;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--ho-card-gap);
-  margin-top: var(--ho-context-gap, clamp(24px, 3.2vh, 42px));
+  /* 撑满场景内容盒（两侧留白 = 章节轴）并封顶 1320：三卡与下方 section
+     内容左右边界完全对齐，三列等宽均分。 */
+  width: 100%;
+  max-width: var(--ho-content-max);
+  margin-top: var(--ho-context-gap, clamp(18px, 2.8vh, 32px));
 }
 
 /*
  * 排版对齐参考稿（Apple 环境页价值观卡）：
  * 白底大圆角、极淡描边 + 柔和投影，内容全部左对齐；
  * 图标 → 标题的间距明显大于标题 → 正文，形成两级呼吸。
- * 顶部图标先以描边圆圈占位，出稿后替换成真实图标。
  */
 .contextCard {
   position: relative;
@@ -298,11 +289,52 @@
   background: #ffffff;
   box-shadow: 0 6px 20px rgb(0 0 0 / 4%);
   text-align: left;
-  /* hover 抬升的过渡；入场动画挂在 .contextFacts 组上，互不冲突。 */
+  pointer-events: auto;
+  /* 入场和 hover 共用可反向的 transform 过渡。 */
   transition:
+    opacity 0.5s ease,
     transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1),
     box-shadow 0.45s cubic-bezier(0.22, 0.61, 0.36, 1),
     border-color 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* The breakpoint toggles in both scroll directions. */
+.contextScene .contextTitle {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.55s ease,
+    transform 0.55s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.contextScene .contextCard {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+.contextScene[data-entered="true"] .contextTitle,
+.contextScene[data-entered="true"] .contextCard {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contextScene .contextTitle,
+  .contextScene .contextCard {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* 标题行：标题贴左、徽章贴右，两端对齐（2026-09-24 卡片内部改版）。 */
+.contextCardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  margin-bottom: clamp(12px, 1.8vh, 18px);
 }
 
 .contextCardIcon {
@@ -316,7 +348,6 @@
   background-color: var(--badge-tint, transparent);
   width: var(--ho-badge-size);
   height: var(--ho-badge-size);
-  margin-bottom: clamp(18px, 2.4vh, 24px);
   /* 徽章反白过渡比卡片抬升略快，先「点亮」再升起。 */
   border-radius: 12px;
   transition:
@@ -330,10 +361,9 @@
 }
 
 .contextCardTitle {
-  margin: 0 0 clamp(8px, 1.2vh, 11px);
+  margin: 0;
   color: var(--ho-ink);
-  /* Card Title 20px 档（typography 轮）：原 14–17px 与正文几乎同大，
-     读不出「卡标题」。900 高 → 19.8px，1080+ → 22px。 */
+  /* Card Title 20px 档（typography 轮）。 */
   font-size: clamp(18px, 2.2vh, 22px);
   font-weight: 500;
   letter-spacing: -0.01em;
@@ -343,8 +373,7 @@
 .contextCardBody {
   margin: 0;
   color: var(--ho-ink-soft);
-  /* 卡片正文 14px 下限（typography 轮）：原 12.5px 起点违反中文可读底线。
-     900 高 → 14.9px，780 矮窗 → 14px。 */
+  /* 卡片正文 14px 下限（typography 轮）。 */
   font-size: clamp(14px, 1.65vh, 15px);
   font-weight: 400;
   line-height: 1.6;
@@ -354,10 +383,9 @@
  * Hover 交互（2026-09-23，仅指针设备）：
  * 卡片抬升 4px + 投影加深 + 描边微深；徽章从淡彩底浮现品牌色圆片——
  * 白图形 + 1.05 微放大，形成「点亮」的焦点转移。
- * 纯 CSS :hover，触屏不受影响（hover:none 下整块不生效）。
  */
 @media (hover: hover) {
-  .contextCard:hover {
+  .contextScene[data-entered="true"] .contextCard:hover {
     transform: translateY(-4px);
     border-color: rgb(0 0 0 / 10%);
     box-shadow:
@@ -381,34 +409,41 @@
 
 /* ── 响应式 ───────────────────────────────────────────────── */
 
+/* 横向轴线跟随 sections.module.css 的 --cs-gutter 断点（1180 → 40px、
+   720 → 20px），卡片组与主图因此始终与章节内容左右对齐。 */
+@media (max-width: 1180px) {
+  .heroScene {
+    --ho-content-inset: 40px;
+  }
+}
+
+@media (max-width: 720px) {
+  .heroScene {
+    --ho-content-inset: 20px;
+  }
+}
+
 @media (max-width: 1100px) and (min-width: 901px) {
   .contextCard {
     padding-inline: 20px;
   }
 }
 
+@media (max-width: 767px) {
+  .contextScene {
+    padding: 36px 20px 56px;
+  }
+}
+
 /*
- * 移动端（≤900）：MacBook 场景由组件自身的 scale 档（0.6 / sm 0.75）
- * 缩放；文案与项目背景回到旧静态回退的排版。
+ * 窄屏（≤900）：卡片组回到单栏。
  */
 @media (max-width: 900px) {
-  .contextInner {
-    width: 100%;
-    max-width: 760px;
-    padding: 0 0 24px;
-  }
-
-  .heroLead br {
-    display: none;
-  }
-
-  .heroActions {
-    flex-wrap: wrap;
-  }
-
   .contextFacts {
     grid-template-columns: 1fr;
     gap: 12px;
+    width: 100%;
+    max-width: var(--ho-content-max);
     margin-top: 32px;
   }
 
@@ -419,25 +454,32 @@
   .contextCardIcon {
     width: 34px;
     height: 34px;
-    margin-bottom: 16px;
   }
 
   .contextCardTitle {
-    margin-bottom: 8px;
+    margin-bottom: 0;
   }
-}
 
-/* 真窄屏的单栏卡片是左对齐的，标题区跟着左对齐。 */
-@media (max-width: 900px) {
-  .contextInner {
-    text-align: start;
+  .heroLead br {
+    display: none;
+  }
+
+  .heroActions {
+    flex-wrap: wrap;
   }
 }
 
 @media (max-width: 620px) {
+  .heroVisualTrack {
+    margin-top: clamp(140px, 26vh, 260px);
+  }
+
+  .heroImage {
+    border-radius: 12px;
+  }
+
   .heroCopy {
     align-items: flex-start;
-    margin-top: 58px;
     padding-inline: 20px;
     text-align: left;
   }
@@ -459,9 +501,5 @@
   .heroActions {
     flex-direction: column;
     gap: 8px;
-  }
-
-  .contextStandalone {
-    padding-inline: 20px;
   }
 }

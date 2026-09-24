@@ -1,23 +1,8 @@
-import RevealOnView from "./RevealOnView";
+"use client";
+import { useEffect, useRef, useState } from "react";
 import styles from "./page.module.css";
 
-/**
- * 02 / 12 项目背景（2026-09-23 起独立成节）。
- *
- * 原本住在 Hero sticky scene 的下半区、由滚动进度分层进入；MacbookScroll
- * 接管首屏舞台后，本节改为普通文档流章节，紧跟 macStage 裁切线之后，
- * 入场交给 RevealOnView（进入视口触发一次，样式在 .contextReveal）。
- * 内容层不变：三张左对齐卡片（产品 / 用户与场景 / 我的角色），
- * 排版对齐 Apple 环境页的价值观卡：顶部图标位 + 大间距 + 标题 + 正文。
- * 图标（2026-09-23 三版定稿）：统一线性语言——24 网格 / 1.6px 圆头描边 /
- * 双色（主色 currentColor + 浅色 var(--icon-soft)），无实心元素；设计稿见
- * Ardot「02 章卡片图标 · 复盘风格重绘」，一卡一色（紫 / 青 / 品红）：
- *   产品       = 2×2 空间网格，右下一格主色描边（被管理的活跃空间）；
- *   用户与场景 = 描边人形居中 + 两侧浅色环境弧（人物置身场景之中）；
- *   我的角色   = 线性定位钉（主导地图编辑器 / 我在项目中的位置）。
- * 徽章为淡彩圆角方（tint 底 + 主色图形），hover 浮现品牌色圆片白图形，
- * 交互样式在 page.module.css，色板由各卡内联 CSS 变量注入。
- */
+/** Project context cards revealed when the section enters the viewport. */
 type ContextCard = {
   title: string;
   body: string;
@@ -84,44 +69,81 @@ const contextCards: ContextCard[] = [
   },
 ];
 
-export default function Section01ProjectContext() {
-  return (
-    <RevealOnView className={styles.contextReveal}>
-      <div
-        className={styles.contextStandalone}
-        id="section-02-context"
-        data-ho-context="true"
+const renderCardBody = (card: ContextCard) => (
+  <>
+    {/* 标题行：标题贴左、徽章贴右，两端对齐；正文在行下方。 */}
+    <div className={styles.contextCardHead}>
+      <h3 className={styles.contextCardTitle}>{card.title}</h3>
+      <span
+        className={styles.contextCardIcon}
+        aria-hidden="true"
+        data-ho-context-icon="true"
+        data-ho-context-icon-role={card.title}
+        style={
+          {
+            "--badge-accent": card.accent,
+            "--badge-tint": card.tint,
+            "--icon-soft": card.soft,
+          } as React.CSSProperties
+        }
       >
-        <div className={styles.contextInner}>
-          <h2 className={styles.contextTitle} data-ho-context-part="title">
-            空间管理工作台
-          </h2>
+        {card.icon}
+      </span>
+    </div>
+    <p className={styles.contextCardBody}>{card.body}</p>
+  </>
+);
 
-          <div className={styles.contextFacts} data-ho-context-part="facts">
-            {contextCards.map((card) => (
-              <article className={styles.contextCard} key={card.title}>
-                <span
-                  className={styles.contextCardIcon}
-                  aria-hidden="true"
-                  data-ho-context-icon="true"
-                  data-ho-context-icon-role={card.title}
-                  style={
-                    {
-                      "--badge-accent": card.accent,
-                      "--badge-tint": card.tint,
-                      "--icon-soft": card.soft,
-                    } as React.CSSProperties
-                  }
-                >
-                  {card.icon}
-                </span>
-                <h3 className={styles.contextCardTitle}>{card.title}</h3>
-                <p className={styles.contextCardBody}>{card.body}</p>
-              </article>
-            ))}
-          </div>
-        </div>
+export default function Section01ProjectContext() {
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(false);
+
+  /* 卡片组上缘进入视口下 8% 线即点亮，双向可逆。
+     旧断点 releaseAt + 64（等主图 sticky 释放后再入场）是 MacBook 场景
+     的编排遗留：主图改纯截图吸顶后，再等释放就会「卡片一出来主图已被
+     顶出窗口」。现在主图吸顶期间卡片在其下方浮现，两者天然同屏。 */
+  useEffect(() => {
+    const node = rootRef.current;
+    const cards = node?.querySelector<HTMLElement>('[data-ho-context-part="facts"]');
+    if (!node || !cards) return;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      setInView(cards.getBoundingClientRect().top <= window.innerHeight * 0.92);
+    };
+    const scheduleUpdate = () => {
+      if (!frame) frame = window.requestAnimationFrame(update);
+    };
+
+    scheduleUpdate();
+    window.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("resize", scheduleUpdate);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("resize", scheduleUpdate);
+    };
+  }, []);
+
+  return (
+    <div
+      ref={rootRef}
+      className={styles.contextScene}
+      id="section-02-context"
+      data-ho-context="true"
+      data-entered={inView ? "true" : "false"}
+    >
+      <h2 className={styles.contextTitle} data-ho-context-part="title">
+        空间管理工作台
+      </h2>
+
+      <div className={styles.contextFacts} data-ho-context-part="facts">
+        {contextCards.map((card) => (
+          <article className={styles.contextCard} key={card.title}>
+            {renderCardBody(card)}
+          </article>
+        ))}
       </div>
-    </RevealOnView>
+    </div>
   );
 }

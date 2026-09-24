@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 
-import "./macbook-scroll.tailwind.css";
 import HeroTransition from "./HeroTransition";
 import Section03UsersTasks from "./Section03UsersTasks";
 import Section04Complexity from "./Section04Complexity";
@@ -22,8 +21,7 @@ export const metadata: Metadata = {
 export default function HeyispaceOsPage() {
   return (
     <main>
-      {/* 01 Hero（MacbookScroll 舞台，2026-09-23 替换旧倾斜截图场景）
-          与 02 Project Context（macStage 裁切线后滚入）。 */}
+      {/* 01 Hero：主图随页面滚动完整露出，再进入项目背景。 */}
       <HeroTransition />
       {/* 03 / 12 · Users & Tasks */}
       <Section03UsersTasks />

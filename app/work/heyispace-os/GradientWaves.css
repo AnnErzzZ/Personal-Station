@@ -1,0 +1,11 @@
+.gradient-waves-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* 背景层用法：容器不参与命中测试，视差由 window 级 pointermove 驱动。 */
+.gradient-waves-container canvas {
+  pointer-events: none;
+}

@@ -1,44 +1,5 @@
 "use client";
-/**
- * MacbookScroll — 来源：Aceternity UI（https://ui.aceternity.com/components/macbook-scroll），
- * 2026-09-23 引入，用于 Heyispace OS 案例页首屏：滚动打开 MacBook，屏幕展示
- * 产品主截图，动画结束后衔接 02 项目背景。
- *
- * 相对原版的适配（其余逐字保留）：
- *   1. motion.h2 → motion.div：本站把整块 Hero 文案（含 h1）作为 title 插槽
- *      传入，h2 > h1 是非法标题嵌套，外层改语义中性容器；
- *   2. 屏幕 h-96 → h-[20rem]：32rem × 20rem = 16:10，与产品截图
- *      heyispace-agent-analysis.png（4320×2700）同比例，object-cover 不再裁边；
- *   3. md:py-80 → md:pt-20 md:pb-80：顶部留白收紧，首屏文案位置贴近原设计；
-   *   4. scale-[0.35] sm:scale-50 → scale-[0.6] sm:scale-75：移动端 0.35 倍的
-   *      MacBook 只有 ~180px 宽，看不清屏幕内容，上调到可读档；
-   *      并加 origin-top：默认绕中心缩放会把 200vh 块顶部的文案整体
-   *      压出 ~340px 死白（首屏导航与文案之间全空），锚定顶部后
-   *      移动端首屏紧凑；桌面 scale-100 无行为差异；
- *   5. min-h-[200vh] → 移动端 170vh / sm 190vh / md 200vh：origin-top
- *      之后移动端内容只占块的上半，200vh 行程会让屏幕离场到项目
- *      背景进场之间出现一大段空档，按内容实际高度收短行程；
- *   6. 根节点与屏幕加 data-ho-macbook-scroll / data-ho-macbook-screen，
- *      供 verify-heyispace-hero.mjs 定位断言。
- *
- * 2026-09-23 晚二次调整（Anner：换 agent.png + 放大 mac + 键盘沉底 60%）：
- *   7. 屏幕 h-[20rem] → h-[22.756rem]：新主图 agent.png 为 2880×2048
- *      （45:32，1.40625），16:10 会裁掉底部内容，屏幕比例改与图一致，
- *      object-cover 不再裁边；fold 初始 scaleY 相应 0.6 → 0.53
- *      （0.53 × 22.756rem ≈ 12rem，合盖仍与外壳齐平）；
- *   8. Lid + Base 包进 data-ho-macbook-stage wrapper：origin-top 整体
- *      scale 放大（移动 1.1 / sm 1.14 / md 1.18）+ translateY 下沉
- *      （CSS individual transform 固定 translate→rotate→scale 次序，
- *      净效果 = 绕顶边放大后再整体下移 T×s），首屏键盘被视口底部
- *      遮住约 60%；文案在 wrapper 外，不随 mac 放大；
- *   9. Base area 加 data-ho-macbook-base，供验收脚本量化遮挡比例。
- *   10. 2026-09-23 晚五次迭代（Anner：主图到背景页后停止过渡 + 屏幕留边距）：
- *      translate 桌面钳制 [0,0.4]→[0,624]（p≥0.4 冻结，屏幕贴背景节顶静止，
- *      与三卡同屏；移动端保持 v×1900）；主图改 86% 居中露出深灰 bezel
- *      （比例 45:32 不变、零裁切）。
- * Tailwind 工具类由 app/work/heyispace-os/macbook-scroll.tailwind.css 定向生成
- * （scoped，无 preflight，dark 变体已禁用），cn 来自 @/lib/utils。
- */
+/** Aceternity MacbookScroll adapted for the Heyispace OS screenshot and scroll transition. */
 import React, { useRef } from "react";
 import { MotionValue, motion, useScroll, useTransform } from "motion/react";
 import { cn } from "@/lib/utils";
@@ -82,44 +43,18 @@ export const MacbookScroll = ({
     offset: ["start start", "end start"],
   });
 
-  /*
-   * 响应式取值注意：motion v13 的 useTransform（含函数式）会把首次
-   * 渲染时的 transformer 闭包快照下来，之后 React state 变化
-   * （如本组件原先的 isMobile state）不会更新闭包——
-   * "isMobile ? X : Y" 分支因此从不生效。绕法：transformer 内不捕获
-   * React state，每帧现读 window.innerWidth（SSR 下无 window，回退
-   * 桌面值）。
-   *
-   * fold 初值（scaleX 1.25 / scaleY 0.714）：合盖态屏幕视觉与外壳
-   * 四边重合——探针实测外壳视觉 757.9×243.2 @top 497.1，旧值
-   * 1.2/0.66 时屏幕窄 33px、顶低 16.6px，白屏四周黑缝不均（被指认
-   * "界面主图没跟 mac 屏幕对齐"）。透视非线性，数值来自两点实测
-   * 插值，勿按公式推。开盖终值 1.5 不变。
-   */
-  const scaleX = useTransform(
-    scrollYProgress,
-    [0, 0.3],
-    [1.25, 1.44],
+  // The lid and the screenshot share the opening pose, then animate separately.
+  const shellScaleY = useTransform(scrollYProgress, [0, 0.3], [0.714, 1]);
+  const shellOpacity = useTransform(scrollYProgress, (v) =>
+    1 - Math.min(Math.max((v - 0.3) / 0.04, 0), 1),
   );
-  const scaleY = useTransform(
-    scrollYProgress,
-    [0, 0.3],
-    [0.714, 1.44],
-  );
-  /*
-   * translate：桌面钳制在 [0, 0.4] → [0, 636]（五次迭代，Anner：主图到达
-   * 背景页后必须完全停止过渡，且与三卡同屏）。p≤0.4 斜率恒 1590（≈旧线性
-   * v×1560，开盖节奏基本不变）；p≥0.4 输出恒为 636，屏幕 transform 冻结——
-   * 冻结几何：屏幕底缘恰好贴 macStage 盒底（= 背景节顶边），冻结后屏幕与
-   * 背景节相对位置恒定，作为一张完整主图静止贴在背景页顶部随页面正常滚动。
-   * 开盖终值 1.5→1.44：主图视觉高 619 + 背景节标题三卡区 ~260 ≤ 900 视口，
-   * 满足"完整主图与三卡同时展示在一屏"（1.5 时 644+260=904 溢出，卡底进不来）。
-   * 移动端保持线性 v×1900：170vh 短行程 + 根 scale 0.6，屏幕仍需在
-   * progress 0.94 前完全退出裁切线（零残留断言），几何与桌面不同不套用。
-   */
-  const translate = useTransform(scrollYProgress, (v) => {
+  // Keep the screenshot just inside the native lid opening until it detaches.
+  const shotScale = useTransform(scrollYProgress, [0, 0.3, 0.55], [0.99, 0.99, 1.152]);
+  const shotTranslate = useTransform(scrollYProgress, (v) => {
     if (typeof window !== "undefined" && window.innerWidth < 768) return v * 1900;
-    return Math.min(v / 0.4, 1) * 636;
+    // The screenshot clears the lid early, then eases into the background section.
+    const progress = Math.min(Math.max((v - 0.3) / 0.25, 0), 1);
+    return (1 - (1 - progress) ** 3) * 636;
   });
   const rotate = useTransform(scrollYProgress, [0.1, 0.12, 0.3], [-28, -28, 0]);
   /*
@@ -140,14 +75,14 @@ export const MacbookScroll = ({
     <div
       ref={ref}
       data-ho-macbook-scroll="true"
-      className="flex min-h-[170vh] shrink-0 origin-top scale-[0.6] transform flex-col items-center justify-start py-0 [perspective:800px] sm:min-h-[190vh] sm:scale-75 md:min-h-[200vh] md:scale-100 md:pb-80 md:pt-20"
+      className="flex min-h-[170vh] shrink-0 origin-top scale-[0.6] transform flex-col items-center justify-start py-0 [perspective:800px] sm:min-h-[190vh] sm:scale-75 md:min-h-[200vh] md:scale-100 md:pb-80 md:pt-0"
     >
       <motion.div
         style={{
           translateY: textTransform,
           opacity: textOpacity,
         }}
-        className="mb-20 text-center text-3xl font-bold text-neutral-800 dark:text-white"
+        className="mb-8 text-center text-3xl font-bold text-neutral-800 dark:text-white"
       >
         {title || (
           <span>
@@ -158,15 +93,16 @@ export const MacbookScroll = ({
       {/* Mac 整体（Lid + Base）放大并下沉，文案不参与 */}
       <div
         data-ho-macbook-stage="true"
-        className="origin-top translate-y-[300px] scale-[1.1] sm:translate-y-[100px] sm:scale-[1.14] md:translate-y-[8px] md:scale-[1.18]"
+        className="origin-top translate-y-[200px] scale-[1] sm:translate-y-[100px] sm:scale-[1.14] md:translate-y-[8px] md:scale-[1.18]"
       >
         {/* Lid */}
         <Lid
           src={src}
-          scaleX={scaleX}
-          scaleY={scaleY}
+          shellScaleY={shellScaleY}
+          shellOpacity={shellOpacity}
+          shotScale={shotScale}
+          shotTranslate={shotTranslate}
           rotate={rotate}
-          translate={translate}
         />
         {/* Base area */}
         <div
@@ -201,16 +137,18 @@ export const MacbookScroll = ({
 };
 
 export const Lid = ({
-  scaleX,
-  scaleY,
+  shellScaleY,
+  shellOpacity,
+  shotScale,
+  shotTranslate,
   rotate,
-  translate,
   src,
 }: {
-  scaleX: MotionValue<number>;
-  scaleY: MotionValue<number>;
+  shellScaleY: MotionValue<number>;
+  shellOpacity: MotionValue<number>;
+  shotScale: MotionValue<number>;
+  shotTranslate: MotionValue<number>;
   rotate: MotionValue<number>;
-  translate: MotionValue<number>;
   src?: string;
 }) => {
   return (
@@ -234,30 +172,40 @@ export const Lid = ({
           </span>
         </div>
       </div>
+      {/* The supplied lid stays with the computer throughout the scroll. */}
       <motion.div
         data-ho-macbook-screen="true"
         style={{
-          scaleX: scaleX,
-          scaleY: scaleY,
+          scaleX: 1.25,
+          scaleY: shellScaleY,
+          opacity: shellOpacity,
           rotateX: rotate,
-          translateY: translate,
           transformStyle: "preserve-3d",
           transformOrigin: "top",
         }}
-        className="absolute inset-x-0 top-[-16px] flex h-[22.756rem] w-[32rem] items-center justify-center overflow-hidden rounded-2xl bg-[#010101]"
+        className="absolute inset-x-0 top-[-16px] h-[22.756rem] w-[32rem] rounded-2xl bg-[#010101]"
+      />
+      {/* A transparent sibling carries only the image. No black wrapper travels with it. */}
+      <motion.div
+        style={{
+          scaleX: 1.25,
+          scaleY: shellScaleY,
+          rotateX: rotate,
+          transformStyle: "preserve-3d",
+          transformOrigin: "top",
+        }}
+        className="pointer-events-none absolute inset-x-0 top-[-16px] h-[22.756rem] w-[32rem]"
       >
-        <div className="absolute inset-0 rounded-lg bg-[#272729]" />
-        {/*
-         * 主图 86% 居中（五次迭代，Anner：图片铺满屏幕"看着特别假，
-         * 上下左右都留有足够的屏幕边距"）——86% 时 img 比例
-         * 440.3×313.1 恰好仍为 45:32，object-cover 零裁切，四周露出
-         * 14% 深灰屏幕边框（bezel）。fold 视觉：左右 ~45px / 上下 ~18px
-         * （scaleX 1.25 放大横向、scaleY 0.714 压缩纵向，透视观感同真机）。
-         */}
-        <img
+        <motion.img
+          data-ho-macbook-shot="true"
           src={src as string}
           alt="Heyispace OS 产品界面截图"
-          className="relative h-[86%] w-[86%] rounded-lg object-cover"
+          style={{
+            scale: shotScale,
+            translateY: shotTranslate,
+            transformOrigin: "center center",
+          }}
+          className="absolute inset-0 h-full w-full rounded-2xl object-cover"
         />
       </motion.div>
     </div>
