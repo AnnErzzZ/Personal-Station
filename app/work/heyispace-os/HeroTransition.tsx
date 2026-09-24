@@ -39,8 +39,16 @@ export default function HeroTransition() {
           </a>
         </div>
       </header>
-      <HeroVisual />
-      <Section01ProjectContext />
+      {/* 主图 + 01 文案 + 三卡是同一块舞台（2026-09-24 收口）：整组一起吸顶、
+          一起保持、一起离场。分组吸顶后卡片落位与入场是同一时刻，不再是
+          「先出现、再滚一段才落到最终位置」的两段式。吸顶位与是否吸顶由
+          HeroVisual 实测后写进 --ho-hero-top / data-ho-stack。 */}
+      <div className={styles.heroStageTrack} data-ho-stage-track="true">
+        <div className={styles.heroStage} data-ho-stage="true">
+          <HeroVisual />
+          <Section01ProjectContext />
+        </div>
+      </div>
     </section>
   );
 }

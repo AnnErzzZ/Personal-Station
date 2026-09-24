@@ -1,5 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+
+import { heroStageEntered, HERO_STACK_BREAKPOINT } from "./hero-stage";
 import styles from "./page.module.css";
 
 /** Project context cards revealed when the section enters the viewport. */
@@ -98,18 +100,36 @@ export default function Section01ProjectContext() {
   const rootRef = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
 
-  /* 卡片组上缘进入视口下 8% 线即点亮，双向可逆。
-     旧断点 releaseAt + 64（等主图 sticky 释放后再入场）是 MacBook 场景
-     的编排遗留：主图改纯截图吸顶后，再等释放就会「卡片一出来主图已被
-     顶出窗口」。现在主图吸顶期间卡片在其下方浮现，两者天然同屏。 */
+  /* 入场时机 = 舞台落位那一帧，双向可逆（2026-09-24 单段式入场）。
+     主图 + 标题 + 三卡是整组吸顶的一块舞台（.heroStage），吸顶位就是
+     最终构图：舞台顶触到吸顶位时，卡片已经在自己的最终位置上，之后整个
+     保持行程里舞台不再移动。所以卡片是「一次入场、直接停在最终位置」，
+     而不是先出现、再滚一段才落到最终位置（那会让主图被顶进导航栏）。
+     装不下整组时舞台回流式（计算 position 不是 sticky），回落为
+     「卡片组上缘进入视口下 8% 线」的触发。 */
   useEffect(() => {
     const node = rootRef.current;
     const cards = node?.querySelector<HTMLElement>('[data-ho-context-part="facts"]');
-    if (!node || !cards) return;
+    const stage = document.querySelector<HTMLElement>("[data-ho-stage]");
+    if (!node || !cards || !stage) return;
     let frame = 0;
     const update = () => {
       frame = 0;
-      setInView(cards.getBoundingClientRect().top <= window.innerHeight * 0.92);
+      const stageStyle = window.getComputedStyle(stage);
+      const sticky = stageStyle.position === "sticky";
+      const cardsRect = cards.getBoundingClientRect();
+      setInView(
+        heroStageEntered({
+          sticky,
+          stageTop: stage.getBoundingClientRect().top,
+          // 吸顶位的计算值是 HeroVisual 写进 --ho-hero-top 的落位线。
+          pinnedTop: sticky ? Number.parseFloat(stageStyle.top) : Number.NaN,
+          cardsTop: cardsRect.top,
+          cardsBottom: cardsRect.bottom,
+          viewportWidth: window.innerWidth,
+          viewportHeight: window.innerHeight,
+        }),
+      );
     };
     const scheduleUpdate = () => {
       if (!frame) frame = window.requestAnimationFrame(update);
@@ -118,10 +138,24 @@ export default function Section01ProjectContext() {
     scheduleUpdate();
     window.addEventListener("scroll", scheduleUpdate, { passive: true });
     window.addEventListener("resize", scheduleUpdate);
+    // 布局可能在没有 scroll / resize 的情况下变（图片加载、字体替换、
+    // 手机仿真里视口 meta 生效），这些时候也要重算一遍入场状态。
+    window.addEventListener("load", scheduleUpdate);
+    document.fonts?.ready.then(scheduleUpdate).catch(() => {});
+    const stacked = window.matchMedia(`(max-width: ${HERO_STACK_BREAKPOINT}px)`);
+    stacked.addEventListener("change", scheduleUpdate);
+    // 最后一道保险：任何尺寸变化（断点切换、字体替换、图片撑开）都重算，
+    // 免得入场状态停在上一次布局的结论上。
+    const observer = new ResizeObserver(scheduleUpdate);
+    observer.observe(node);
+    observer.observe(cards);
     return () => {
       window.cancelAnimationFrame(frame);
       window.removeEventListener("scroll", scheduleUpdate);
       window.removeEventListener("resize", scheduleUpdate);
+      window.removeEventListener("load", scheduleUpdate);
+      stacked.removeEventListener("change", scheduleUpdate);
+      observer.disconnect();
     };
   }, []);
 

@@ -69,27 +69,51 @@
   text-align: center;
 }
 
+/* ── 主图 + 01 舞台 ─────────────────────────────────────────
+   「主图 + 标题 + 三卡」是一组固定构图，所以整组一起吸顶：舞台吸顶到
+   --ho-hero-top 后原地保持 --ho-stage-hold 的滚动行程，再随页面一起上移。
+   卡片在吸顶那一刻入场，位置与最终构图完全一致 —— 不再出现「先出现、
+   再滚一段才落位」的两段式，主图也不会在中途被顶到导航栏下面。
+   HeroVisual 实测主图尺寸与吸顶位，写 --ho-hero-top；装不下整组时
+   （矮窗口）写 data-ho-stack="flow" 退回流式。 */
+
+.heroStageTrack {
+  --ho-stage-hold: clamp(160px, 20vh, 240px);
+}
+
+.heroStageTrack::after {
+  display: block;
+  height: var(--ho-stage-hold);
+  content: "";
+}
+
+.heroStage {
+  position: sticky;
+  top: var(--ho-hero-top, 65px);
+}
+
+/* 流式回退：舞台不吸顶、不留保持行程，卡片入场回落为「组上缘进视口」。 */
+.heroStageTrack[data-ho-stack="flow"] .heroStage {
+  position: static;
+}
+
+.heroStageTrack[data-ho-stack="flow"]::after {
+  height: 0;
+}
+
 .heroVisualTrack {
   margin-top: clamp(72px, 11vh, 120px);
 }
 
-.heroVisualTrack::after {
-  display: block;
-  height: clamp(132px, 18vh, 180px);
-  content: "";
-}
-
 .heroVisual {
-  position: sticky;
-  /* 吸顶位 = 导航实测高度 + 20px 缝（HeroVisual 写 --ho-hero-top）；
-     SSR 兜底 65px。不再写死，导航改高也不会压住主图。 */
-  top: var(--ho-hero-top, 65px);
+  /* 吸顶由外层 .heroStage 承担（整组一起吸顶）；这里只负责宽度与圆角。 */
   /* 宽度由 HeroVisual 实测「首屏剩余高度 × 图片宽高比」写进 --ho-hero-w：
      主图、标题行、三卡因此总能完整同屏，顶部不再被顶出窗口。
      SSR 兜底 1080（= 旧设计值），hydrate 后按窗口高度收敛；
-     上限取内容轴（与卡片组、章节内容同轴）。 */
+    上限取内容轴（与卡片组、章节内容同轴）。 */
   width: min(var(--ho-hero-w, 1080px), calc(100% - 2 * var(--ho-content-inset)));
   margin: 0 auto;
+  /* 首屏「向下查看项目」锚点跳到主图时，顶部留出导航 + 缝。 */
   scroll-margin-top: var(--ho-hero-top, 65px);
 }
 
@@ -430,6 +454,16 @@
 }
 
 @media (max-width: 767px) {
+  /* 单栏（卡片纵排）时「主图 + 标题 + 三卡」必然超过一屏：舞台不吸顶，
+     三卡按普通文档流滚入，入场由 Section01ProjectContext 的视口触发承担。 */
+  .heroStage {
+    position: static;
+  }
+
+  .heroStageTrack::after {
+    height: 0;
+  }
+
   .contextScene {
     padding: 36px 20px 56px;
   }
