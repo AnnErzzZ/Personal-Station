@@ -15,8 +15,8 @@ const statusGroups = [
     ],
   },
   {
-    label: "Agent · 内部验证 / Demo",
-    dot: styles.statusDotDemo,
+    label: "Agent · 已上线",
+    dot: styles.statusDot,
     items: [
       "Agent 查询、追问和六段式回答结构",
       "回答中的指标、图表、分析发现、明细和口径说明",
@@ -71,7 +71,7 @@ export default function Section07OutcomeRole() {
         intro={
           <>
             空间地图、地图编辑、多视图、运行统计和系统权限已经进入真实产品。
-            Agent 主要用于内部验证和部分 Demo。
+            Agent 已上线。
             我主导了地图编辑器重构和 Agent 回答结构，并跟进设计评审、研发 Review 和部分验收。
           </>
         }

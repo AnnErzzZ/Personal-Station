@@ -350,15 +350,15 @@ const workCases: WorkCase[] = [
 /* 履历左列的能力三项（文案以 Figma 1920×1080 稿 node 372-11174 为准，逐字一致）。 */
 const capabilities = [
   {
-    title: "Product Thinking",
+    title: "产品思维",
     body: "从业务问题、用户场景到功能方案与产品结构。梳理角色、对象与依赖关系，把复杂规则变成可理解的系统。",
   },
   {
-    title: "UX & Interface",
+    title: "交互与界面设计",
     body: "设计复杂 B 端系统、Web 平台、小程序与多端产品，处理状态、依赖和异常分支，并协同团队推进落地。",
   },
   {
-    title: "Build with AI",
+    title: "AI 辅助实现",
     body: "使用Codex、ChatGPT辅助需求拆解、方案整理、原型验证、页面开发协作与文档输出",
   },
 ];
@@ -368,42 +368,37 @@ const careerProjects = [
   {
     title: "智能空间垂直对话 Agent",
     description:
-      "面向智能空间数据查询与分析的对话产品，参与交互框架、Tool 输出规范、数据可视化及多端体验设计。",
+      "负责空间数据查询与分析需求梳理、对话流程及整体 UX/UI 设计，设计回答结构并参与 RAG 知识库搭建；支持通过对话查询和分析空间数据。",
   },
   {
     title: "合一实施助手小程序",
     description:
-      "面向交付工程师的设备实施工具，参与设备入网、空间编排、配置同步、验收等核心流程的产品与 UX/UI 设计。",
+      "负责现场调研、交付流程梳理、产品结构与整体 UX/UI 重构；新版已上线用于真实项目，标准房间配置在内部演示中约 7 分钟完成。",
   },
   {
     title: "HEYISPACE OS 智能空间管理平台",
     description:
-      "面向空间管理与设备控制的 Web 平台，参与设备控制、策略配置、空间地图及运行数据等功能的持续设计与迭代。",
+      "参与需求分析与产品方案深化，负责权限体系及平台整体 UX/UI 设计，主导地图配置流程重构；使交付工程师可独立完成常规地图配置。",
   },
   {
     title: "合一智控运维平台",
     description:
-      "面向内部运维团队的管理平台，参与异常看板、工单、项目管理及权限等模块的需求梳理与产品设计。",
+      "从 0 到 1 主导运维平台的产品方案、核心流程与整体 UX/UI 设计，覆盖异常看板、工单、项目管理和权限；推动平台落地，让公司进入智慧运维业务。",
   },
   {
     title: "合一空间小程序",
     description:
-      "面向空间使用者的移动端产品，参与设备控制、空间状态查看及相关场景功能的交互与界面设计。",
+      "参与空间使用与交付场景的需求梳理，负责产品流程和整体 UX/UI 设计；通过模块化策略配置，降低系统使用门槛并提升配置效率。",
   },
   {
-    title: "工时管理系统",
+    title: "空间感知决策地图数据大屏",
     description:
-      "用于团队工时记录与统计的内部系统，参与业务流程梳理、信息结构及核心页面的产品与界面设计。",
+      "负责空间地图、指标图表与整体 UX/UI 设计，整合空间感知、设备状态和能耗数据；产品已成为公司在系统之外单独收费销售的增值产品。",
   },
   {
-    title: "智慧空间数据大屏",
+    title: "智能开关模具结构设计",
     description:
-      "用于展示空间运行、设备状态及关键指标的数据可视化项目，参与指标梳理、图表结构和大屏界面设计。",
-  },
-  {
-    title: "智能开关硬件模具开发",
-    description:
-      "参与智能开关硬件产品的设计协作，从产品使用场景与交互需求出发，配合推进外观与模具方案落地。",
+      "负责同类产品拆解研究，参与新版智能开关的外观、模具与结构设计；逐轮分析样机并提出改进意见，推动结构与模具方案迭代。",
   },
 ];
 
@@ -1360,7 +1355,11 @@ export default function StoryScrolly({ heroCopy }: { heroCopy?: ReactNode }) {
                     <p className={styles.bioTools} data-ui-group="bio-tools">
                       <span className={styles.bioToolsLabel}>Tools</span>
                       <span className={styles.bioToolsList}>
-                        Figma · Codex · After Effects · Photoshop · 即梦
+                        {["Figma", "Codex", "After Effects", "Photoshop", "Illustrator", "即梦", "VibeCoding"].map((tool) => (
+                          <span className={styles.bioTool} key={tool}>
+                            {tool}
+                          </span>
+                        ))}
                       </span>
                     </p>
                   </div>
@@ -1392,7 +1391,14 @@ export default function StoryScrolly({ heroCopy }: { heroCopy?: ReactNode }) {
                         data-bio-company=""
                         data-ui-group="bio-company"
                       >
-                        合一智控科技有限公司 · 深圳 · 交互设计师&amp;产品助理
+                        合一智控科技有限公司 · 深圳
+                      </p>
+                      <p
+                        className={styles.bioRole}
+                        data-bio-role=""
+                        data-ui-group="bio-role"
+                      >
+                        交互设计师&amp;产品助理
                       </p>
                       <p
                         className={styles.bioCareerBody}

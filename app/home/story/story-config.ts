@@ -360,8 +360,7 @@ export const ENDING_TIME_MAP: readonly TimeMapping[] = [
  *
  *   |← introHoldVh →|← scrollLenVh →|← endHoldVh →|
  *     初始构图 HOLD     履历整列上移      结束 HOLD
- *     （对应整段        travel × factor   （最后一项完整可见后
- *       的 ~0.15）       （~0.67）           再离场，~0.18）
+ *     （先看工作经历）    travel × factor   （最后一项完整可见后再离场）
  *
  * scrollLenVh 由内容实测决定：travelPx = resumeContent 高 − viewport 高，
  * 换算成 vh 再乘 factor —— 内容越长 Section 越长，移动速度恒定不塞车速。
@@ -371,9 +370,9 @@ export const RESUME_SCROLL = {
   /** 履历滚动距离倍率：scrollLenVh = (travelPx / vh × 100) × factor。 */
   factor: 1.6,
   /** 进入 Biography、完整展示初始构图后，履历开始上移前的停留距离（vh）。 */
-  introHoldVh: 30,
+  introHoldVh: 70,
   /** 履历最后一项完整进入可视区后、Section 离场前的停留距离（vh）。 */
-  endHoldVh: 42,
+  endHoldVh: 70,
   /** resumeHold 的钳制区间（vh）：内容异常短/长时兜底。 */
   minHoldVh: 150,
   maxHoldVh: 440,

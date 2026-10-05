@@ -2884,7 +2884,7 @@
   outline-offset: 5px;
 }
 
-/* 选中态只用文字颜色区分（标题转黑），不加底色、不加左轨——与 09 / 10 章 tab 同一套。 */
+/* 选中态用文字颜色和字号区分，不加底色、左轨——与运行数据、回答结构 tab 同一套。 */
 
 /* 编号与标题同一行、同字号（编号靠基线对齐，DIN 与思源混排视觉等高）——同 09 / 10 章。 */
 .contextActionHead {
@@ -3974,7 +3974,7 @@
   border-top: 1px solid var(--cs-rule);
 }
 
-/* 选中态只用文字颜色区分（标题转黑），不加底色、不加左轨。 */
+/* 选中态用文字颜色和字号区分，不加底色、左轨。 */
 .runningDimensionLocked {
   background: transparent;
 }
@@ -4187,16 +4187,35 @@
 /* ────────────────────────────────────────────────────────────────
    10 / 12 · FROM ANSWER TO EXPLANATION
    左侧六段结构索引 + 右侧同一份完整真实回答；
-   Hover 临时预览、Click 锁定，切换只动遮罩与 Focus 框。
+   页面滚动依次切换；Hover 临时预览、Click 锁定，切换只动遮罩与 Focus 框。
    ──────────────────────────────────────────────────────────────── */
+
+.answerScrollTrack {
+  width: min(100%, 1160px);
+  margin: 88px auto 0;
+}
 
 .answerLayout {
   display: grid;
   grid-template-columns: minmax(300px, 384px) minmax(0, 1fr);
   gap: 56px;
   /* 默认 stretch：左栏六段索引拉到与右侧主舞台底图同高（2026-09-23 用户要求）。 */
-  width: min(100%, 1160px);
-  margin: 88px auto 0;
+  width: 100%;
+}
+
+@media (min-width: 1181px) and (min-height: 800px) {
+  .answerScrollTrack {
+    height: 340svh;
+  }
+
+  .answerLayout {
+    position: sticky;
+    top: 80px;
+  }
+
+  .answerLayout .answerFigure {
+    width: min(100%, 680px, calc((100svh - 112px) * 0.75964));
+  }
 }
 
 /* grid item 允许收缩到内容以下：Mobile 上 920px 画布要靠 viewport 的横向滚动装下。 */
@@ -4225,7 +4244,7 @@
   border-top: 1px solid var(--cs-rule);
 }
 
-/* 选中态只用文字颜色区分（标题转黑），不加左轨、不加底色——与 09 章 tab 同一套。 */
+/* 选中态用文字颜色和字号区分，不加左轨、底色——与运行数据 tab 同一套。 */
 
 .answerIndexButton {
   display: grid;
@@ -4291,6 +4310,56 @@
 
 .answerIndexItemActive .answerIndexBody {
   color: var(--cs-ink-soft);
+}
+
+/* 空间上下文、运行数据、回答结构的纵向 tab 共用选中态：标题行大 2px，不挤动邻项。 */
+.contextActionIndex,
+.contextActionTitle,
+.runningDimensionIndex,
+.runningDimensionTitle,
+.answerIndexNo,
+.answerIndexName {
+  transition: color 240ms ease, font-size 240ms ease;
+}
+
+.contextActionActive .contextActionIndex,
+.contextActionActive .contextActionTitle {
+  font-size: 24px;
+  line-height: 30.8px;
+}
+
+.runningDimensionActive .runningDimensionIndex,
+.runningDimensionActive .runningDimensionTitle {
+  font-size: 22px;
+  line-height: 28px;
+}
+
+.answerIndexItemActive .answerIndexNo,
+.answerIndexItemActive .answerIndexName {
+  font-size: 21px;
+  line-height: 26.6px;
+}
+
+@media (max-width: 1180px) {
+  .contextActionActive .contextActionIndex,
+  .contextActionActive .contextActionTitle {
+    font-size: 22px;
+    line-height: 28px;
+  }
+}
+
+@media (max-width: 720px) {
+  .runningDimensionActive .runningDimensionIndex,
+  .runningDimensionActive .runningDimensionTitle {
+    font-size: 21px;
+    line-height: 26.6px;
+  }
+
+  .answerIndexItemActive .answerIndexNo,
+  .answerIndexItemActive .answerIndexName {
+    font-size: 20px;
+    line-height: 25.2px;
+  }
 }
 
 .answerFigure {
@@ -4367,10 +4436,13 @@
 
 
 @media (max-width: 1180px) {
+  .answerScrollTrack {
+    margin-top: 64px;
+  }
+
   .answerLayout {
     grid-template-columns: minmax(0, 1fr);
     gap: 48px;
-    margin-top: 64px;
   }
 
   .answerIndex {
@@ -4398,9 +4470,12 @@
 }
 
 @media (max-width: 720px) {
+  .answerScrollTrack {
+    margin-top: 52px;
+  }
+
   .answerLayout {
     gap: 40px;
-    margin-top: 52px;
   }
 
   .answerIndex {
@@ -4443,6 +4518,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .contextActionIndex,
+  .contextActionTitle,
   .answerFocus,
   .answerIndexNo,
   .answerIndexName,

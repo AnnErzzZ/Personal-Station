@@ -59,7 +59,7 @@ export const REFLECTION_ITEMS: readonly ReflectionItem[] = [
   {
     id: "space-relations",
     index: "01",
-    title: "一个空间，背后连接着大量关系",
+    title: "看见空间关系",
     body: "一个办公空间并不只是一个平面图。它同时关联楼层、区域、设备、策略、运行数据和用户任务。设计的第一步，不是隐藏复杂度，而是建立这些信息之间的联系。",
     refs: [
       { index: "04", label: "系统复杂度", href: "#section-04-complexity" },
@@ -70,7 +70,7 @@ export const REFLECTION_ITEMS: readonly ReflectionItem[] = [
   {
     id: "role-depth",
     index: "02",
-    title: "一个系统，不应该让所有人看到全部能力",
+    title: "按角色看信息",
     body: "交付人员关注配置，运维人员关注状态，管理人员关注结果。同一个系统，需要根据任务和角色呈现不同的信息深度。",
     refs: [
       { index: "03", label: "用户与任务", href: "#section-03-users" },
@@ -81,7 +81,7 @@ export const REFLECTION_ITEMS: readonly ReflectionItem[] = [
   {
     id: "data-judgment",
     index: "03",
-    title: "数据的价值，不在于展示，而在于帮助判断",
+    title: "让数据支持判断",
     body: "设备产生的数据只有被放入具体的空间和业务场景中，才真正帮助用户理解：发生了什么，为什么发生，下一步应该关注什么。",
     refs: [
       { index: "06", label: "用数据做判断", href: "#section-09-running-data" },

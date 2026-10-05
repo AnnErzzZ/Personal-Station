@@ -53,7 +53,7 @@ export default function HeyispaceOsPage() {
           素材缺口直接标明，不补造产品 UI。 */}
       <Section08MapEditor />
       {/* 10 / 12 · FROM ANSWER TO EXPLANATION：左侧六段结构索引 +
-          右侧同一份完整真实 Agent 回答，Hover / Click 切换高亮区域。 */}
+          右侧同一份完整真实 Agent 回答，滚动依次切换高亮区域。 */}
       <Section03Agent />
       {/* 11 / 12 · CONTROL COMPLEXITY BY ROLE：Role → Capability → Scope
           三列按行对齐的 editorial 结构；权限用来控制复杂度的暴露范围，

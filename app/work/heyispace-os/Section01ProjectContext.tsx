@@ -52,7 +52,7 @@ const contextCards: ContextCard[] = [
   },
   {
     title: "我的角色",
-    body: "我主导地图编辑器的功能结构、编辑流程和 UX / UI 重构，也主导 Agent 的查询、追问与回答结构。",
+    body: "我主导地图编辑器的结构与流程重构，负责 Agent 的业务问题拆解、查询与回答结构设计，并参与 RAG 知识库搭建。",
     accent: "#B655E8",
     tint: "#F6EBFA",
     soft: "#D9A6F2",

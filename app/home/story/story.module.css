@@ -366,6 +366,7 @@
 .zone [data-ui-group="bio-cap-2"] { --ui-delay: 560ms; --ui-duration: 360ms; }
 .zone [data-ui-group="bio-years"] { --ui-delay: 420ms; --ui-duration: 420ms; }
 .zone [data-ui-group="bio-company"] { --ui-delay: 560ms; --ui-duration: 340ms; }
+.zone [data-ui-group="bio-role"] { --ui-delay: 640ms; --ui-duration: 260ms; }
 .zone [data-ui-group^="bio-rule-"] { --ui-y: 0; }
 .zone [data-ui-group="bio-rule-identity"] { --ui-delay: 360ms; --ui-duration: 320ms; }
 .zone [data-ui-group="bio-rule-capabilities"] { --ui-delay: 620ms; --ui-duration: 260ms; }
@@ -594,17 +595,8 @@
 }
 
 .bioTools {
-  display: flex;
-  gap: 40px;
-  /* 字体度量差：清单实际渲染 ≈292px，比 Figma 稿的 285 宽，41+40+292 恰好比
-     372 列多 1px —— 放宽 8px 让 1920 稿的「一行 TOOLS」成立；列变窄时
-     仍由 flex-wrap 接管整段换行。 */
-  margin-right: -8px;
-  /* 列被压缩、一行放不下时整段换行（label 一行、清单一行），
-     不让清单在「即梦」中间断开。 */
-  flex-wrap: wrap;
-  row-gap: 8px;
-  align-items: baseline;
+  display: grid;
+  gap: 8px;
   padding-top: 24px;
 }
 
@@ -616,13 +608,23 @@
   color: var(--text-meta);
 }
 
-/* 清单自身不断行：1920 稿里「label + 40 + 清单」正好占满 372（清单 ≈291px）。
-   列变窄后由上面的 flex-wrap 接管，而不是把最后一个词折下来。 */
 .bioToolsList {
-  white-space: nowrap;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
   font-size: 14px;
+  line-height: 1.8;
   letter-spacing: 0.4px;
   color: var(--text-subtle);
+}
+
+.bioTool {
+  white-space: nowrap;
+}
+
+.bioTool + .bioTool::before {
+  content: "·";
+  margin-right: 8px;
 }
 
 /* 右列（工作经历 + 参与项目）：比左列明显克制的一档。 */
@@ -642,22 +644,22 @@
   color: var(--text);
 }
 
+.bioRole {
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--text-subtle);
+}
+
 .bioCareerBody {
+  width: 100%;
   padding-top: 24px;
   padding-bottom: 24px;
-  font-size: 16px;
+  font-size: 14px;
+  font-weight: 400;
   line-height: 1.8;
-  color: var(--text);
-  /* 指尖让位（x 轴）：旧版式靠垂直居中把本段悬在指尖带（y 490-640@1920 稿）下方，
-     顶部对齐后 y 空间不够，改用行宽让位 —— 右缘钉在「指尖x − 8px」。
-     推导：careerBody 右缘 = 60 + bio宽 − 372 + max-width，令其 = 50vw − 0.0398×box − 8
-     （指尖视口 x），代入 bio宽 = min(824, 50vw − 0.0398×box + 70) 反解即得下式。
-     改 bioLeft/gap/padding 后需重推。
-     地板 280px：calc 只在宽屏（≥16:9 大视口）下有余量，视口收窄后逼近 0 甚至为负
-     （1440×900 实算 ≈136px、1280×800 ≈53px），会把段落挤成一字一列。
-     可读性优先 —— 低于 280 就放弃让位，右缘压过指尖（同参与项目行的取舍：
-     「右列左缘 + 最长项目行」允许越过指尖，见 .bio 注释）。 */
-  max-width: min(372px, max(280px, calc(50vw - 0.0398 * var(--bio-box) - 520px)));
+  color: var(--text-subtle);
 }
 
 /* 参与项目段：跟随整列一起滚动（不再是固定标题 + 内部滚动区）。 */
@@ -672,8 +674,7 @@
   color: var(--text);
 }
 
-/* 标题 → 首条项目的节奏沿用旧 scroller 的视觉值（-12 margin + 28 padding = 16px），
-   首帧构图与改造前逐像素一致。 */
+/* 章节标题与首条项目留出一级间距。 */
 .bioProjectList {
   margin-top: 16px;
   padding: 0;
@@ -681,10 +682,11 @@
 }
 
 .bioProjectList > li + li {
-  margin-top: 16px;
+  margin-top: 28px;
 }
 
 .bioProjectTitle {
+  margin: 0;
   font-size: 15px;
   font-weight: 500;
   line-height: 1.5;
@@ -692,7 +694,7 @@
 }
 
 .bioProjectDescription {
-  margin-top: 4px;
+  margin-top: 6px;
   font-size: 14px;
   font-weight: 400;
   line-height: 1.6;

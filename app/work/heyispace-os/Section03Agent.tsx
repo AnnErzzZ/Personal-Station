@@ -16,10 +16,10 @@ export default function Section03Agent() {
         index="10"
         total="12"
         title="让回答有依据"
-        intro="用户向 Agent 提问后，回答依次呈现结论、关键指标、图表、分析发现、明细和指标口径，方便继续核对依据。"
+        intro="已上线的智能空间垂直对话 Agent 根据问题组织结论、关键指标、图表、分析发现、明细和指标口径，方便核对依据与继续追问。"
       />
 
-      {/* 左侧六段结构索引 + 右侧同一份完整真实回答，Hover / Click 切换高亮区域。 */}
+      {/* 左侧六段结构索引 + 右侧同一份完整真实回答，滚动依次切换高亮区域。 */}
       <AnswerStructureStage />
     </Chapter>
   );
