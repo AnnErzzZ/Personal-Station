@@ -28,6 +28,7 @@
  */
 
 import { siteAsset } from "@/lib/site-asset";
+import { DASHBOARD_HOLD_VH } from "./dashboard-gallery";
 
 export const HERO_VIDEO_SRC = siteAsset("/videos/home-hero-interactive.mp4");
 export const HERO_VIDEO_POSTER = siteAsset("/videos/home-hero-poster.jpg");
@@ -262,6 +263,7 @@ export const SITE_TOTAL_VH =
   ZONES.resumeHold +
   ZONES.workMove +
   ZONES.workHold +
+  DASHBOARD_HOLD_VH +
   ZONES.endingMove +
   ZONES.endingHold;
 
@@ -388,9 +390,6 @@ export const RESUME_SCROLL = {
  * 段长（ZONES）与关键帧（KEYFRAMES）一个都没动：hold 还是那几段 hold，
  * 视频还是 0 / 4 / 8 / 12 停帧，静态图还是那三张。换的只是「怎么上下场」。
  */
-
-/** Work→Ending 交接前自动收回文件夹：hold 内进度超过它就触发（原值，未动）。 */
-export const FOLDER_CLOSE_AT = 0.76;
 
 /**
  * Work 文件夹**展开态**的内容几何（2026-09-20 晚重排）。

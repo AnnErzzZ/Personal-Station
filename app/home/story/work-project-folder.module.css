@@ -68,17 +68,12 @@
   padding: 0;
   border: 0;
   outline: none;
-  background: rgb(10 11 14 / 42%);
+  background: transparent;
   cursor: default;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  /* 模糊值从挂载起保持不变，只过渡遮罩透明度。Chromium 在 visibility 与
-     backdrop-filter 同帧从近零值开始插值时，偶发不会建立 backdrop 合成层：
-     computed style 已经是 16px，画面却仍未模糊。预先持有最终滤镜后，展开
-     只需把已经存在的模糊表面淡入。不要补写 -webkit- 前缀，Lightning CSS
-     会据此改写标准属性，而当前 Chrome 使用标准 backdrop-filter。 */
-  backdrop-filter: blur(16px) saturate(0.9);
+  /* The click target stays here; StoryScrolly owns the shared visual veil. */
   transition:
     opacity 360ms ease,
     visibility 0s linear 620ms;

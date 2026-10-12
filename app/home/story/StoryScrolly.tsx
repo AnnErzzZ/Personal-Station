@@ -17,7 +17,6 @@ import {
   DEAD_ZONE_BLEND,
   ENDING_TIME_MAP,
   ENGINE_ROOT_MARGIN,
-  FOLDER_CLOSE_AT,
   HERO_DESKTOP_MODE,
   HERO_DURATION_FALLBACK,
   HERO_FRONT_EPS,
@@ -57,6 +56,8 @@ import {
 } from "./story-ui-motion";
 import styles from "./story.module.css";
 import WorkProjectFolder from "./WorkProjectFolder";
+import DashboardGallery from "./DashboardGallery";
+import { DASHBOARD_HOLD_VH, dashboardStageAt, type DashboardImage } from "./dashboard-gallery";
 import ContactLanyardOverlay from '../Lanyard/ContactLanyardOverlay';
 
 let contactWarmPromise: Promise<void> | null = null;
@@ -159,7 +160,7 @@ function buildTimeline(resumeHoldVh: number): Timeline {
       kind: "hold",
       t0: KEYFRAMES.work,
       t1: KEYFRAMES.work,
-      vh: ZONES.workHold,
+      vh: ZONES.workHold + DASHBOARD_HOLD_VH,
       image: "work",
       sectionId: "work",
     },
@@ -433,7 +434,7 @@ function alignTransform(align: PoseAlign) {
  *
  * 本组件不产生逐帧 React 渲染：滚动/动画状态全部走 ref + rAF。
  */
-export default function StoryScrolly({ heroCopy }: { heroCopy?: ReactNode }) {
+export default function StoryScrolly({ heroCopy, dashboardImages = [] }: { heroCopy?: ReactNode; dashboardImages?: readonly DashboardImage[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const heroVideoRef = useRef<HTMLVideoElement>(null);
@@ -444,6 +445,33 @@ export default function StoryScrolly({ heroCopy }: { heroCopy?: ReactNode }) {
   const resumeViewportRef = useRef<HTMLDivElement>(null);
   const resumeContentRef = useRef<HTMLDivElement>(null);
   const [projectsOpen, setProjectsOpen] = useState(false);
+  const [dashboardActive, setDashboardActive] = useState(false);
+
+  // Hide the outgoing content fully before revealing the latest scroll target.
+  // Cancellation also keeps quick reversals from showing both layers together.
+  useEffect(() => {
+    const container = containerRef.current;
+    const work = container?.querySelector<HTMLElement>("#work");
+    const gallery = container?.querySelector<HTMLElement>("[data-dashboard-gallery]");
+    if (!container || !work || !gallery) return;
+    if (!container.dataset.workContent && !dashboardActive) {
+      container.dataset.workContent = "projects";
+      return;
+    }
+    container.dataset.workContent = "hidden";
+    work.inert = true;
+    let frame = 0;
+    const revealWhenClear = () => {
+      if (Number(getComputedStyle(work).opacity) > 0 || Number(getComputedStyle(gallery).opacity) > 0) {
+        frame = window.requestAnimationFrame(revealWhenClear);
+        return;
+      }
+      container.dataset.workContent = dashboardActive ? "dashboard" : "projects";
+      work.inert = dashboardActive;
+    };
+    frame = window.requestAnimationFrame(revealWhenClear);
+    return () => window.cancelAnimationFrame(frame);
+  }, [dashboardActive]);
   const [contactOpen, setContactOpen] = useState(false);
   const [contactPrepared, setContactPrepared] = useState(false);
   const contactTriggerRef = useRef<HTMLAnchorElement>(null);
@@ -480,7 +508,6 @@ export default function StoryScrolly({ heroCopy }: { heroCopy?: ReactNode }) {
     return () => clearTimeout(timer);
   }, []);
   const projectsOpenRef = useRef(false);
-  const projectsOpenAtScrollYRef = useRef<number | null>(null);
   /** 滚动自动关闭的防重入标记：true = 已请求关闭、收起动画还没播完。
    *  projectsOpenRef 在整个收起动画（800ms）内保持 true（由收起完成时的
    *  onOpenChange(false) 落 false），滚动引擎的 work 层退场守卫靠它识别
@@ -490,17 +517,8 @@ export default function StoryScrolly({ heroCopy }: { heroCopy?: ReactNode }) {
   const handleProjectsOpenChange = useCallback((next: boolean) => {
     projectsOpenRef.current = next;
     folderCloseRequestedRef.current = false;
-    projectsOpenAtScrollYRef.current = next ? window.scrollY : null;
     setProjectsOpen(next);
   }, []);
-
-  useEffect(() => {
-    // projectsOpenRef 不在这里同步：滚动自动关闭后它必须保持 true 直到
-    // 收起动画播完（onOpenChange(false) 才落 false），提前落 false 会让
-    // work 层退场守卫失效、收起动画被 exit 腰斩（幽灵层 bug 的一半）。
-    // open=true 的同步在 handleProjectsOpenChange 里已完成。
-    if (!projectsOpen) projectsOpenAtScrollYRef.current = null;
-  }, [projectsOpen]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -668,6 +686,7 @@ export default function StoryScrolly({ heroCopy }: { heroCopy?: ReactNode }) {
     /** 主视频是否处于「抠图接管」的模糊底状态（避免逐帧写 filter）。 */
     let blurred = false;
     let lastHashId = "";
+    let lastDashboardActive = false;
     const lastImageVisible = new Map<string, boolean>();
     let readyMarked = false;
     // ---- 履历辅助装饰（chromeAside）的对比度：右下 editorial 小字在窄视口
@@ -836,8 +855,7 @@ export default function StoryScrolly({ heroCopy }: { heroCopy?: ReactNode }) {
         container.dataset.storyPhase = storyPhase;
       }
 
-      // 文件夹展开时优先留在 Work 阅读区。进入末尾关闭缓冲或离开 Work 后，
-      // 先让卡片收回；继续滚动仍由原时间轴接管，不阻断页面滚轮。
+      // Work 内保留文件夹展开状态，大屏阶段只渐隐内容；离开 Work 才收起。
       // ⚠ 这里只请求关闭（setProjectsOpen），不动 projectsOpenRef —— 它要
       // 保持 true 到收起动画播完（WorkProjectFolder 回流 onOpenChange(false)
       // 才落 false），滚动引擎的 work 层退场守卫在整个收起期间都得认这个窗口；
@@ -845,13 +863,9 @@ export default function StoryScrolly({ heroCopy }: { heroCopy?: ReactNode }) {
       if (
         projectsOpenRef.current &&
         !folderCloseRequestedRef.current &&
-        (seg.sectionId !== "work" ||
-          (localP >= FOLDER_CLOSE_AT &&
-            projectsOpenAtScrollYRef.current !== null &&
-            Math.abs(window.scrollY - projectsOpenAtScrollYRef.current) >= 8))
+        seg.sectionId !== "work"
       ) {
         folderCloseRequestedRef.current = true;
-        projectsOpenAtScrollYRef.current = null;
         setProjectsOpen(false);
       }
 
@@ -930,6 +944,23 @@ export default function StoryScrolly({ heroCopy }: { heroCopy?: ReactNode }) {
           }
           motion.enter(settledSection);
         }
+      }
+
+      // The gallery is a second reading stage within the same work pose.
+      // Keep the expanded folder intact; fade its content under a shared veil.
+      const showDashboard = dashboardStageAt(
+        pVh - tl.zone.work.startVh,
+        ZONES.workHold,
+      );
+      if (showDashboard !== lastDashboardActive) {
+        lastDashboardActive = showDashboard;
+        container.dataset.dashboardVisible = String(showDashboard);
+        const workLayer = resolveLayer("work");
+        if (workLayer) {
+          workLayer.inert = showDashboard;
+          workLayer.setAttribute("aria-hidden", String(showDashboard));
+        }
+        setDashboardActive(showDashboard);
       }
 
       // ---- Biography 履历滚动（三阶段，纯位置函数，反向天然可逆）----
@@ -1279,6 +1310,13 @@ export default function StoryScrolly({ heroCopy }: { heroCopy?: ReactNode }) {
           上一幕原地淡出、下一幕原地淡入，谁都不会跟着文档流向上滚走。 */}
       <div className={styles.content}>
         <div className={styles.overlay} data-story-overlay="">
+          <div
+            className={styles.workBackdrop}
+            data-work-backdrop=""
+            data-dashboard-backdrop=""
+            data-active={projectsOpen || dashboardActive}
+            aria-hidden="true"
+          />
           {/* 首屏：文案在原地淡出（淡出窗口 = heroHold + heroHandoff 的尾部），
               柴犬始终留在 sticky 舞台上演进。 */}
           <section
@@ -1503,6 +1541,8 @@ export default function StoryScrolly({ heroCopy }: { heroCopy?: ReactNode }) {
               />
             </div>
           </section>
+
+          <DashboardGallery active={dashboardActive} images={dashboardImages} />
 
           {/* ------------------------------------------------ 结尾 Section */}
           <section

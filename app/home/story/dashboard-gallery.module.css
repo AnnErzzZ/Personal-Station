@@ -1,0 +1,167 @@
+.gallery {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  color: #fff;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 360ms ease, visibility 0s linear 360ms;
+}
+
+.content {
+  position: relative;
+  display: flex;
+  width: min(88vw, 1480px);
+  height: 100%;
+  margin: 0 auto;
+  padding: 100px 0 42px;
+  box-sizing: border-box;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.header {
+  flex: 0 0 auto;
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  color: rgb(255 255 255 / 64%);
+  font-family: var(--meta-font);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: clamp(28px, 3vw, 42px);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.viewer {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  touch-action: pan-y pinch-zoom;
+  container-type: size;
+}
+
+.image {
+  object-fit: contain;
+  animation: imageIn 240ms ease both;
+}
+
+.empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  margin: 0;
+  inset: auto;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  max-width: min(100%, calc(100cqh * 16 / 9));
+  aspect-ratio: 16 / 9;
+  transform: translate(-50%, -50%);
+  place-content: center;
+  gap: 16px;
+  border: 1px solid rgb(255 255 255 / 20%);
+  border-radius: 12px;
+  background: rgb(15 17 21 / 20%);
+  color: rgb(255 255 255 / 65%);
+  font-size: 16px;
+  text-align: center;
+}
+
+.empty p { margin: 0; }
+.placeholderNumber { font-family: var(--meta-font); font-size: clamp(40px, 6vw, 80px); font-weight: 400; color: rgb(255 255 255 / 28%); }
+
+.footer {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+
+.arrow {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  padding: 10px;
+  border: 1px solid rgb(255 255 255 / 28%);
+  border-radius: 50%;
+  background: rgb(255 255 255 / 6%);
+  color: #fff;
+  place-items: center;
+  cursor: pointer;
+  transition: background 180ms ease, border-color 180ms ease;
+}
+
+.arrow svg { width: 24px; height: 24px; }
+.arrow:hover:enabled { background: rgb(255 255 255 / 16%); border-color: rgb(255 255 255 / 65%); }
+.arrow:disabled { opacity: 0.3; cursor: default; }
+.arrow:focus-visible, .viewer:focus-visible { outline: 2px solid #fff; outline-offset: 5px; }
+.counter { min-width: 66px; text-align: center; font-family: var(--meta-font); font-size: 14px; font-variant-numeric: tabular-nums; }
+.total { color: rgb(255 255 255 / 50%); }
+
+@keyframes imageIn { from { opacity: 0; } to { opacity: 1; } }
+
+@media (max-width: 640px) {
+  .content { width: 92vw; padding: 96px 0 32px; gap: 20px; }
+  .footer { gap: 20px; }
+}
+
+@media (max-height: 600px) {
+  .content { padding-top: 78px; padding-bottom: 20px; gap: 12px; }
+  .header h2 { font-size: 24px; }
+  .eyebrow { display: none; }
+  .arrow { width: 38px; height: 38px; padding: 6px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gallery, .gallery[data-active="true"], .arrow { transition: none; }
+  .image { animation: none; }
+}
+
+.thumbnails {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+.thumbnail {
+  position: relative;
+  display: grid;
+  width: clamp(76px, 8vw, 112px);
+  aspect-ratio: 16 / 9;
+  padding: 0;
+  overflow: hidden;
+  border: 2px solid rgb(255 255 255 / 22%);
+  border-radius: 6px;
+  background: rgb(15 17 21 / 20%);
+  color: rgb(255 255 255 / 65%);
+  place-items: center;
+  opacity: 0.6;
+  cursor: pointer;
+  transition: opacity 180ms ease, border-color 180ms ease;
+}
+.thumbnail:hover { opacity: 0.9; }
+.thumbnail[aria-pressed="true"] { border-color: rgb(255 255 255 / 90%); opacity: 1; }
+.thumbnail:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+.thumbnailImage { object-fit: contain; }
+.thumbnailNumber { font-family: var(--meta-font); font-size: 18px; font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) {
+  .thumbnails { gap: 12px; }
+  .thumbnail { width: 84px; }
+}
+@media (max-height: 600px) {
+  .thumbnail { width: 72px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .thumbnail { transition: none; }
+}

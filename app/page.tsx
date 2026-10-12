@@ -4,8 +4,10 @@ import SiteNav from "./home/SiteNav";
 import SiteProgress from "./home/story/SiteProgress";
 import StoryScrolly from "./home/story/StoryScrolly";
 import styles from "./home.module.css";
+import { getDashboardImages } from "@/lib/dashboard-images";
 
-export default function Home() {
+export default async function Home() {
+  const dashboardImages = await getDashboardImages();
   return (
     <div className={styles.home}>
       <SiteNav />
@@ -14,6 +16,7 @@ export default function Home() {
             （履历 / 作品 / 结尾三个关键姿态 + 静态图接管 + 整屏 sticky 停留）。
             Hero 文案作为 heroCopy 槽位传入，柴犬视觉全部在同一个 sticky 舞台上演进。 */}
         <StoryScrolly
+          dashboardImages={dashboardImages}
           heroCopy={
             <div className={styles.heroInner}>
               <div className={styles.heroMain}>
