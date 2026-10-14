@@ -364,6 +364,11 @@
   transition-delay: 40ms;
 }
 
+.root[data-variant="projects"][data-peek]:not([data-open]) .item[data-index="2"] {
+  transform: translate(calc(-50% + 48px), -52%) rotate(3deg) scale(0.58);
+  transition-delay: 80ms;
+}
+
 /* ---- 待机漂浮：文件夹（连同探出的卡片）一起上下微微浮动，
    像悬在半空。打开后冻结在当前帧（paused 不跳变），关闭后继续。 */
 .root[data-variant="projects"]:not([data-open]) {

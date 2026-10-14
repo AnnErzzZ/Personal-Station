@@ -346,6 +346,15 @@ const workCases: WorkCase[] = [
     cover: "/cases/heyispace-os/hero/heyispace-os-project-cover-v3.png",
     coverAlt: "Heyispace OS 项目封面，展示 Agent 分析界面的电脑样机",
   },
+  {
+    title: "合一运维平台",
+    positioning: "面向工程师与主管的多项目运维平台",
+    summary: "串联项目异常、工单处理与审批协作，让设备故障可追溯、人员贡献可核对。",
+    meta: ["Product Design", "UX/UI", "Web", "IoT"],
+    href: "/work/operations-platform",
+    cover: "/cases/operations-platform/hero/operations-platform-project-cover.png",
+    coverAlt: "合一运维平台项目封面，展示工单管理界面的电脑样机",
+  },
 ];
 
 /* 履历左列的能力三项（文案以 Figma 1920×1080 稿 node 372-11174 为准，逐字一致）。 */

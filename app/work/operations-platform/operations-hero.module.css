@@ -1,0 +1,94 @@
+.hero {
+  --hero-outer: 46px;
+  --hero-inset: 32px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  isolation: isolate;
+  min-height: 100svh;
+  width: 100%;
+  padding: 160px 0 clamp(48px,8svh,104px);
+  background: #08090a;
+  color: #f7f8f8;
+  border-bottom: 1px solid #ffffff0d;
+  overflow: clip;
+}
+.background { position: absolute; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; background:radial-gradient(ellipse at 65% 25%, #11192280, #08090a00 65%); }
+.interfacePlane {
+  position:absolute;
+  inset:0;
+  --interface-opacity:.28;
+  --accent-opacity:.5;
+}
+.filterDefinitions { position:absolute; overflow:hidden; }
+.interfaceScreen {
+  --pan-from-x:-36px;
+  --pan-from-y:-16px;
+  --pan-to-x:36px;
+  --pan-to-y:16px;
+  position:absolute;
+  left:50%;
+  top:45%;
+  width:clamp(1900px,185vw,4700px);
+  overflow:hidden;
+  opacity:0;
+  border-radius:12px;
+  background:transparent;
+  transform:translate(-50%,-50%) perspective(2200px) rotateX(42deg) rotateY(-8deg) rotateZ(-22deg);
+  transform-origin:center;
+  animation:screenFade 24s linear infinite, screenPan 24s linear infinite;
+  animation-delay:var(--screen-delay),var(--screen-delay);
+}
+.interfaceScreen:first-child { opacity:1; }
+.interfaceScreen:nth-child(2) { top:40%; --pan-from-x:36px; --pan-to-x:-36px; }
+.interfaceScreen:nth-child(3) { top:12%; --pan-from-y:16px; --pan-to-y:-16px; }
+.interfaceScreen:nth-child(4) { left:80%; top:26%; --pan-from-x:36px; --pan-to-x:-36px; --pan-from-y:16px; --pan-to-y:-16px; }
+.interfaceBase { display:block; width:100%; height:auto; opacity:var(--interface-opacity); filter:invert(1) hue-rotate(180deg) saturate(.55) brightness(.85) blur(1.6px); }
+.interfaceGlow { position:absolute; inset:0; display:block; width:100%; height:100%; opacity:var(--accent-opacity); }
+@keyframes screenFade {
+  0%,20.833333% { opacity:1; }
+  25%,95.833333% { opacity:0; }
+  100% { opacity:1; }
+}
+@keyframes screenPan {
+  0% { translate:var(--pan-from-x) var(--pan-from-y); }
+  25% { translate:var(--pan-to-x) var(--pan-to-y); }
+  25.01%,100% { translate:var(--pan-from-x) var(--pan-from-y); }
+}
+.topMask, .bottomMask { position: absolute; inset: 0; }
+.topMask { background: linear-gradient(to bottom, #08090a 0%, #08090a00 40%); }
+.bottomMask { background: linear-gradient(to top, #08090a 0%, #08090a00 50%); }
+.inner { width: 100%; max-width: calc(1344px + var(--hero-outer) * 2); margin-inline: auto; padding-inline: calc(var(--hero-outer) + var(--hero-inset)); }
+.copy { position: relative; width: fit-content; max-width: 100%; }
+.copy::before { content: ""; position: absolute; z-index: -1; inset: -50%; border-radius: 100%; background: radial-gradient(circle, #08090a, #08090a00); filter: blur(10px) opacity(.5); }
+.hero .category { font-size: 15px; line-height: 24px; color: #f7f8f899; font-weight: 400; margin: 0 0 16px; }
+.hero .title { margin: 0 0 20px -2px; font-size: 72px; line-height: 1.15; letter-spacing: -.022em; font-weight: 700; font-synthesis: none; }
+.hero .description { max-width: 40ic; margin: 0; font-size: 18px; line-height: 1.8; color: #d0d6e0; text-wrap: pretty; }
+.actions { display:flex; flex-wrap:wrap; align-items:center; gap:16px 28px; margin-top:28px; }
+.actions a, .actions button { display:inline-flex; align-items:center; gap:10px; padding:0; border:0; background:transparent; color:#a1a6ae; font:inherit; font-size:14px; line-height:24px; text-decoration:none; cursor:pointer; transition:color .16s; }
+.actions a:hover, .actions button:hover { color:#f7f8f8; }
+@media (max-width: 1280px) {
+  .hero { --hero-outer: 10px; }
+}
+@media (max-width: 1024px) {
+  .hero { --hero-outer: 28px; --hero-inset: 8px; }
+  .hero .title { font-size: 56px; }
+}
+@media (max-width: 768px) {
+  .hero .title { font-size: 48px; }
+}
+@media (max-width: 640px) {
+  .hero { --hero-outer: 16px; padding-top: 96px; padding-bottom: 48px; }
+  .hero .title { margin-left: -1px; font-size: 40px; }
+  .hero .description { font-size: 15px; line-height: 1.8; max-width: 36ic; }
+  .hero .category { font-size: 13px; }
+  .actions { margin-top:24px; gap:16px 24px; }
+  .interfacePlane { --interface-opacity:.22; --accent-opacity:.38; }
+  .interfaceScreen { width:1600px; left:62%; top:40%; }
+  .interfaceScreen:nth-child(2) { top:38%; }
+  .interfaceScreen:nth-child(3) { top:10%; }
+  .interfaceScreen:nth-child(4) { left:110%; top:22%; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .interfaceScreen { animation:none; translate:0 0; }
+}

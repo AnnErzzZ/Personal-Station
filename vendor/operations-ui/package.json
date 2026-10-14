@@ -1,0 +1,17 @@
+{
+  "name": "operations-original-ui",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node node_modules/vite/bin/vite.js build && node write-licenses.mjs"
+  },
+  "dependencies": {
+    "vue": "3.5.22",
+    "element-plus": "2.11.4"
+  },
+  "devDependencies": {
+    "vite": "5.4.20",
+    "@vitejs/plugin-vue": "4.6.2"
+  }
+}

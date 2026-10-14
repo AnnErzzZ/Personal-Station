@@ -1,0 +1,65 @@
+.grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); border:1px solid #26292e; border-radius:12px; overflow:hidden; background:#08090a; }
+.card { min-width:0; display:flex; flex-direction:column; overflow:hidden; }
+.card:nth-child(even) { border-left:1px solid #26292e; }
+.card:nth-child(n+3) { border-top:1px solid #26292e; }
+.artwork { display:grid; place-items:center; min-height:360px; padding:32px 24px; overflow:hidden; }
+.scene { position:relative; width:100%; max-width:520px; aspect-ratio:560/320; }
+.connections { position:absolute; inset:0; width:100%; height:100%; fill:none; stroke:#34383e; stroke-width:1.25; }
+.historyTrail { stroke:#465366; stroke-dasharray:3 6; }
+.node, .record, .metric, .duration { border:1px solid #35383e; background:linear-gradient(135deg,#1b1e21,#0b0c0e 78%); box-shadow:inset 0 1px #ffffff08,0 16px 32px -20px #000; }
+.node { position:absolute; display:grid; place-items:center; width:80px; height:80px; border-radius:20px; transform:translate(-50%,-50%); color:#c5cbd6; }
+.node::after { content:""; position:absolute; inset:1px; border:1px solid #ffffff03; border-radius:18px; pointer-events:none; }
+.primaryNode { width:96px; height:96px; }
+.node span { position:absolute; top:100%; margin-top:14px; color:#a6afbd; font-size:15px; line-height:1.5; white-space:nowrap; }
+.record { position:absolute; left:20%; width:104px; height:44px; padding:12px 14px 10px 30px; border-radius:10px; transform:translate(-50%,-50%); }
+.record i { position:absolute; left:14px; top:18px; width:5px; height:5px; border-radius:50%; background:#7e99f4; }
+.record span { display:block; height:3px; margin:3px 0 5px; border-radius:1px; background:#657184; }
+.record span:last-child { width:66%; background:#3a424e; }
+.record:nth-of-type(3) { opacity:.65; }
+.priorityScene { display:grid; place-items:center; }
+.priorityBoard { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; width:100%; max-width:470px; opacity:.9; mask-image:linear-gradient(90deg,#000 50%,transparent 100%),linear-gradient(180deg,#000 60%,transparent 100%); mask-composite:intersect; }
+.metric { display:grid; grid-template-columns:1fr auto; align-items:center; gap:18px 12px; min-width:0; padding:20px; border-radius:12px; }
+.metric > span, .duration > span { font-size:13px; color:#949daa; }
+.metric > svg { color:#a9b6cf; }
+.metric strong { grid-column:1/-1; font-size:22px; line-height:1.4; color:#a9b9e5; font-weight:500; }
+.metric .healthScore { font-family:var(--font-number); font-size:42px; color:#d48575; }
+.healthScore small { margin-left:10px; color:#737c8a; font-size:14px; }
+.duration { grid-column:1/-1; padding:18px 20px 24px; border-radius:12px; }
+.duration > div { display:flex; gap:8px; margin-top:20px; }
+.duration i { height:6px; width:20%; border-radius:2px; background:#647aaf; }
+.duration i:nth-last-child(-n+2) { background:#282f3b; }
+.copy { margin-top:auto; padding:28px 36px 40px; }
+.copy h3 { color:#f1f3f6; font-size:20px; line-height:1.6; font-weight:500; }
+.copy p { max-width:40ic; margin-top:12px; color:#a6afbd; font-size:16px; line-height:1.85; }
+@media (max-width:1100px) {
+ .artwork { min-height:300px; padding:28px 16px; }
+ .node { width:68px; height:68px; border-radius:17px; }
+ .primaryNode { width:84px; height:84px; }
+ .record { width:88px; }
+ .metric { padding:16px; }
+ .copy { padding:24px 28px 32px; }
+ .copy h3 { font-size:18px; }
+}
+@media (max-width:700px) {
+ .grid { grid-template-columns:1fr; }
+ .card:nth-child(even) { border-left:0; }
+ .card + .card { border-top:1px solid #26292e; }
+ .artwork { min-height:260px; padding:32px 24px; }
+ .node { width:54px; height:54px; border-radius:14px; }
+ .node::after { border-radius:12px; }
+ .primaryNode { width:64px; height:64px; }
+ .node svg { width:28px; height:28px; }
+ .primaryNode svg { width:34px; height:34px; }
+ .node span { font-size:13px; margin-top:10px; }
+ .record { width:68px; height:36px; padding:8px 10px 8px 23px; border-radius:8px; }
+ .record i { left:11px; top:14px; }
+ .priorityBoard { gap:8px; }
+ .metric { padding:12px; gap:12px 6px; }
+ .metric > span { font-size:12px; }
+ .metric > svg { width:20px; height:20px; }
+ .metric strong { font-size:18px; }
+ .metric .healthScore { font-size:34px; }
+ .duration { padding:16px 12px 20px; }
+ .copy { padding:16px 24px 32px; }
+ .copy p { font-size:15px; }
+}

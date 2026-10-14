@@ -1,0 +1,37 @@
+.grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); margin-top:48px; border:1px solid #dfe3e7; border-radius:12px; background:#fff; overflow:hidden; }
+.card { display:flex; flex-direction:column; min-width:0; }
+.card + .card { border-left:1px solid #dfe3e7; }
+.artwork { display:grid; place-items:center; height:240px; padding:24px 24px 12px; overflow:hidden; }
+.timeline, .roomDiagram { display:block; width:100%; max-width:360px; aspect-ratio:360/200; }
+.connections { fill:none; stroke:#c6cfdb; stroke-width:1.2; }
+.panel { fill:#f8fafc; stroke:#dce2ea; stroke-width:1; }
+.label { fill:#626b77; font-family:var(--font-cn); font-size:17px; }
+.abnormal { fill:#b34639; }
+.recovered { fill:#367a6b; }
+.halo { fill:none; stroke:#b3463933; stroke-width:1; }
+.historyTrail { fill:none; stroke:#c6cfdb; stroke-width:1; stroke-dasharray:3 5; }
+.roomDiagram { position:relative; }
+.roomDiagram > svg { position:absolute; inset:0; width:100%; height:100%; }
+.roomNode, .record { position:absolute; transform:translate(-50%,-50%); border:1px solid #dce2ea; background:linear-gradient(135deg,#fff,#f3f6fa); }
+.roomNode { left:22.22%; top:50%; display:grid; place-items:center; width:64px; height:64px; border-radius:16px; color:#657d9e; }
+.record { left:75%; width:88px; height:38px; padding:10px 12px 10px 24px; border-radius:8px; }
+.record i { position:absolute; left:12px; top:16px; width:5px; height:5px; border-radius:50%; background:#657d9e; }
+.record span { display:block; width:100%; height:3px; margin:2px 0 4px; border-radius:1px; background:#8796ad; }
+.record span:last-child { width:66%; background:#cbd4df; }
+.first { top:19%; }
+.second { top:50%; }
+.third { top:81%; }
+.copy { margin-top:auto; padding:20px 28px 32px; }
+.copy h3 { color:#20242b; font-size:20px; font-weight:500; line-height:1.6; }
+.copy p { margin-top:10px; color:#626b77; font-size:16px; line-height:1.85; }
+@media (max-width:1100px) {
+  .artwork { height:220px; padding-inline:16px; }
+  .copy { padding:20px 24px 28px; }
+  .roomNode { width:56px; height:56px; border-radius:14px; }
+  .record { width:72px; }
+}
+@media (max-width:700px) {
+  .grid { grid-template-columns:1fr; margin-top:32px; }
+  .card + .card { border-left:0; border-top:1px solid #dfe3e7; }
+  .copy { padding-top:12px; }
+}

@@ -326,16 +326,24 @@ export default function WorkProjectFolder({
     const fixedHeight =
       headHeight + fixedGroup + breathe + hintHeight + WIDTH_SAFETY;
     const cardRoom = Math.max(0, available - fixedHeight);
-    const fit = Math.max(WORK_FIT_MIN, Math.min(1, cardRoom / effectiveCardHeight));
+    const verticalFit = Math.max(WORK_FIT_MIN, Math.min(1, cardRoom / effectiveCardHeight));
+    // 三张及以上卡片按实际可用宽度缩放，保持封面比例和卡片间距。
+    const horizontalFit = (vw - 80 - (projects.length - 1) * 40) / (projects.length * cardWidth);
+    const fit = projects.length > 2
+      ? Math.min(verticalFit, Math.max(0.3, horizontalFit))
+      : verticalFit;
 
     layer.style.setProperty("--wx-top", `${top}px`);
     layer.style.setProperty("--wx-gap-head", `${headGapUsed.toFixed(1)}px`);
     layer.style.setProperty("--wx-group-gap", `${GROUP_GAP}px`);
     layer.style.setProperty("--wx-card-w", `${cardWidth.toFixed(1)}px`);
+    layer.style.setProperty("--wx-measured-card-w", `${cardWidth.toFixed(1)}px`);
     layer.style.setProperty("--wx-card-h", `${effectiveCardHeight.toFixed(1)}px`);
     layer.style.setProperty("--wx-folder-h", `${FOLDER_HEIGHT + FOLDER_TAB}px`);
     layer.style.setProperty("--wx-hint-gap", `${hintGapUsed.toFixed(1)}px`);
     layer.style.setProperty("--wx-card-fit", `${fit.toFixed(4)}`);
+    layer.style.setProperty("--wx-project-count", String(projects.length));
+    layer.style.setProperty("--wx-card-step", `${(cardWidth * (projects.length > 2 ? fit : 1) + 40).toFixed(1)}px`);
     // ---- 卡内字号档（--wxc-scale）：**纯数**，必须由 JS 给 ----------------
     // 见 work-project-folder.module.css 里 --wxc-scale 的长注释：CSS 变量一旦
     // 在表达式里碰到任何长度单位，`calc(<长度> * var(--wxc-scale))` 会整条作废
@@ -376,7 +384,7 @@ export default function WorkProjectFolder({
       usedHeight: Number(usedHeight.toFixed(1)),
       center: Number(center.toFixed(1)),
     });
-  }, []);
+  }, [projects.length]);
 
   const beginOpen = useCallback(
     (notifyParent: boolean) => {
@@ -679,7 +687,7 @@ export default function WorkProjectFolder({
                 sublabel={sub}
                 trigger="click"
                 open={contentsOpen}
-                /* 2026-09-24（Anner）：探出姿态就是**默认态** —— 收起时两张卡
+                /* 2026-09-24（Anner）：探出姿态就是**默认态** —— 收起时项目卡
                    一直在文件夹口探着（原来只在 hover/开箱瞬间才探出）。悬停不再
                    换姿态，只把整组微微放大（见 FolderFloat.module.css 的 projects
                    hover 规则）。所以这里只要「内容没展开」就保持 preview。 */

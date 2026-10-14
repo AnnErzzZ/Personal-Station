@@ -1,0 +1,61 @@
+.canvas {
+  --flow-blue: #7186b0;
+  --flow-amber: #ae7a29;
+  --flow-green: #3f917b;
+  --flow-muted: #657080;
+  padding: 24px;
+  color: #252d3a;
+  background: #fafbfc;
+  container-type: inline-size;
+}
+.viewport { overflow-x: auto; scrollbar-width: thin; scrollbar-color: #aab8d4 #edf1f8; }
+.diagram { position: relative; width: 100%; min-width: 1080px; aspect-ratio: 1360 / 560; }
+.lines { position: absolute; inset: 0; width: 100%; height: 100%; stroke-linecap: round; stroke-linejoin: round; }
+.mainLines { stroke: var(--flow-blue); }
+.reviewLine { stroke: #c6ad84; }
+.completeLine { stroke: #9cbeb3; }
+.returnLine { stroke: #a3acba; stroke-dasharray: 5 6; }
+.node { position: absolute; display: flex; flex-direction: column; align-items: center; width: calc(100% * 192 / 1360); text-align: center; }
+.tile { position: relative; display: grid; place-items: center; width: calc(100% * 84 / 192); aspect-ratio: 1; border-radius: 20px; background: linear-gradient(145deg, #fff, #f1f3f6); box-shadow: 0 7px 16px -10px #34445b38, inset 0 0 0 1px #dce1e8; }
+.tile svg { width: 43%; height: 43%; color: #6b778d; stroke-width: 1.5; }
+.node strong { margin-top: 18px; font-size: clamp(13px, 1.14cqi, 16px); font-weight: 600; line-height: 1.5; white-space: nowrap; }
+.node small { margin-top: 5px; color: var(--flow-muted); font-size: clamp(10px, .93cqi, 12px); line-height: 1.6; white-space: nowrap; }
+.system { left: calc(100% * 24 / 1360); top: calc(100% * 76 / 560); }
+.manual { left: calc(100% * 24 / 1360); top: calc(100% * 292 / 560); }
+.assignment { left: calc(100% * 264 / 1360); top: calc(100% * 184 / 560); }
+.assignment .tile { background: linear-gradient(145deg, #fff, #edf2ff); box-shadow: 0 7px 16px -10px #34445b38, inset 0 0 0 1px #cbd7f1; }
+.assignment svg { color: #5478cf; }
+.processing { left: calc(100% * 504 / 1360); top: calc(100% * 184 / 560); }
+.submit { left: calc(100% * 744 / 1360); top: calc(100% * 184 / 560); }
+.decision { left: calc(100% * 928 / 1360); top: calc(100% * 184 / 560); }
+.decision .tile { background: linear-gradient(145deg, #fff, #eff2f8); }
+.review { left: calc(100% * 928 / 1360); top: calc(100% * 380 / 560); }
+.review .tile { background: linear-gradient(145deg, #fff, #fbf6ec); box-shadow: 0 7px 16px -10px #34445b38, inset 0 0 0 1px #e3d6c1; }
+.review svg { color: #9b783e; }
+.complete { left: calc(100% * 1140 / 1360); top: calc(100% * 184 / 560); }
+.complete .tile { background: linear-gradient(145deg, #fff, #eef6f2); box-shadow: 0 7px 16px -10px #34445b38, inset 0 0 0 1px #ccded5; }
+.complete svg { color: #518873; }
+.label { position: absolute; padding: 3px 7px; background: #fafbfc; color: var(--flow-muted); font-size: clamp(10px, .95cqi, 13px); line-height: 1.5; white-space: nowrap; }
+.noReview { left: calc(100% * 1130 / 1360); top: calc(100% * 191 / 560); transform: translateX(-50%); }
+.needsReview { left: calc(100% * 1040 / 1360); top: calc(100% * 342 / 560); color: #866022; }
+.approved { left: calc(100% * 1244 / 1360); top: calc(100% * 358 / 560); color: #3c7464; }
+.returned { left: calc(100% * 776 / 1360); top: calc(100% * 401 / 560); transform: translateX(-50%); }
+.criteria { position: absolute; left: calc(100% * 1024 / 1360); top: calc(100% * 537 / 560); transform: translateX(-50%); color: #79603b; font-size: clamp(10px, .92cqi, 12px); white-space: nowrap; }
+.mobile { display: none; }
+@media (max-width: 700px) {
+  .canvas { padding: 28px 20px; }
+  .viewport { display: none; }
+  .mobile { display: block; margin: 0; padding: 0; list-style: none; }
+  .mobile > li { position: relative; min-height: 76px; padding: 0 0 48px 64px; }
+  .mobile > li:last-child { padding-bottom: 0; }
+  .mobileTile { position: absolute; top: 0; left: 0; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 13px; background: linear-gradient(145deg, #fff, #f1f3f6); box-shadow: 0 5px 12px -8px #34445b38, inset 0 0 0 1px #dce1e8; }
+  .mobileTile svg { width: 25px; height: 25px; color: #6b778d; stroke-width: 1.5; }
+  .mobileArrow { position: absolute; bottom: 9px; left: 16px; color: #7186b0; }
+  .mobile strong { font-size: 15px; line-height: 24px; font-weight: 600; }
+  .mobile p { margin: 6px 0 0; color: var(--flow-muted); font-size: 13px; line-height: 1.8; }
+  .mobileReview > div { display: flex; align-items: flex-start; gap: 10px; margin-top: 12px; padding: 12px 0; border-top: 1px solid #e8dfce; }
+  .mobileReview > div svg { flex-shrink: 0; margin-top: 3px; color: var(--flow-amber); }
+  .mobileReview > div p { margin: 0; color: #79603b; }
+  .mobileComplete .mobileTile { background: linear-gradient(145deg, #fff, #eef6f2); box-shadow: 0 5px 12px -8px #34445b38, inset 0 0 0 1px #ccded5; }
+  .mobileComplete .mobileTile svg { color: #518873; }
+}

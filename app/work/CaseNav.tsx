@@ -14,6 +14,8 @@ type CaseNavProps = {
    * 案例页整体浅色时不传。
    */
   darkHeroSelector?: string;
+  /** 深色内容区经过导航线时切换文字配色，适用于深浅章节混合的案例页。 */
+  darkSectionSelector?: string;
 };
 
 /** 与 case-nav.module.css 的 .inner height 保持一致（720 以下缩到 56px，取大值）。 */
@@ -30,18 +32,21 @@ const NAV_HEIGHT = 62;
 export default function CaseNav({
   projectLabel,
   darkHeroSelector,
+  darkSectionSelector,
 }: CaseNavProps) {
   const [dark, setDark] = useState(false);
 
   useEffect(() => {
-    if (!darkHeroSelector) return;
+    if (!darkHeroSelector && !darkSectionSelector) return;
     let raf = 0;
     const evaluate = () => {
       raf = 0;
-      const hero = document.querySelector<HTMLElement>(darkHeroSelector);
-      const next = hero
-        ? hero.getBoundingClientRect().bottom > NAV_HEIGHT
-        : false;
+      const hero = darkHeroSelector ? document.querySelector<HTMLElement>(darkHeroSelector) : null;
+      const sectionDark = darkSectionSelector ? Array.from(document.querySelectorAll<HTMLElement>(darkSectionSelector)).some((section) => {
+        const bounds = section.getBoundingClientRect();
+        return bounds.top <= NAV_HEIGHT && bounds.bottom > NAV_HEIGHT && bounds.right > 0 && bounds.left < window.innerWidth;
+      }) : false;
+      const next = sectionDark || Boolean(hero && hero.getBoundingClientRect().bottom > NAV_HEIGHT);
       setDark((current) => (current === next ? current : next));
     };
     const onScroll = () => {
@@ -55,7 +60,7 @@ export default function CaseNav({
       window.removeEventListener("resize", onScroll);
       if (raf) window.cancelAnimationFrame(raf);
     };
-  }, [darkHeroSelector]);
+  }, [darkHeroSelector, darkSectionSelector]);
 
   return (
     <header className={styles.nav} data-ho-case-nav="true" data-dark={dark ? "true" : "false"}>

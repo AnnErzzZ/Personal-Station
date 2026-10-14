@@ -634,7 +634,7 @@ export default function FolderFloat({
         </div>
       </div>
 
-      <div className={styles.folder}>
+      <div className={styles.folder} data-folder-body="">
         <span className={styles.back} data-folder-back="" aria-hidden="true" />
         <span className={styles.paper} aria-hidden="true" />
         <span className={styles.front} data-folder-front="" aria-hidden="true">

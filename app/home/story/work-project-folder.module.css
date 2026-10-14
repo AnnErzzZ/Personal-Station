@@ -244,7 +244,7 @@
 .openGroup {
   position: relative;
   display: flex;
-  width: calc(var(--wx-card-w, 518px) * 2 + 40px);
+  width: calc(var(--wx-card-w, 518px) + (var(--wx-project-count, 2) - 1) * var(--wx-card-step, 558px));
   height: calc(
     var(--wx-folder-h, 333px) + var(--wx-group-gap, 36px) + var(--wx-card-h, 502px) *
       var(--wx-card-fit, 1)
@@ -254,75 +254,18 @@
   justify-content: center;
 }
 
-/* ------------------------------------------------ 卡片在卡片行里的定位
-   展开态卡片的位移**只由本模块负责** —— FolderFloat.module.css 里已不再写
-   `[data-open]` 的 transform（那边留着就会以更具体的规则压过这里，
-   让 `scale(var(--wx-card-fit))` 静默失效）。
-
-   ⚠ 特异性必须算准，这里有两个竞争者：
-     · FolderFloat 的 `.root[data-variant="projects"] .item`（收起态）
-       = 2 类 + 1 属性 = (0,3,0)；
-     · 本规则若写成 `.layer[data-projects-open="true"] [data-work-project-card]`
-       也是 (0,3,0) —— **平手靠源码顺序，CSS Module 的注入顺序不可靠**，
-       实测被对方的 `scale(0.58)` 压掉（卡片停在待机位）。
-   所以这里刻意多加一个 `[data-open]` 提到 (0,4,0)。
-   注意 [data-open] 是 **FolderFloat root** 上的空值属性，
-   必须写成 `.layer[...] [data-open] [data-work-project-card]`（后代），
-   挂到 .layer 自己身上是不匹配的 —— 别写成 `.layer[data-open]`。
-
-   坐标系：`.item` 绝对定位在 .items（0×0 锚点，钉在 shell 顶部 = 文件夹顶），
-   锚点即卡片中心，所以 `translateY` 用「上移卡高 + 30」把卡片放到文件夹上方，
-   横向按半个卡宽 + 半个 gap（= 20px）分左右。
-
-   --wx-card-fit：矮视口装不下整个组合时，JS 把卡片按这个比例缩小。
-   **只缩卡片，不缩文件夹** —— 文件夹是主体，缩它会牵动前盖与口的角度。
-
-   缩放只影响「卡片占多高」，不影响「卡片要上移多少」——这两个量必须分清：
-   scale 原点钉在「卡片自己底边」（transform-origin: 50% 100%），所以缩到 s
-   后卡片上缘下落 cardH×(1−s)、底边不动。卡片在 .openGroup 里是
-   `align-items: flex-end`（底对齐），占了 cardH × s 的垂直空间；
-   而位移量（下面那条 translateY）用的是**布局高**，跟 s 无关。
-   所以「乘 fit 的只有 .openGroup 的高度」，位移不乘 —— 见 .openGroup。
-
-   ⚠ 纵向位移是 `-100% - 30px`，**不要乘 fit**。这里有个容易搞反的地方：
-   `.item` 是绝对定位，未变换时它的**顶边**贴在锚点（= 文件夹顶）上，
-   所以要把卡片底边送到「锚点 − 30」，位移量恰好是「整个布局高 + 30」——
-   抵消的是**布局偏移**，用 `100%`（= 卡片自身布局高）。
-   而 fit 的 scale 是以「卡片底边」为原点的绘制期变换，底边本来就不动，
-   它不参与这次抵消。写成 `calc(100% * fit)` 会让卡片少上移
-   `cardH × (1 − fit)`，卡片沉进文件夹里（实测 1280×800 底部越过文件夹顶 35px）。
-   `100%` 还有个好处：两张卡文案长短不同（实测 438 / 457），
-   用各自的 `100%` 才能让两张卡的**底边落在同一条线**上 ——
-   换成预算的 --wx-card-h 会错开近 20px。
-
-   ⚠ calc 语法：乘除只能出现在「长度 × 数字」里，`* -1 - 30px` 串在一条
-   乘链后会被整条判无效 —— 需要中间量时先写成子表达式再用减号连接。
-
-   ⚠⚠ 2026-09-21 **必须显式写 [data-index="0"]**，否则左卡会被 FolderFloat
-   自己的规则压掉、两卡缩放不一致（这是「两卡高度不一致」的真正来源）：
-     · FolderFloat.module.css 里有一条
-         `.root[data-variant="projects"][data-open] .item[data-index="0"]`
-       = 3 类 + 3 属性 = **(0,6,0)**，它的 `scale(1)` 会把这里的
-       `scale(var(--wx-card-fit))` 整条覆盖掉；
-     · 而右卡那边的对应规则也是 (0,6,0)（多了个 [data-index="1"]），
-       与本模块的右卡规则**平手**，靠源码顺序由本模块胜出。
-     · 结果就是「左卡不缩、右卡缩」：1600×900 实测左卡 489.1、右卡 272.1 —
-       两卡看起来一大一小，正是需求第一条要修的现象。
-   带上 [data-index="0"] 后本规则也到 (0,6,0)，与右卡对称、也不依赖注入顺序。
-   （早先的注释说「多加一个 [data-open] 提到 (0,4,0) 就够」——那条在当时的
-   FolderFloat 下成立，现在不够了；两边源码改动后一定要重跑
-   artifacts/tmp/probe-item-rules.mjs 复核命中集。） */
-.layer[data-projects-open="true"] [data-open] [data-work-project-card][data-index="0"] {
-  transform: translate(calc(var(--wx-card-w) * -1 - 20px), calc(-100% - 30px))
+/* 卡片以文件夹中心为锚点，按数量与索引对称排列。
+   --wx-card-step 由 JS 根据卡宽、缩放和 40px 间距计算。
+   [data-index] 保持足够特异性，覆盖 FolderFloat 的基础位移。
+   纵向 -100% 抵消布局高；缩放原点在底边，因此位移不乘 fit。 */
+.layer[data-projects-open="true"] [data-open] [data-work-project-card][data-index] {
+  transform: translate(calc(var(--wx-card-w) * -0.5 + (var(--i) - (var(--wx-project-count, 2) - 1) / 2) * var(--wx-card-step, 558px)), calc(-100% - 30px))
     scale(var(--wx-card-fit, 1));
-}
-
-.layer[data-projects-open="true"] [data-open] [data-work-project-card][data-index="1"] {
-  transform: translate(20px, calc(-100% - 30px)) scale(var(--wx-card-fit, 1));
 }
 
 /* 缩放原点钉在卡片底部中点 */
 .layer[data-projects-open="true"] [data-open] [data-work-project-card] {
+  width: var(--wx-card-w, 518px);
   transform-origin: 50% 100%;
 }
 
@@ -762,6 +705,16 @@
     --wx-top: 76px;
   }
 
+  .layer[data-projects-open="true"] .expandedContent {
+    top: 128px;
+    bottom: 16px;
+    padding: 0 0 48px;
+    overflow: auto;
+    overscroll-behavior: contain;
+    transform: none;
+    pointer-events: auto;
+  }
+
   /* ---- 移动端：两卡**回到文档流**竖排，取消一切绝对定位与计算位移 ---------
      之前这里靠「绝对定位 + translateY(-卡高−12)」把卡 0 抬到卡 1 上方，
      位移量取自硬编码的 --wx-card-h: 460px。但卡高现在是**内容驱动**的
@@ -806,7 +759,7 @@
      ⚠ 必须用 `.openGroup` 提权到 (0,5,0) 压过桌面的 (0,4,0) 位移规则。 */
   .layer[data-projects-open="true"] .openGroup [data-work-project-card],
   .layer[data-projects-open="true"] .openGroup [data-open] [data-work-project-card],
-  .layer[data-projects-open="true"] .openGroup [data-open] [data-work-project-card][data-index="1"] {
+  .layer[data-projects-open="true"] .openGroup [data-open] [data-work-project-card][data-index] {
     position: static;
     width: 100%;
     transform: none;
@@ -841,8 +794,18 @@
   /* 窄屏文件夹缩小一档（与关闭态待机的 0.78 一致），缩放锚点放底边，
      免得缩小后文件夹底与卡片行的落点脱开。 */
   .openGroup [data-variant="projects"] {
-    transform: scale(0.78);
-    transform-origin: 50% 100%;
+    width: 100%;
+    transform: none;
+  }
+
+  .layer[data-projects-open="true"] .openGroup .shell {
+    width: 100%;
+  }
+
+  .openGroup [data-folder-body] {
+    margin-left: calc((min(86vw, 430px) - 440px) / 2);
+    transform: scale(0.7);
+    transform-origin: 50% 0;
   }
 }
 
@@ -892,7 +855,7 @@
 @media (max-width: 1300px) and (min-width: 721px) {
   .layer[data-projects-open="true"] .projectCard {
     --wx-card-w: min(
-      var(--wx-card-w, 518px),
+      var(--wx-measured-card-w, 518px),
       calc((100vw - 2 * var(--page-padding-x, 40px) - 40px) / 2)
     );
   }

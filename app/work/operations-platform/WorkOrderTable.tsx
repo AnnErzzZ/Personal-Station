@@ -1,0 +1,11 @@
+import NucleoIcon from "./NucleoIcon";
+import s from "./page.module.css";
+import { anomalyDays, type WorkOrder } from "./workOrderData";
+
+export default function WorkOrderTable({ orders, onSelect, activeId, selected = [], onSelectionChange }: {
+  orders: WorkOrder[]; onSelect: (id: string) => void; activeId?: string;
+  selected?: string[]; onSelectionChange?: (ids: string[]) => void;
+}) {
+  const activeSelected = orders.filter((row) => selected.includes(row.id));
+  return (<div className={s.contributionTableScroll}><table className={`${s.contributionTable} ${s.poolTable}`}><thead><tr>{onSelectionChange && <th><input type="checkbox" aria-label="选择当前工单" checked={orders.length > 0 && activeSelected.length === orders.length} onChange={(event) => onSelectionChange(event.target.checked ? [...new Set([...selected, ...orders.map((row) => row.id)])] : selected.filter((id) => !orders.some((row) => row.id === id)) )} /></th>}<th>状态</th><th>工单编号 / 标题</th><th>所属组织</th><th>所属项目</th><th>异常类型</th><th title="关联设备中最长的连续异常天数">异常持续</th><th>处理人</th><th>创建时间</th><th>处理时长</th><th>累计故障数</th><th>操作</th></tr></thead><tbody>{orders.map((row) => <tr key={row.id} data-pool-order={row.id} data-active={row.id === activeId}>{onSelectionChange && <td><input type="checkbox" aria-label={`选择${row.id}`} checked={selected.includes(row.id)} onChange={(event) => onSelectionChange(event.target.checked ? [...selected, row.id] : selected.filter((id) => id !== row.id))} /></td>}<td><span className={s.tag} data-tone={row.status === "已完成" ? "green" : row.status === "处理中" ? "blue" : "neutral"}>{row.status}</span></td><td><strong>{row.id}</strong><small>{row.title}</small></td><td>{row.org}</td><td>{row.project}</td><td>{row.type}</td><td><strong className={s.continuousDays}>{anomalyDays(row)}</strong></td><td>{row.handler}</td><td>{row.date}<small>09:00</small></td><td>{row.duration ? `${row.duration} 小时` : row.status === "待处理" ? "尚未开始" : "不足 1 分钟"}</td><td>{row.faults}</td><td><button type="button" className={`${s.textButton} ${s.detailArrowButton}`} aria-label={`查看工单 ${row.id} 的详情`} title="查看详情" onClick={() => onSelect(row.id)}><NucleoIcon name="chevron-right" size={16} /></button></td></tr>)}{!orders.length && <tr><td colSpan={onSelectionChange ? 12 : 11}>没有符合筛选条件的工单。</td></tr>}</tbody></table></div>);
+}

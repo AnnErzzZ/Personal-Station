@@ -1,0 +1,40 @@
+.artwork { display:grid; place-items:center; flex-shrink:0; min-height:420px; padding:56px 20px 40px; overflow:hidden; }
+.inspectionBoard { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; width:100%; max-width:470px; opacity:.85; mask-image:linear-gradient(90deg,#000 36%,transparent 100%),linear-gradient(180deg,#000 58%,transparent 100%); mask-composite:intersect; }
+.inspectionTile, .tracePanel { min-width:0; border:1px solid #dce2ea; border-radius:12px; background:linear-gradient(130deg,#f3f6fa,#fff); box-shadow:inset 0 1px #fff; }
+.inspectionTile { display:grid; grid-template-columns:1fr auto; align-items:center; gap:12px; padding:18px 20px; }
+.inspectionTile > span, .tracePanel > span { color:#626b77; font-size:13px; }
+.inspectionTile svg { grid-row:span 2; color:#657d9e; }
+.inspectionTile > i { width:52px; height:7px; border-radius:2px; background:#a4b3c8; }
+.tracePanel { grid-column:1/-1; padding:20px 20px 16px; }
+.trace { display:block; width:100%; height:auto; margin-top:22px; }
+.chartGrid { fill:none; stroke:#e9edf3; stroke-width:1; }
+.chartLine { fill:none; stroke:#657eac; stroke-width:2; stroke-linejoin:round; }
+.chartArea { fill:#657eac15; }
+.traceTicks { display:flex; justify-content:space-between; margin-top:8px; }
+.traceTicks i { width:44px; height:5px; border-radius:2px; background:#cbd4df; }
+.integrationScene { position:relative; width:100%; max-width:560px; aspect-ratio:560/320; }
+.connectors { position:absolute; inset:0; width:100%; height:100%; fill:none; stroke:#c6cfdb; stroke-width:1.25; }
+.node { position:absolute; display:grid; place-items:center; width:80px; height:80px; transform:translate(-50%,-50%); border:1px solid #d1d9e5; border-radius:20px; background:linear-gradient(135deg,#fff,#f1f4f8 78%); box-shadow:inset 0 1px 0 #fff,0 16px 32px -20px #8190a040; color:#657d9e; }
+.node::after { content:""; position:absolute; inset:1px; border:1px solid #ffffffb3; border-radius:18px; pointer-events:none; }
+.rootNode { left:24%; top:50%; width:96px; height:96px; border-color:#ccd5e2; }
+.dispatchNode { left:75.7%; top:18.125%; border-left-color:#a8b9da; }
+.approvalNode { left:85%; top:50%; border-left-color:#a9c6ba; }
+.contributionNode { left:75.7%; top:81.875%; border-left-color:#a8b9da; }
+@media (max-width:1100px) {
+  .artwork { min-height:360px; padding:40px 8px 32px; }
+  .node { width:68px; height:68px; border-radius:17px; }
+  .rootNode { width:84px; height:84px; }
+}
+@media (max-width:700px) {
+  .artwork { min-height:300px; padding:32px 0; }
+  .inspectionBoard { gap:8px; }
+  .inspectionTile { padding:14px 12px; }
+  .inspectionTile svg { width:24px; height:24px; }
+  .tracePanel { padding:16px 12px; }
+  .trace { margin-top:18px; }
+  .node { width:54px; height:54px; border-radius:14px; }
+  .node::after { border-radius:12px; }
+  .node svg { width:28px; height:28px; }
+  .rootNode { width:64px; height:64px; }
+  .rootNode svg { width:34px; height:34px; }
+}
