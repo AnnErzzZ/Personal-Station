@@ -127,6 +127,17 @@
   .image { animation: none; }
 }
 
+.thumbnailNavigation {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  margin-inline: auto;
+  gap: 20px;
+}
+.thumbnailNavigation > .arrow { flex: 0 0 auto; }
+
 .thumbnails {
   display: flex;
   flex: 0 0 auto;
@@ -156,11 +167,13 @@
 .thumbnailImage { object-fit: contain; }
 .thumbnailNumber { font-family: var(--meta-font); font-size: 18px; font-variant-numeric: tabular-nums; }
 @media (max-width: 640px) {
-  .thumbnails { gap: 12px; }
-  .thumbnail { width: 84px; }
+  .thumbnailNavigation { gap: 8px; }
+  .thumbnailNavigation > .arrow { width: 40px; height: 40px; padding: 8px; }
+  .thumbnails { gap: 8px; }
+  .thumbnail { width: clamp(48px, calc((92vw - 112px) / 3), 84px); }
 }
 @media (max-height: 600px) {
-  .thumbnail { width: 72px; }
+  .thumbnail { width: min(72px, calc((92vw - 112px) / 3)); }
 }
 @media (prefers-reduced-motion: reduce) {
   .thumbnail { transition: none; }

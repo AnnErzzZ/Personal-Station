@@ -1,0 +1,122 @@
+[
+  {
+    "width": 1440,
+    "height": 1000,
+    "before": {
+      "systemTop": -12,
+      "systemBottom": 999.9375,
+      "reflectionTop": 999.5625,
+      "reflectionHeight": 1513.796875,
+      "systemPosition": "sticky",
+      "covered": false,
+      "overflow": false
+    },
+    "halfway": {
+      "systemTop": -12,
+      "systemBottom": 999.9375,
+      "reflectionTop": 499.5625,
+      "reflectionHeight": 1513.796875,
+      "systemPosition": "sticky",
+      "covered": true,
+      "overflow": false
+    },
+    "full": {
+      "systemTop": -12,
+      "systemBottom": 999.9375,
+      "reflectionTop": -0.4375,
+      "reflectionHeight": 1513.796875,
+      "systemPosition": "sticky",
+      "covered": true,
+      "overflow": false
+    },
+    "reverse": {
+      "systemTop": -12,
+      "systemBottom": 999.9375,
+      "reflectionTop": 499.5625,
+      "reflectionHeight": 1513.796875,
+      "systemPosition": "sticky",
+      "covered": true,
+      "overflow": false
+    }
+  },
+  {
+    "width": 1440,
+    "height": 740,
+    "before": {
+      "systemTop": -247.90625,
+      "systemBottom": 740.03125,
+      "reflectionTop": 740.03125,
+      "reflectionHeight": 1489.796875,
+      "systemPosition": "sticky",
+      "covered": false,
+      "overflow": false
+    },
+    "halfway": {
+      "systemTop": -248,
+      "systemBottom": 739.9375,
+      "reflectionTop": 370.03125,
+      "reflectionHeight": 1489.796875,
+      "systemPosition": "sticky",
+      "covered": true,
+      "overflow": false
+    },
+    "full": {
+      "systemTop": -248,
+      "systemBottom": 739.9375,
+      "reflectionTop": 0.03125,
+      "reflectionHeight": 1489.796875,
+      "systemPosition": "sticky",
+      "covered": true,
+      "overflow": false
+    },
+    "reverse": {
+      "systemTop": -248,
+      "systemBottom": 739.9375,
+      "reflectionTop": 370.03125,
+      "reflectionHeight": 1489.796875,
+      "systemPosition": "sticky",
+      "covered": true,
+      "overflow": false
+    }
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "before": {
+      "systemTop": -886,
+      "systemBottom": 843.734375,
+      "reflectionTop": 843.625,
+      "reflectionHeight": 2032.09375,
+      "systemPosition": "sticky",
+      "covered": false,
+      "overflow": false
+    },
+    "halfway": {
+      "systemTop": -886,
+      "systemBottom": 843.734375,
+      "reflectionTop": 421.625,
+      "reflectionHeight": 2032.09375,
+      "systemPosition": "sticky",
+      "covered": true,
+      "overflow": false
+    },
+    "full": {
+      "systemTop": -886,
+      "systemBottom": 843.734375,
+      "reflectionTop": -0.375,
+      "reflectionHeight": 2032.09375,
+      "systemPosition": "sticky",
+      "covered": true,
+      "overflow": false
+    },
+    "reverse": {
+      "systemTop": -886,
+      "systemBottom": 843.734375,
+      "reflectionTop": 421.625,
+      "reflectionHeight": 2032.09375,
+      "systemPosition": "sticky",
+      "covered": true,
+      "overflow": false
+    }
+  }
+]

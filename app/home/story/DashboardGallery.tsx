@@ -84,35 +84,37 @@ export default function DashboardGallery({
             </div>
           )}
         </div>
-        <div className={styles.thumbnails} role="group" aria-label="选择大屏图片">
-          {thumbnailIndices.map((thumbnailIndex) => (
-            <button
-              key={images[thumbnailIndex]?.src ?? thumbnailIndex}
-              type="button"
-              className={styles.thumbnail}
-              data-dashboard-thumbnail={thumbnailIndex}
-              aria-label={`查看第 ${thumbnailIndex + 1} 张大屏`}
-              aria-pressed={thumbnailIndex === activeIndex}
-              onClick={() => setIndex(thumbnailIndex)}
-            >
-              {images[thumbnailIndex] ? (
-                <Image src={images[thumbnailIndex].src} alt="" fill sizes="112px" className={styles.thumbnailImage} />
-              ) : (
-                <span className={styles.thumbnailNumber} aria-hidden="true">{String(thumbnailIndex + 1).padStart(2, "0")}</span>
-              )}
-            </button>
-          ))}
-        </div>
-        <footer className={styles.footer}>
+        <div className={styles.thumbnailNavigation}>
           <button type="button" className={styles.arrow} data-dashboard-previous="" aria-label="上一张大屏" onClick={() => change(-1)} disabled={count < 2}>
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m14 6-6 6 6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
-          <span className={styles.counter} aria-live="polite" aria-atomic="true">
-            {String(activeIndex + 1).padStart(2, "0")} <span className={styles.total}>/ {String(count).padStart(2, "0")}</span>
-          </span>
+          <div className={styles.thumbnails} role="group" aria-label="选择大屏图片">
+            {thumbnailIndices.map((thumbnailIndex) => (
+              <button
+                key={images[thumbnailIndex]?.src ?? thumbnailIndex}
+                type="button"
+                className={styles.thumbnail}
+                data-dashboard-thumbnail={thumbnailIndex}
+                aria-label={`查看第 ${thumbnailIndex + 1} 张大屏`}
+                aria-pressed={thumbnailIndex === activeIndex}
+                onClick={() => setIndex(thumbnailIndex)}
+              >
+                {images[thumbnailIndex] ? (
+                  <Image src={images[thumbnailIndex].src} alt="" fill sizes="112px" className={styles.thumbnailImage} />
+                ) : (
+                  <span className={styles.thumbnailNumber} aria-hidden="true">{String(thumbnailIndex + 1).padStart(2, "0")}</span>
+                )}
+              </button>
+            ))}
+          </div>
           <button type="button" className={styles.arrow} data-dashboard-next="" aria-label="下一张大屏" onClick={() => change(1)} disabled={count < 2}>
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m10 6 6 6-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
+        </div>
+        <footer className={styles.footer}>
+          <span className={styles.counter} aria-live="polite" aria-atomic="true">
+            {String(activeIndex + 1).padStart(2, "0")} <span className={styles.total}>/ {String(count).padStart(2, "0")}</span>
+          </span>
         </footer>
       </div>
     </section>

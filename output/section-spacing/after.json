@@ -1,0 +1,446 @@
+[
+  {
+    "width": 1440,
+    "height": 900,
+    "overflow": false,
+    "sections": [
+      {
+        "id": "overview",
+        "top": 0,
+        "height": 900,
+        "paddingTop": "532px",
+        "paddingBottom": "104px",
+        "minHeight": "900px"
+      },
+      {
+        "id": "project-overview",
+        "top": 900,
+        "height": 1231,
+        "paddingTop": "108px",
+        "paddingBottom": "108px",
+        "minHeight": "900px"
+      },
+      {
+        "id": "background",
+        "top": 2131,
+        "height": 900,
+        "paddingTop": "108px",
+        "paddingBottom": "108px",
+        "minHeight": "900px"
+      },
+      {
+        "id": "users",
+        "top": 3031,
+        "height": 900,
+        "paddingTop": "108px",
+        "paddingBottom": "108px",
+        "minHeight": "900px"
+      },
+      {
+        "id": "structure",
+        "top": 3931,
+        "height": 900,
+        "paddingTop": "108px",
+        "paddingBottom": "108px",
+        "minHeight": "900px"
+      },
+      {
+        "id": "priority",
+        "top": 4831,
+        "height": 1782,
+        "paddingTop": "108px",
+        "paddingBottom": "108px",
+        "minHeight": "900px"
+      },
+      {
+        "id": "work-orders",
+        "top": 6669,
+        "height": 1121,
+        "paddingTop": "108px",
+        "paddingBottom": "108px",
+        "minHeight": "782px"
+      },
+      {
+        "id": "ownership",
+        "top": 7790,
+        "height": 1071,
+        "paddingTop": "108px",
+        "paddingBottom": "108px",
+        "minHeight": "782px"
+      },
+      {
+        "id": "history",
+        "top": 8861,
+        "height": 1082,
+        "paddingTop": "108px",
+        "paddingBottom": "108px",
+        "minHeight": "782px"
+      },
+      {
+        "id": "workflow",
+        "top": 9943,
+        "height": 967,
+        "paddingTop": "108px",
+        "paddingBottom": "108px",
+        "minHeight": "900px"
+      },
+      {
+        "id": "contribution",
+        "top": 10911,
+        "height": 1321,
+        "paddingTop": "108px",
+        "paddingBottom": "108px",
+        "minHeight": "900px"
+      },
+      {
+        "id": "system",
+        "top": 12232,
+        "height": 1108,
+        "paddingTop": "108px",
+        "paddingBottom": "108px",
+        "minHeight": "900px"
+      },
+      {
+        "id": "reflection",
+        "top": 13340,
+        "height": 1216,
+        "paddingTop": "108px",
+        "paddingBottom": "108px",
+        "minHeight": "900px"
+      }
+    ]
+  },
+  {
+    "width": 1440,
+    "height": 1244,
+    "overflow": false,
+    "sections": [
+      {
+        "id": "overview",
+        "top": 0,
+        "height": 1244,
+        "paddingTop": "532px",
+        "paddingBottom": "104px",
+        "minHeight": "1244px"
+      },
+      {
+        "id": "project-overview",
+        "top": 1244,
+        "height": 1314,
+        "paddingTop": "149.28px",
+        "paddingBottom": "149.28px",
+        "minHeight": "1244px"
+      },
+      {
+        "id": "background",
+        "top": 2558,
+        "height": 1244,
+        "paddingTop": "149.28px",
+        "paddingBottom": "149.28px",
+        "minHeight": "1244px"
+      },
+      {
+        "id": "users",
+        "top": 3802,
+        "height": 1244,
+        "paddingTop": "149.28px",
+        "paddingBottom": "149.28px",
+        "minHeight": "1244px"
+      },
+      {
+        "id": "structure",
+        "top": 5046,
+        "height": 1244,
+        "paddingTop": "149.28px",
+        "paddingBottom": "149.28px",
+        "minHeight": "1244px"
+      },
+      {
+        "id": "priority",
+        "top": 6290,
+        "height": 1865,
+        "paddingTop": "149.28px",
+        "paddingBottom": "149.28px",
+        "minHeight": "1244px"
+      },
+      {
+        "id": "work-orders",
+        "top": 8210,
+        "height": 1203,
+        "paddingTop": "149.28px",
+        "paddingBottom": "149.28px",
+        "minHeight": "1126px"
+      },
+      {
+        "id": "ownership",
+        "top": 9414,
+        "height": 1154,
+        "paddingTop": "149.28px",
+        "paddingBottom": "149.28px",
+        "minHeight": "1126px"
+      },
+      {
+        "id": "history",
+        "top": 10568,
+        "height": 1165,
+        "paddingTop": "149.28px",
+        "paddingBottom": "149.28px",
+        "minHeight": "1126px"
+      },
+      {
+        "id": "workflow",
+        "top": 11732,
+        "height": 1244,
+        "paddingTop": "149.28px",
+        "paddingBottom": "149.28px",
+        "minHeight": "1244px"
+      },
+      {
+        "id": "contribution",
+        "top": 12976,
+        "height": 1404,
+        "paddingTop": "149.28px",
+        "paddingBottom": "149.28px",
+        "minHeight": "1244px"
+      },
+      {
+        "id": "system",
+        "top": 14380,
+        "height": 1244,
+        "paddingTop": "149.28px",
+        "paddingBottom": "149.28px",
+        "minHeight": "1244px"
+      },
+      {
+        "id": "reflection",
+        "top": 15624,
+        "height": 1298,
+        "paddingTop": "149.28px",
+        "paddingBottom": "149.28px",
+        "minHeight": "1244px"
+      }
+    ]
+  },
+  {
+    "width": 1024,
+    "height": 768,
+    "overflow": false,
+    "sections": [
+      {
+        "id": "overview",
+        "top": 0,
+        "height": 836,
+        "paddingTop": "550px",
+        "paddingBottom": "96px",
+        "minHeight": "768px"
+      },
+      {
+        "id": "project-overview",
+        "top": 836,
+        "height": 1043,
+        "paddingTop": "96px",
+        "paddingBottom": "96px",
+        "minHeight": "768px"
+      },
+      {
+        "id": "background",
+        "top": 1879,
+        "height": 841,
+        "paddingTop": "96px",
+        "paddingBottom": "96px",
+        "minHeight": "768px"
+      },
+      {
+        "id": "users",
+        "top": 2720,
+        "height": 818,
+        "paddingTop": "96px",
+        "paddingBottom": "96px",
+        "minHeight": "768px"
+      },
+      {
+        "id": "structure",
+        "top": 3538,
+        "height": 1041,
+        "paddingTop": "96px",
+        "paddingBottom": "96px",
+        "minHeight": "768px"
+      },
+      {
+        "id": "priority",
+        "top": 4579,
+        "height": 1675,
+        "paddingTop": "96px",
+        "paddingBottom": "96px",
+        "minHeight": "768px"
+      },
+      {
+        "id": "work-orders",
+        "top": 6310,
+        "height": 1090,
+        "paddingTop": "96px",
+        "paddingBottom": "96px",
+        "minHeight": "650px"
+      },
+      {
+        "id": "ownership",
+        "top": 7400,
+        "height": 1040,
+        "paddingTop": "96px",
+        "paddingBottom": "96px",
+        "minHeight": "650px"
+      },
+      {
+        "id": "history",
+        "top": 8440,
+        "height": 1088,
+        "paddingTop": "96px",
+        "paddingBottom": "96px",
+        "minHeight": "650px"
+      },
+      {
+        "id": "workflow",
+        "top": 9528,
+        "height": 772,
+        "paddingTop": "96px",
+        "paddingBottom": "96px",
+        "minHeight": "768px"
+      },
+      {
+        "id": "contribution",
+        "top": 10300,
+        "height": 1201,
+        "paddingTop": "96px",
+        "paddingBottom": "96px",
+        "minHeight": "768px"
+      },
+      {
+        "id": "system",
+        "top": 11501,
+        "height": 1046,
+        "paddingTop": "96px",
+        "paddingBottom": "96px",
+        "minHeight": "768px"
+      },
+      {
+        "id": "reflection",
+        "top": 12547,
+        "height": 1186,
+        "paddingTop": "96px",
+        "paddingBottom": "96px",
+        "minHeight": "768px"
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "overflow": false,
+    "sections": [
+      {
+        "id": "overview",
+        "top": 0,
+        "height": 844,
+        "paddingTop": "348px",
+        "paddingBottom": "48px",
+        "minHeight": "844px"
+      },
+      {
+        "id": "project-overview",
+        "top": 844,
+        "height": 844,
+        "paddingTop": "75.96px",
+        "paddingBottom": "75.96px",
+        "minHeight": "844px"
+      },
+      {
+        "id": "background",
+        "top": 1688,
+        "height": 1710,
+        "paddingTop": "75.96px",
+        "paddingBottom": "75.96px",
+        "minHeight": "844px"
+      },
+      {
+        "id": "users",
+        "top": 3398,
+        "height": 1296,
+        "paddingTop": "75.96px",
+        "paddingBottom": "75.96px",
+        "minHeight": "844px"
+      },
+      {
+        "id": "structure",
+        "top": 4694,
+        "height": 1525,
+        "paddingTop": "75.96px",
+        "paddingBottom": "75.96px",
+        "minHeight": "844px"
+      },
+      {
+        "id": "priority",
+        "top": 6219,
+        "height": 1916,
+        "paddingTop": "75.96px",
+        "paddingBottom": "75.96px",
+        "minHeight": "844px"
+      },
+      {
+        "id": "work-orders",
+        "top": 8190,
+        "height": 878,
+        "paddingTop": "75.96px",
+        "paddingBottom": "75.96px",
+        "minHeight": "732px"
+      },
+      {
+        "id": "ownership",
+        "top": 9068,
+        "height": 766,
+        "paddingTop": "75.96px",
+        "paddingBottom": "75.96px",
+        "minHeight": "732px"
+      },
+      {
+        "id": "history",
+        "top": 9835,
+        "height": 814,
+        "paddingTop": "75.96px",
+        "paddingBottom": "75.96px",
+        "minHeight": "732px"
+      },
+      {
+        "id": "workflow",
+        "top": 10649,
+        "height": 844,
+        "paddingTop": "75.96px",
+        "paddingBottom": "75.96px",
+        "minHeight": "844px"
+      },
+      {
+        "id": "contribution",
+        "top": 11493,
+        "height": 1081,
+        "paddingTop": "75.96px",
+        "paddingBottom": "75.96px",
+        "minHeight": "844px"
+      },
+      {
+        "id": "system",
+        "top": 12574,
+        "height": 1802,
+        "paddingTop": "75.96px",
+        "paddingBottom": "75.96px",
+        "minHeight": "844px"
+      },
+      {
+        "id": "reflection",
+        "top": 14376,
+        "height": 1251,
+        "paddingTop": "75.96px",
+        "paddingBottom": "75.96px",
+        "minHeight": "844px"
+      }
+    ]
+  }
+]

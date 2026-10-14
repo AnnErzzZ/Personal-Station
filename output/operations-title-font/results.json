@@ -1,0 +1,98 @@
+[
+  {
+    "width": 1585,
+    "pageWidth": 1585,
+    "text": "合一运维平台",
+    "fontFamily": "operationsTitle, \"Noto Sans SC\", \"Microsoft YaHei\", sans-serif",
+    "weight": "700",
+    "size": "72px",
+    "lineHeight": "82.8px",
+    "rect": {
+      "x": 150.5,
+      "y": 891.515625,
+      "width": 722,
+      "height": 82.796875
+    },
+    "clipped": false,
+    "fonts": [
+      {
+        "familyName": "Alimama ShuHeiTi",
+        "postScriptName": "AlimamaShuHeiTi-Bold",
+        "isCustomFont": true,
+        "glyphCount": 6
+      }
+    ]
+  },
+  {
+    "width": 1024,
+    "pageWidth": 1024,
+    "text": "合一运维平台",
+    "fontFamily": "operationsTitle, \"Noto Sans SC\", \"Microsoft YaHei\", sans-serif",
+    "weight": "700",
+    "size": "56px",
+    "lineHeight": "64.4px",
+    "rect": {
+      "x": 34,
+      "y": 472,
+      "width": 722,
+      "height": 64.390625
+    },
+    "clipped": false,
+    "fonts": [
+      {
+        "familyName": "Alimama ShuHeiTi",
+        "postScriptName": "AlimamaShuHeiTi-Bold",
+        "isCustomFont": true,
+        "glyphCount": 6
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "pageWidth": 390,
+    "text": "合一运维平台",
+    "fontFamily": "operationsTitle, \"Noto Sans SC\", \"Microsoft YaHei\", sans-serif",
+    "weight": "700",
+    "size": "40px",
+    "lineHeight": "46px",
+    "rect": {
+      "x": 23,
+      "y": 546,
+      "width": 343,
+      "height": 46
+    },
+    "clipped": false,
+    "fonts": [
+      {
+        "familyName": "Alimama ShuHeiTi",
+        "postScriptName": "AlimamaShuHeiTi-Bold",
+        "isCustomFont": true,
+        "glyphCount": 6
+      }
+    ]
+  },
+  {
+    "width": 320,
+    "pageWidth": 320,
+    "text": "合一运维平台",
+    "fontFamily": "operationsTitle, \"Noto Sans SC\", \"Microsoft YaHei\", sans-serif",
+    "weight": "700",
+    "size": "40px",
+    "lineHeight": "46px",
+    "rect": {
+      "x": 23,
+      "y": 315,
+      "width": 273,
+      "height": 46
+    },
+    "clipped": false,
+    "fonts": [
+      {
+        "familyName": "Alimama ShuHeiTi",
+        "postScriptName": "AlimamaShuHeiTi-Bold",
+        "isCustomFont": true,
+        "glyphCount": 6
+      }
+    ]
+  }
+]
