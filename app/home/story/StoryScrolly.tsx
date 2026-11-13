@@ -355,6 +355,24 @@ const workCases: WorkCase[] = [
     cover: "/cases/operations-platform/hero/operations-platform-project-cover.png",
     coverAlt: "合一运维平台项目封面，展示工单管理界面的电脑样机",
   },
+  {
+    title: "合一智控 ERP",
+    positioning: "ERP 管理平台 · 业务流程与交互设计",
+    summary: "围绕设备采购、销售与库存，设计订单、出入库、流水和移动盘点界面，明确单据状态与库存变化的对应关系。",
+    meta: ["UI Design", "Interaction", "Web", "ERP"],
+    href: "/work/erp",
+    cover: "/cases/erp/hero.png",
+    coverAlt: "合一智控 ERP 项目封面，笔记本屏幕展示销售订单界面",
+  },
+  {
+    title: "回声语音社交",
+    positioning: "语音社交 App · 界面与原型设计",
+    summary: "围绕找房、上麦、送礼与私聊，设计语音房的信息层级、操作反馈和成长体系；自主设计探索。",
+    meta: ["UI Design", "Prototype", "Mobile", "Social"],
+    href: "/work/echo",
+    cover: "/cases/echo/assets/361-3023.png",
+    coverAlt: "回声语音社交项目封面，展示紫色语音房手机界面",
+  },
 ];
 
 /* 履历左列：以 UI 设计为主，结合真实项目中的交互与落地经验。 */

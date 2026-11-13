@@ -14,6 +14,7 @@ import {
   type PointerEvent as ReactPointerEvent,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -753,9 +754,43 @@ function Book({
   );
 }
 
-function CameraRig({ target }: { target: React.MutableRefObject<number> }) {
-  useFrame(({ camera }, delta) => {
-    camera.position.x = damp(camera.position.x, target.current, 8, delta);
+function CameraRig({ target, books, selectedBook, reducedMotion }: {
+  target: React.MutableRefObject<number>;
+  books: BookLayout[];
+  selectedBook: BookLayout | null;
+  reducedMotion: boolean;
+}) {
+  const initialized = useRef(false);
+  const first = books[0];
+  const last = books.at(-1);
+  const shelfWidth = first && last
+    ? last.x + last.width / 2 - (first.x - first.width / 2)
+    : 0;
+  const shelfDepth = Math.max(0, ...books.map(book => book.depth));
+  useFrame(({ camera, gl, size, setSize }, delta) => {
+    // ResizeObserver/React can trail a CSS layout transition by a frame under
+    // load. Match the drawing buffer and projection to this frame's container
+    // before drawing, rather than briefly rendering with yesterday's aspect.
+    const bounds = gl.domElement.parentElement?.getBoundingClientRect();
+    if (bounds && bounds.width > 0 && bounds.height > 0 && (
+      Math.abs(size.width - bounds.width) > 0.1 ||
+      Math.abs(size.height - bounds.height) > 0.1
+    )) {
+      setSize(bounds.width, bounds.height, bounds.top, bounds.left);
+    }
+    if (camera instanceof THREE.PerspectiveCamera) {
+      const aspect = (bounds?.width || size.width) / (bounds?.height || size.height);
+      const span = selectedBook
+        ? Math.hypot(selectedBook.depth, selectedBook.width) * 0.96 + 0.25
+        : shelfWidth + 0.42;
+      const front = selectedBook ? 1.8 + selectedBook.width / 2 : shelfDepth / 2;
+      const distance = Math.max(8, front + span / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * aspect));
+      camera.position.z = reducedMotion || !initialized.current
+        ? distance
+        : damp(camera.position.z, distance, 9, delta);
+      initialized.current = true;
+    }
+    camera.position.x = reducedMotion ? target.current : damp(camera.position.x, target.current, 8, delta);
     camera.lookAt(camera.position.x, 1.88, 0);
   });
   return null;
@@ -818,7 +853,9 @@ function Scene({
 }) {
   return (
     <>
-      <CameraRig target={cameraX} />
+      <CameraRig target={cameraX} books={books}
+        selectedBook={selectedIndex === null ? null : books[selectedIndex] ?? null}
+        reducedMotion={reducedMotion} />
       <Environment resolution={128} frames={1} environmentIntensity={0.65}>
         <Lightformer form="rect" intensity={2} position={[-4, 5, 4]} scale={[5, 7, 1]} target={[0, 1, 0]} />
         <Lightformer form="rect" intensity={1.3} position={[5, 3, -3]} scale={[2, 6, 1]} target={[0, 1, 0]} />
@@ -887,6 +924,7 @@ export default function ProjectBookshelf({
   const [stageWidth, setStageWidth] = useState(1000);
   const stageRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
+  const detailsRef = useRef<HTMLDivElement>(null);
   const cameraX = useRef(shelfCenter);
   const orbit = useRef({ yaw: 0, pitch: 0 });
   const gesture = useRef<{
@@ -1019,10 +1057,11 @@ export default function ProjectBookshelf({
     switchTimer.current = null;
     pendingSelection.current = null;
     setSelectedIndex(null);
+    moveCamera(shelfCenter);
     orbit.current = { yaw: 0, pitch: 0 };
     onOpenChange?.(false);
     stageRef.current?.focus({ preventScroll: true });
-  }, [onOpenChange]);
+  }, [moveCamera, onOpenChange, shelfCenter]);
 
   // The home scroll controller requests a close when leaving the work stage.
   useEffect(() => {
@@ -1042,9 +1081,10 @@ export default function ProjectBookshelf({
 
   const switchFocused = useCallback(
     (direction: number) => {
-      if (selectedIndex === null) return;
-      const next = THREE.MathUtils.clamp(selectedIndex + direction, 0, books.length - 1);
-      if (next !== selectedIndex) {
+      const current = pendingSelection.current ?? selectedIndex;
+      if (current === null) return;
+      const next = THREE.MathUtils.clamp(current + direction, 0, books.length - 1);
+      if (next !== current) {
         selectBook(next);
       }
     },
@@ -1099,8 +1139,25 @@ export default function ProjectBookshelf({
   };
 
   const selectedBook = selectedIndex === null ? null : books[selectedIndex];
+  useLayoutEffect(() => {
+    if (variant !== "home" || !selectedBook) return;
+    const details = detailsRef.current;
+    const copy = details?.firstElementChild;
+    if (!details || !copy) return;
+    const measure = () => {
+      const style = getComputedStyle(details);
+      const height = copy.getBoundingClientRect().height
+        + Number.parseFloat(style.paddingTop) + Number.parseFloat(style.paddingBottom);
+      details.parentElement?.style.setProperty("--book-details-height", `${height}px`);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(copy);
+    return () => observer.disconnect();
+    // Keep the last measured row while returning/switching books. An auto row
+    // collapses as soon as its copy unmounts, snapping the narrow-screen canvas.
+  }, [selectedBook, variant]);
   const hovered = hoveredIndex === null ? null : books[hoveredIndex];
-  const bounds = getBounds();
   return (
     <section className={[styles.bookshelf, variant === "home" && styles.homeBookshelf, className].filter(Boolean).join(" ")} data-selected={selectedBook?.id ?? "none"} data-expanded={variant === "home" ? Boolean(open) : Boolean(selectedBook)} data-bookshelf-variant={variant}>
       <div className={styles.canvasWrap} style={{ "--stage-height": typeof height === "number" ? height + "px" : height } as CSSProperties}>
@@ -1112,7 +1169,7 @@ export default function ProjectBookshelf({
         aria-label={
           selectedBook
             ? `${selectedBook.title}，已抽出。拖动旋转，再次点击打开案例。`
-            : `项目书架，共 ${books.length} 个项目。左右方向键浏览，回车抽出，Escape 放回。`
+            : `项目书架，共 ${books.length} 个项目。当前：${books[currentIndex]?.title ?? ""}。左右方向键浏览，回车抽出，Escape 放回。`
         }
         className={styles.stage}
         onPointerDown={pointerDown}
@@ -1135,14 +1192,15 @@ export default function ProjectBookshelf({
           if (event.key === "Escape" && (selectedIndex !== null || switchTimer.current !== null)) {
             event.preventDefault();
             close();
-          } else if (event.key === "ArrowRight") {
+          } else if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
             event.preventDefault();
-            if (selectedIndex !== null) switchFocused(1);
-            else moveCamera(cameraX.current + bounds.visibleSpan * 0.23);
-          } else if (event.key === "ArrowLeft") {
-            event.preventDefault();
-            if (selectedIndex !== null) switchFocused(-1);
-            else moveCamera(cameraX.current - bounds.visibleSpan * 0.23);
+            const direction = event.key === "ArrowRight" ? 1 : -1;
+            if (selectedIndex !== null || switchTimer.current !== null) switchFocused(direction);
+            else {
+              const next = THREE.MathUtils.clamp(currentIndex + direction, 0, books.length - 1);
+              moveCamera(books[next]!.x);
+              setCurrentIndex(next);
+            }
           } else if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
             if (selectedIndex === null) selectBook(currentIndex);
@@ -1152,9 +1210,13 @@ export default function ProjectBookshelf({
       >
         <Canvas
           frameloop={active ? "always" : "never"}
+          // The home stage resizes throughout selection/return. Debouncing its
+          // measurements leaves the old drawing buffer in place, then snaps it
+          // to the final size after the CSS transition has finished.
+          resize={{ debounce: 0 }}
           camera={{ fov: 35, near: 0.1, far: 60, position: [shelfCenter, 2.65, 8] }}
           dpr={[1, 1.5]}
-          fallback={<p className={styles.fallback}>当前浏览器无法显示 3D，仍可从下方选择项目并查看案例。</p>}
+          fallback={<div className={styles.fallback}><p>当前浏览器无法显示 3D，可直接查看项目案例。</p><ul>{books.map(book => <li key={book.id}>{book.href ? <Link href={book.href}>{book.title} ↗</Link> : book.title}</li>)}</ul></div>}
           gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
           onPointerMissed={() => {
             if (selectedIndex !== null) close();
@@ -1179,13 +1241,13 @@ export default function ProjectBookshelf({
         {selectedBook && <button type="button" className={styles.close} onClick={close} aria-label="放回书架">放回书架 <span aria-hidden="true">×</span></button>}
         <p className={styles.hint}>{selectedBook ? "拖动旋转 · 再次点击书本打开案例 · Esc 放回" : "悬停抽出 · 点击翻看 · 左右拖动浏览"}</p>
       </div>
-      <div className={styles.catalog} aria-label="选择项目">
+      {variant !== "home" && <div className={styles.catalog} aria-label="选择项目">
         {books.map((book, index) => <button type="button" key={book.id} aria-pressed={selectedIndex === index} onClick={() => selectedIndex === index ? close() : selectBook(index)} className={styles.catalogItem}>
           <span className={styles.swatch} style={{ background: book.color }} aria-hidden="true" />
           <span>{book.title}</span><span className={styles.catalogArrow} aria-hidden="true">↗</span>
         </button>)}
-      </div>
-      <div className={styles.details} aria-live="polite" aria-atomic="true">
+      </div>}
+      <div ref={detailsRef} className={styles.details} aria-live="polite" aria-atomic="true">
         {selectedBook ? <>
           <div className={styles.detailsCopy}>
             <p className={styles.detailType}>{selectedBook.date}</p>
