@@ -86,11 +86,11 @@ export default function OperationsHero() {
       </div>
       <div className={styles.inner}>
         <div className={styles.copy}>
-          <p className={styles.category}>智能空间 · 产品设计案例</p>
+          <p className={styles.category}>Web 后台 · UI 与交互设计</p>
           <h1 id="overview-title" className={`${styles.title} ${operationsTitle.className}`}>合一运维平台</h1>
-          <p className={styles.description}>面向合一智控智能空间系统的内部运维平台，汇总多个项目的设备运行情况。工程师和研发人员通过工单排查设备掉网、误开误关及自动控制异常，协调远程处理或现场检修；主管派发工单、审批处理结果，并查看项目运行情况与人员贡献。</p>
+          <p className={styles.description}>面向智能空间运维团队的 Web 后台。我从 0 到 1 负责整体 UI 与交互设计，覆盖异常看板、工单、项目管理和权限配置。本案例重点展示高密度列表、详情层级、表单操作与状态反馈的设计。</p>
           <div className={styles.actions}>
-            <a href="#background">浏览项目设计<IconArrowRight size={18} /></a>
+            <a href="#background">查看界面设计<IconArrowRight size={18} /></a>
             <button type="button" data-open-prototype="work-orders" onClick={() => open("work-orders")}>体验工单流程<IconArrowUpRight size={18} /></button>
           </div>
         </div>

@@ -1261,6 +1261,12 @@
   visibility: visible;
   transition: opacity 360ms ease, visibility 0s;
 }
+.container[data-projects-open="true"] .workBackdrop {
+  background: rgb(10 11 14 / 70%);
+}
+.container[data-projects-open="true"] .zoneWork .zoneFade {
+  background: transparent;
+}
 .container .zoneWork {
   z-index: 2;
   transition: opacity 360ms ease;

@@ -1,0 +1,7 @@
+.layer { position: absolute; inset: 0; z-index: 2; pointer-events: none; opacity: 0; visibility: hidden; transition: opacity 220ms ease; }
+.layer[data-section-motion="entering"], .layer[data-section-motion="entered"] { opacity: 1; visibility: inherit; }
+.layer[data-section-motion="exiting"] { opacity: 0; visibility: inherit; }
+.layer[data-state="on"] > section { pointer-events: auto; }
+.layer:not([data-state="on"]) * { pointer-events: none !important; }
+.loading { position: absolute; top: 54%; left: var(--page-padding-x); width: calc(50vw - var(--page-padding-x) - 72px); text-align: center; font-size: 13px; color: #60646c; }
+@media (prefers-reduced-motion: reduce) { .layer { transition: none; } }

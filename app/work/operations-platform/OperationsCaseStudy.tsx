@@ -107,7 +107,7 @@ export default function OperationsCaseStudy() {
     <OperationsHero />
     <div className={a.content}>
       <div className={a.openingSpread} data-case-opening>
-      <Chapter id="background" layout="opening" title="多项目运维的协作难题" intro="异常分布在不同项目和房间，处理过程涉及远程排查、现场检修与多人协作。团队需要明确处理顺序，持续跟进问题，并记录各自承担的工作。">
+      <Chapter id="background" layout="opening" title="高密度后台的信息层级" intro="项目、房间与设备异常集中在同一后台，处理过程涉及多人协作。界面需要区分项目概览、设备明细和人员记录，让阅读顺序与操作入口清晰可辨。">
         <ol className={a.problemRows}>
           {([
             ["priority", "先处理什么", "项目重要程度、异常影响和持续时间不同，需要共同判断处理顺序。"],
@@ -116,14 +116,14 @@ export default function OperationsCaseStudy() {
           ] as const).map(([kind, title, text]) => <li key={kind}><CollaborationIllustration kind={kind} /><div className={a.openingCardCopy}><h3>{title}</h3><p>{text}</p></div></li>)}
         </ol>
       </Chapter>
-      <Chapter id="users" layout="opening" title="用户与职责" intro="工程师负责排查和处理，主管安排任务并复核结果。两种角色都可以自行领取工单。">
+      <Chapter id="users" layout="opening" title="按角色组织信息与操作" intro="工程师侧重设备依据与处理记录，主管侧重任务进度与审批。按角色组织需要查看的字段和可执行操作，领取入口同时面向两种角色。">
         <div className={a.roleCards} data-role-cards>
           <article><ResponsibilitiesIllustration role="engineer" /><div className={a.openingCardCopy}><h3>工程师与研发人员</h3><p>核对位置、设备关系与运行数据，协调现场人员，记录操作、备注与附件，并提交处理结果。</p></div></article>
           <article><ResponsibilitiesIllustration role="supervisor" /><div className={a.openingCardCopy}><h3>运维主管</h3><p>指定负责人派单，也可自行领取；查看项目与工单进度、审批处理结果，并核对人员贡献及对应工单。</p></div></article>
         </div>
       </Chapter>
       </div>
-      <Chapter id="structure" title="平台结构" intro="工作台汇总项目运行情况。工单管理下设工单池、我的工单、工单审批与贡献统计；项目、台账、权限和配置分别管理。">
+      <Chapter id="structure" title="导航与页面组织" intro="将工作台、工单、项目、统计、权限与配置分组组织。工单管理下区分清单、个人任务、审批与贡献统计，保持模块入口和页面层级的对应关系。">
         <div className={a.moduleCards} role="list" aria-label="运维平台功能模块" data-module-cards>{([
           ["grid-layout", "工作台", ["项目异常与健康度", "项目清单与完成率"]],
           ["clipboard-list", "工单管理", ["工单池", "我的工单", "工单审批", "贡献统计"]],
@@ -133,33 +133,33 @@ export default function OperationsCaseStudy() {
           ["gear", "配置中心", ["告警规则", "工单推送", "评分配置"]],
         ] as const).map(([icon, name, items]) => <article className={a.moduleCard} key={name} role="listitem" data-module-card><h3><NucleoIcon name={icon} size={24} /><span>{name}</span></h3><ul>{items.map((item) => <li key={item}>{item}</li>)}</ul></article>)}</div>
       </Chapter>
-      <Chapter id="priority" layout="wide" title="项目优先级" intro="项目等级和健康度共同辅助安排任务：优先关注战略项目，同时核对异常情况，具体先后结合实际影响判断。">
+      <Chapter id="priority" layout="wide" title="项目看板与清单设计" intro="在概览与项目清单中分别呈现健康度、等级、异常和处理进度。通过筛选、排序与明细展开，让汇总信息和具体问题逐层衔接。">
         <PrototypePreview id="priority" name="项目总览" caption="项目等级、健康度与异常明细，放在同一个判断路径中。"><div className={`${s.heroPrototype} ${a.dashboardPrototype}`} id="hero-prototype" role="region" aria-label="运维平台交互原型"><Dashboard /></div></PrototypePreview>
         <div className={a.priorityNotes}><PriorityCriteria /></div>
       </Chapter>
       <WorkOrderEvidence onComplete={(record) => setContributions((previous) => [...previous.filter((item) => item.id !== record.id), record])}>{({ pool, detail, history }) => <WorkJourney>
-        <Chapter id="work-orders" title="工单池" intro="从工单清单安排处理，直接查看状态、负责人和最长连续异常天数。同一项目、同一房间内的同类异常合并为一张自动工单。">
+        <Chapter id="work-orders" title="工单列表与筛选" intro="用状态切换、筛选和表格组织工单，清单直接展示负责人和连续异常天数。当天同项目、同房间的同类异常合并展示，保留进入详情的入口。">
           <PrototypePreview id="work-orders" name="工单池" caption="同类异常合成任务，状态和持续时间直接进入清单。">{pool}</PrototypePreview>
         </Chapter>
-        <Chapter id="ownership" title="工单详情" intro="从工单池打开工单，核对异常依据与设备位置；在设备明细中查看连续异常和异常次数。">
+        <Chapter id="ownership" title="详情层级与处理表单" intro="详情优先呈现位置、负责人和异常依据，再展开设备明细与处理记录。表单区分可编辑、禁用与只读状态，处理操作与当前工单状态对应。">
           <PrototypePreview id="ownership" name="工单详情" caption="在设备证据和处理记录之间，保留明确的责任与执行关系。">{detail}</PrototypePreview>
         </Chapter>
-          <Chapter id="history" title="异常记录" intro="查看房间历史工单，或切换设备查看异常的发生与恢复记录。">
+          <Chapter id="history" title="历史记录的分层展示" intro="分别组织房间历史工单与设备异常记录。保留对象与时间信息，切换设备时核对异常发生、恢复和再次发生的记录。">
           <PrototypePreview id="history" name="异常记录" caption="按房间回看工单，按设备区分连续异常与再次发生。">{history}</PrototypePreview>
           <HistoryCriteria />
         </Chapter>
       </WorkJourney>}</WorkOrderEvidence>
-      <Chapter id="workflow" layout="wide" title="工单流转" intro="自领后由当前账号负责，主管派单时指定负责人。需到场操作的问题，另行安排现场处理人。">
+      <Chapter id="workflow" layout="wide" title="状态与操作反馈" intro="将领取、派单、处理与审批对应到工单状态和操作入口；区分负责人和现场处理人，让用户确认当前进度与下一步操作。">
         <div className={a.workflowStage}><WorkflowDiagram /></div>
       </Chapter>
-      <Chapter id="contribution" layout="wide" title="贡献统计" intro="只统计已完成工单。实际执行人获得贡献得分，负责人保留跟进记录；每笔得分可追溯到工单。">
+      <Chapter id="contribution" layout="wide" title="统计信息与明细核对" intro="通过团队与个人视图呈现已完成工单的贡献数据，区分执行得分与跟进记录；每笔统计保留对应工单，支持从概览核对明细。">
         <PrototypePreview id="contribution" name="贡献统计" caption="执行得分与跟进记录分别保存，每笔贡献都有对应的工单。"><ContributionDemo records={contributions} /></PrototypePreview>
       </Chapter>
       <ClosingSequence>
       <Chapter id="system" layout="wide" title="界面规范" intro="从字体、字号到色彩，让清单、详情和统计使用同一套视觉语言。">
         <InterfaceStandards />
       </Chapter>
-      <Chapter id="reflection" layout="closing" title="设计复盘" intro="设计中的关键取舍。">
+      <Chapter id="reflection" layout="closing" title="界面与交互复盘" intro="围绕列表、字段、表单和状态反馈，回看界面中的关键设计取舍。">
         <DesignReflection />
       <footer className={a.nextCase}><Link href="/">返回作品集<IconArrowUpRight size={20} /></Link><Link href="/work/heyispace-os"><span>下一个案例</span><strong>HEYISPACE OS</strong><IconArrowRight size={28} /></Link></footer>
       </Chapter>

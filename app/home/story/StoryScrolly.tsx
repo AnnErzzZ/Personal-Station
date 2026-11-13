@@ -55,7 +55,7 @@ import {
   type StorySectionKey,
 } from "./story-ui-motion";
 import styles from "./story.module.css";
-import WorkProjectFolder from "./WorkProjectFolder";
+import WorkProjectBookshelf from "./WorkProjectBookshelf";
 import DashboardGallery from "./DashboardGallery";
 import { DASHBOARD_HOLD_VH, dashboardStageAt, type DashboardImage } from "./dashboard-gallery";
 import ContactLanyardOverlay from '../Lanyard/ContactLanyardOverlay';
@@ -330,9 +330,9 @@ type WorkCase = {
 const workCases: WorkCase[] = [
   {
     title: "合一实施助手",
-    positioning: "面向交付工程师的 IoT 项目实施工具",
-    summary: "把空间层级、网关配网、设备批量添加与异常恢复，整理成现场可执行的连续任务。",
-    meta: ["Product Design", "UX/UI", "Mobile", "IoT"],
+    positioning: "微信小程序 · 界面与状态设计",
+    summary: "重构设备配置界面，通过列表层级、选中反馈与异常提示，让批量任务的进度和结果清晰可见。",
+    meta: ["UI Design", "Interaction", "Mobile", "IoT"],
     href: "/work/implementation-assistant",
     cover: "/cases/implementation-assistant/hero/implementation-assistant-project-cover.png",
     coverAlt: "合一实施助手项目封面，展示手持手机中的现场设备配置界面",
@@ -348,28 +348,28 @@ const workCases: WorkCase[] = [
   },
   {
     title: "合一运维平台",
-    positioning: "面向工程师与主管的多项目运维平台",
-    summary: "串联项目异常、工单处理与审批协作，让设备故障可追溯、人员贡献可核对。",
-    meta: ["Product Design", "UX/UI", "Web", "IoT"],
+    positioning: "运维后台 · 列表、表单与详情设计",
+    summary: "设计异常看板、工单列表与详情，统一筛选、表单和状态反馈，衔接查看、处理与审批。",
+    meta: ["UI Design", "Interaction", "Web", "IoT"],
     href: "/work/operations-platform",
     cover: "/cases/operations-platform/hero/operations-platform-project-cover.png",
     coverAlt: "合一运维平台项目封面，展示工单管理界面的电脑样机",
   },
 ];
 
-/* 履历左列的能力三项（文案以 Figma 1920×1080 稿 node 372-11174 为准，逐字一致）。 */
+/* 履历左列：以 UI 设计为主，结合真实项目中的交互与落地经验。 */
 const capabilities = [
   {
-    title: "产品思维",
-    body: "从业务问题、用户场景到功能方案与产品结构。梳理角色、对象与依赖关系，把复杂规则变成可理解的系统。",
+    title: "界面与视觉设计",
+    body: "设计 Web 平台、小程序与 B 端系统的高保真界面，梳理排版、视觉层级与数据图表，让复杂信息清晰呈现。",
   },
   {
-    title: "交互与界面设计",
-    body: "设计复杂 B 端系统、Web 平台、小程序与多端产品，处理状态、依赖和异常分支，并协同团队推进落地。",
+    title: "组件规范与交互",
+    body: "建立并维护组件与状态规则，统一表单、列表和操作反馈。结合业务流程设计交互原型，覆盖异常与边界状态。",
   },
   {
-    title: "AI 辅助实现",
-    body: "使用Codex、ChatGPT辅助需求拆解、方案整理、原型验证、页面开发协作与文档输出",
+    title: "设计交付与 AI 实践",
+    body: "协同研发完成设计走查与上线验收；使用 ChatGPT、即梦辅助视觉探索，用 Codex 验证交互与页面实现。",
   },
 ];
 
@@ -378,12 +378,12 @@ const careerProjects = [
   {
     title: "智能空间垂直对话 Agent",
     description:
-      "负责空间数据查询与分析需求梳理、对话流程及整体 UX/UI 设计，设计回答结构并参与 RAG 知识库搭建；支持通过对话查询和分析空间数据。",
+      "负责对话界面、指标卡、图表与回答信息层级设计，梳理查询与追问交互，并参与 RAG 知识库搭建；支持通过对话查询和分析空间数据。",
   },
   {
     title: "合一实施助手小程序",
     description:
-      "负责现场调研、交付流程梳理、产品结构与整体 UX/UI 重构；新版已上线用于真实项目，标准房间配置在内部演示中约 7 分钟完成。",
+      "负责小程序整体界面与交互重构，统一配网、批量操作和异常处理的状态反馈；新版已上线用于真实项目，标准房间配置在内部演示中约 7 分钟完成。",
   },
   {
     title: "HEYISPACE OS 智能空间管理平台",
@@ -393,7 +393,7 @@ const careerProjects = [
   {
     title: "合一智控运维平台",
     description:
-      "从 0 到 1 主导运维平台的产品方案、核心流程与整体 UX/UI 设计，覆盖异常看板、工单、项目管理和权限；推动平台落地，让公司进入智慧运维业务。",
+      "从 0 到 1 负责平台整体界面与核心交互，覆盖异常看板、工单、项目管理和权限，统一列表、表单与状态反馈；推动平台落地，支持智慧运维业务。",
   },
   {
     title: "合一空间小程序",
@@ -403,7 +403,7 @@ const careerProjects = [
   {
     title: "空间感知决策地图数据大屏",
     description:
-      "负责空间地图、指标图表与整体 UX/UI 设计，整合空间感知、设备状态和能耗数据；产品已成为公司在系统之外单独收费销售的增值产品。",
+      "负责数据大屏的空间地图、指标图表与整体界面设计，整合空间感知、设备状态和能耗数据；产品已成为公司在系统之外单独收费销售的增值产品。",
   },
   {
     title: "智能开关模具结构设计",
@@ -790,7 +790,7 @@ export default function StoryScrolly({ heroCopy, dashboardImages = [] }: { heroC
       const el = resolvePose(pose as Pose);
       if (el) el.dataset.visible = visible ? "true" : "false";
 
-      // 任一抠图可见 → 视频就保持糊底。用「有没有人需要」而不是「谁需要」，
+      // 任一抠图可见 → 视频就保持糊底。按可见图层的存在性判断，
       // 因为同一时刻最多一个静态图层可见（各 Section 的 hold 段互不重叠）。
       let anyVisible = false;
       for (const p of POSES) {
@@ -1374,7 +1374,7 @@ export default function StoryScrolly({ heroCopy, dashboardImages = [] }: { heroC
                     <div className={styles.bioIntro} data-ui-group="bio-identity">
                       <h3 className={styles.bioHello}>你好，我是伍子荣</h3>
                       <p className={styles.bioIntroLine}>
-                        是一名同时参与产品、UX/UI 与落地实现的产品设计师。
+                        是一名 UI 设计师，专注 Web 平台、小程序与 B 端系统的界面设计。
                       </p>
                     </div>
                     <div
@@ -1402,7 +1402,7 @@ export default function StoryScrolly({ heroCopy, dashboardImages = [] }: { heroC
                     <p className={styles.bioTools} data-ui-group="bio-tools">
                       <span className={styles.bioToolsLabel}>Tools</span>
                       <span className={styles.bioToolsList}>
-                        {["Figma", "Codex", "After Effects", "Photoshop", "Illustrator", "即梦", "VibeCoding"].map((tool) => (
+                        {["Figma", "Photoshop", "Illustrator", "After Effects", "ChatGPT", "即梦", "Codex"].map((tool) => (
                           <span className={styles.bioTool} key={tool}>
                             {tool}
                           </span>
@@ -1452,7 +1452,7 @@ export default function StoryScrolly({ heroCopy, dashboardImages = [] }: { heroC
                         data-bio-career-body=""
                         data-ui-group="bio-duties"
                       >
-                        参与智能空间小程序、Web 平台及内部管理系统的规划与持续迭代，承担需求分析、流程梳理、功能方案、产品原型、UX/UI 设计及研发验收等工作。
+                        负责智能空间小程序、Web 平台及内部管理系统的界面与交互设计，输出原型、高保真界面和组件规则；参与需求与流程梳理，跟进设计还原、版本迭代与研发验收。
                       </p>
                       <div
                         className={styles.bioRule}
@@ -1506,8 +1506,8 @@ export default function StoryScrolly({ heroCopy, dashboardImages = [] }: { heroC
               aria-hidden="true"
             >
               <div className={styles.chromeAside}>
-                <p>Product Designer · UX / UI</p>
-                <p>System Thinking · AI-Aided</p>
+                <p>UI Designer · Web / Mobile</p>
+                <p>Visual Design · AI-Aided</p>
                 <p>Scroll to explore</p>
                 <span className={styles.chromeAsideRule} />
               </div>
@@ -1541,9 +1541,8 @@ export default function StoryScrolly({ heroCopy, dashboardImages = [] }: { heroC
                   </header>
                 </div>
               </div>
-              {/* 文件夹层与上面的文字同一条透明度曲线（引擎一起写），
-                  所以它是「原地淡入淡出」，不再凭空出现 / 被顶出视口。 */}
-              <WorkProjectFolder
+              {/* 书架跟随作品层进出，选择项目沿用共享的背景遮罩。 */}
+              <WorkProjectBookshelf
                 projects={workCases}
                 open={projectsOpen}
                 onOpenChange={handleProjectsOpenChange}

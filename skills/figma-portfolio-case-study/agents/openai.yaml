@@ -1,0 +1,4 @@
+interface:
+  display_name: "Figma 作品集案例编排"
+  short_description: "将真实项目材料编排为可编辑作品集，复用构图、样机和验收方法"
+  default_prompt: "请使用 $figma-portfolio-case-study，为下一个项目整理内容、选择参考并在 Figma 中搭建作品集案例。"

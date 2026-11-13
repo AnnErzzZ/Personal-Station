@@ -4,10 +4,10 @@ import NucleoIcon, { type NucleoIconName } from "./NucleoIcon";
 type Theme = "history" | "ownership" | "approval" | "priority";
 
 const reflections: { theme: Theme; title: string; text: string }[] = [
-  { theme: "history", title: "合并当天工单，保留故障历史", text: "当天同项目、同房间、同类异常合成一单，连续天数与复发次数按设备保留。减少重复任务时，仍能判断问题是持续未恢复，还是恢复后再次发生。" },
-  { theme: "ownership", title: "分开跟进责任与执行贡献", text: "负责人持续跟进，现场处理人单独记录并获得执行得分。将任务归属与贡献归属分开，避免把协作中的实际工作全部算给负责人。" },
-  { theme: "approval", title: "按处理场景分流审批", text: "常规单设备线上处理可直接完成，线下、人工、指标和多设备工单由主管确认。将复核放在这些场景，兼顾处理效率与结果确认。" },
-  { theme: "priority", title: "区分项目等级与故障紧迫度", text: "项目等级表示业务重要程度，健康度反映当前异常，工单补充持续天数。让处理顺序同时有业务与异常依据，避免只看工单数量。" },
+  { theme: "history", title: "清单聚合任务，详情保留依据", text: "清单将当天同项目、同房间、同类异常合成一单，详情按设备保留连续天数与复发次数。通过列表与详情的层级分工，兼顾浏览和逐项核对。" },
+  { theme: "ownership", title: "用明确字段区分人员职责", text: "在详情与处理记录中分别呈现负责人和现场处理人，统计中区分跟进记录与执行得分。字段名称与所在位置共同说明每个人承担的工作。" },
+  { theme: "approval", title: "让操作入口对应处理状态", text: "常规单设备线上处理可直接完成，其余指定场景进入审批。表单和操作区按状态呈现可编辑、禁用与只读内容，帮助用户确认当前能做什么。" },
+  { theme: "priority", title: "分别呈现等级、健康度与持续时间", text: "项目等级、当前健康度和异常持续天数分别呈现，概览、清单与明细各有侧重。让业务重要性和故障状态在界面中保持可辨识的层级。" },
 ];
 
 function IconNode({ icon, x, y, label, primary = false }: { icon: NucleoIconName; x: number; y: number; label?: string; primary?: boolean }) {

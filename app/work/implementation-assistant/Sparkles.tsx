@@ -95,9 +95,8 @@ export default function Sparkles({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    const motionMedia = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let reduceMotion = motionMedia.matches;
     const sprite = createSprite(color);
 
     let width = 0;
@@ -214,7 +213,7 @@ export default function Sparkles({
           else stop();
         }
       },
-      { rootMargin: "200px" },
+      { rootMargin: "0px" },
     );
     intersectionObserver.observe(host);
 
@@ -223,6 +222,12 @@ export default function Sparkles({
       else start();
     };
     document.addEventListener("visibilitychange", onVisibilityChange);
+    const onMotionChange = () => {
+      reduceMotion = motionMedia.matches;
+      if (reduceMotion) { stop(); paint(); }
+      else start();
+    };
+    motionMedia.addEventListener("change", onMotionChange);
 
     resize();
 
@@ -231,6 +236,7 @@ export default function Sparkles({
       resizeObserver.disconnect();
       intersectionObserver.disconnect();
       document.removeEventListener("visibilitychange", onVisibilityChange);
+      motionMedia.removeEventListener("change", onMotionChange);
     };
   }, [color, density, maxSize, minSize, speed]);
 

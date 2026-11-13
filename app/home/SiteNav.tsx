@@ -131,8 +131,8 @@ export default function SiteNav() {
           ) : null}
         </div>
         <p className={styles.identity}>
-          Product Designer
-          <span className={styles.identitySub}>UX / UI · Guangzhou</span>
+          UI Designer
+          <span className={styles.identitySub}>Web / Mobile · Guangzhou</span>
         </p>
       </div>
     </header>

@@ -9,11 +9,11 @@ export const metadata: Metadata = {
   // 相对路径的分享图 / canonical 才会解析成绝对 URL。
   metadataBase: new URL("https://wuzirong.cn"),
   title: {
-    default: "伍子荣 Zirong Wu｜Product Designer",
+    default: "伍子荣 Zirong Wu｜UI Designer",
     template: "%s｜伍子荣 Zirong Wu",
   },
   description:
-    "伍子荣（Zirong Wu）的 Product Design / UX/UI 作品集：智能空间、AIoT 与 B 端系统的产品设计、交互与界面落地。",
+    "伍子荣（Zirong Wu）的 UI 设计作品集：专注 Web 平台、小程序与 B 端系统的界面设计、组件规范、数据可视化及设计落地。",
 };
 
 export default function RootLayout({

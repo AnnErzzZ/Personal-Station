@@ -1,0 +1,64 @@
+.root{--motion-play:paused;--travel:6px;--lift:5px;--tilt:2deg;--cycle:3.6s}
+.root[data-motion="running"]{--motion-play:running}
+.root [data-motion-part]{animation-play-state:var(--motion-play)!important;transform-box:fill-box;transform-origin:center}
+.root [data-motion-part="row"]{transform-origin:left center;animation:rowRead var(--cycle) cubic-bezier(.16,1,.3,1) infinite;animation-delay:calc(var(--step)*.35s)}
+.root [data-motion-part="status"]{animation:statusStep var(--cycle) ease-in-out infinite;animation-delay:calc(var(--step)*.65s)}
+.root [data-motion-part="row-panel"]{animation:rowFocus var(--cycle) ease-in-out infinite;animation-delay:calc(var(--step)*.65s)}
+.root [data-motion-part="scan-lines"]{stroke-dasharray:290;animation:lineRead var(--cycle) ease-in-out infinite;animation-delay:calc(var(--step)*.3s)}
+.root [data-motion-part="signal"]{stroke-dasharray:18 8;animation:signalFlow 1.8s linear infinite}
+.root [data-motion-part="source-dot"]{animation:sourceBeat 1.8s ease-in-out infinite}
+.root [data-motion-part="source-ring"]{animation:sourceRing 1.8s ease-in-out infinite}
+.root [data-motion-part="warning-ring"]{animation:warningBeat 2.4s ease-in-out infinite;transform-origin:center}
+.root [data-motion-part="warning-dot"]{animation:warningLight 2.4s ease-in-out infinite}
+.root [data-motion-part="break-mark"]{animation:breakNudge 2.4s ease-in-out infinite}
+.root [data-motion-part="back-panel"]{animation:backPanel var(--cycle) cubic-bezier(.16,1,.3,1) infinite}
+.root [data-motion-part="front-panel"]{animation:frontPanel var(--cycle) cubic-bezier(.16,1,.3,1) infinite}
+.root [data-motion-part="transfer"]{stroke-dasharray:58;animation:transfer var(--cycle) ease-in-out infinite}
+.root [data-motion-part="branch"]{stroke-dasharray:130;animation:branchSearch var(--cycle) ease-in-out infinite;animation-delay:calc(var(--step)*.7s)}
+.root [data-motion-part="question"]{animation:questionSearch var(--cycle) ease-in-out infinite}
+.root [data-motion-part="task-panel"]{transform-box:view-box;transform-origin:50% 50%;animation:taskPanel 4s cubic-bezier(.16,1,.3,1) infinite}
+.root [data-motion-part="check"]{stroke-dasharray:14;animation:checkDraw var(--cycle) ease-in-out infinite}
+.root [data-motion-part="icon"]{animation:iconLight var(--cycle) ease-in-out infinite}
+.root [data-motion-part="navigation"]{stroke-dasharray:65;animation:navigationRead var(--cycle) ease-in-out infinite}
+
+@keyframes rowRead{
+  0%,100%{transform:scaleX(.68);opacity:.55;filter:none}
+  25%,48%{transform:scaleX(1);opacity:1;fill:#b7ff56;filter:drop-shadow(0 0 2px #b4ff63cc) drop-shadow(0 0 7px #88ff3859)}
+  72%{transform:scaleX(.82);opacity:.8;filter:none}
+}
+@keyframes statusStep{
+  0%,65%,100%{fill:#4a584e;transform:scale(1);filter:none}
+  16%,38%{fill:#c2ff45;transform:scale(1.35);filter:drop-shadow(0 0 3px #b5ff45) drop-shadow(0 0 9px #8aff3a99)}
+}
+@keyframes rowFocus{
+  0%,65%,100%{fill:#131b16;stroke:#2c3930;filter:none}
+  16%,38%{fill:#203e20;stroke:#a3f54b;filter:drop-shadow(0 0 2px #8dff4b80) drop-shadow(0 0 7px #6bff322e)}
+}
+@keyframes lineRead{
+  0%,100%{stroke-dashoffset:100;stroke:#344739;opacity:.7;filter:none}
+  22%,50%{stroke-dashoffset:0;stroke:#acff4f;opacity:1;filter:drop-shadow(0 0 2px #aaff4fcc) drop-shadow(0 0 7px #7dff3b66)}
+  75%{stroke-dashoffset:-80;stroke:#516b55;filter:none}
+}
+@keyframes signalFlow{0%{stroke-dashoffset:0;stroke:#83d952;filter:none}50%{stroke-dashoffset:-26;stroke:#c4ff58;filter:drop-shadow(0 0 2px #baff59cc) drop-shadow(0 0 6px #8aff3b80)}100%{stroke-dashoffset:-52;stroke:#83d952;filter:none}}
+@keyframes sourceBeat{0%,100%{transform:scale(1);opacity:.65;fill:#8fdc4b;filter:none}45%{transform:scale(1.6);opacity:1;fill:#d6ff74;filter:drop-shadow(0 0 3px #baff58) drop-shadow(0 0 9px #9aff38aa)}}
+@keyframes sourceRing{0%,100%{transform:scale(1);opacity:.55;filter:none}45%{transform:scale(1.18);opacity:1;stroke:#baff58;filter:drop-shadow(0 0 3px #aaff5877)}}
+@keyframes warningBeat{0%,100%{transform:scale(1);stroke:#b0913d;filter:none}42%,58%{transform:scale(1.14);stroke:#ffda3d;filter:drop-shadow(0 0 2px #ffdf49cc) drop-shadow(0 0 7px #ffb52e88)}}
+@keyframes warningLight{0%,100%{opacity:.45;filter:none}42%,58%{opacity:1;filter:brightness(1.35) saturate(1.5) drop-shadow(0 0 3px #ffda49) drop-shadow(0 0 8px #ffb62a99)}}
+@keyframes breakNudge{0%,25%,75%,100%{transform:translateX(0);filter:none}40%{transform:translateX(3px);filter:brightness(1.25) saturate(1.5) drop-shadow(0 0 3px #ffcc4488)}55%{transform:translateX(-2px);filter:brightness(1.25) saturate(1.5) drop-shadow(0 0 3px #ffcc4488)}}
+@keyframes backPanel{0%,100%{transform:translate(0,0)}35%,60%{transform:translate(calc(-1*var(--travel)),calc(-.5*var(--travel)))}}
+@keyframes frontPanel{0%,100%{transform:translate(0,0)}35%,60%{transform:translate(var(--travel),calc(.5*var(--travel)))}}
+@keyframes transfer{0%,10%,100%{stroke-dashoffset:58;opacity:.35;transform:translateX(-4px);filter:none}38%,65%{stroke-dashoffset:0;opacity:1;transform:translateX(4px);stroke:#ffda3d;filter:drop-shadow(0 0 2px #ffe05ccc) drop-shadow(0 0 7px #ffbb3a99)}}
+@keyframes branchSearch{0%,100%{stroke-dashoffset:110;stroke:#47564b;opacity:.4;filter:none}35%,60%{stroke-dashoffset:0;stroke:#afff5c;opacity:1;filter:drop-shadow(0 0 2px #aaff5caa) drop-shadow(0 0 6px #86ff3d66)}}
+@keyframes questionSearch{0%,100%{stroke:#66736a;transform:scale(1);filter:none}35%,60%{stroke:#b6ff65;transform:scale(1.08);filter:drop-shadow(0 0 3px #aaff5a88)}}
+@keyframes taskPanel{0%,100%{transform:translateY(1px) rotate(0deg)}35%,60%{transform:translateY(calc(-1 * var(--lift))) rotate(var(--tilt))}}
+@keyframes checkDraw{0%,10%,100%{stroke-dashoffset:14;stroke:#5c7460;opacity:.5;filter:none}35%,70%{stroke-dashoffset:0;stroke:#c2ff45;opacity:1;filter:drop-shadow(0 0 2px #baff55cc) drop-shadow(0 0 7px #89ff3b88)}}
+@keyframes iconLight{0%,100%{stroke:#7b8d7e;filter:none}30%,60%{stroke:#baff4a;filter:drop-shadow(0 0 2px #b4ff59aa) drop-shadow(0 0 7px #7fff3a66)}}
+@keyframes navigationRead{0%,100%{stroke-dashoffset:28;stroke:#344739;filter:none}35%,60%{stroke-dashoffset:0;stroke:#a8ff52;filter:drop-shadow(0 0 2px #a6ff4faa) drop-shadow(0 0 6px #7dff3b55)}}
+
+@media(hover:hover) and (pointer:fine){
+  .root:hover{--travel:10px;--lift:8px;--tilt:3deg}
+  .root:hover [data-motion-part="row-panel"]{stroke:#b4ff63}
+}
+@media(prefers-reduced-motion:reduce){
+  .root [data-motion-part]{animation:none!important;transform:none;filter:none!important}
+}

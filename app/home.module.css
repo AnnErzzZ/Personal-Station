@@ -1006,6 +1006,8 @@
   }
 
   .heroIntro {
+    position: relative;
+    top: 14px;
     max-width: 320px;
     font-size: 13px;
     color: var(--dark-text);

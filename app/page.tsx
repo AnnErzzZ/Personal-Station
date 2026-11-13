@@ -22,7 +22,7 @@ export default async function Home() {
               <div className={styles.heroMain}>
                 <div className={styles.heroTitleBlock}>
                   <p className={styles.heroEyebrow} data-ui-group="hero-eyebrow">
-                    Portfolio — 2026 · Guangzhou, China
+                    UI Design Portfolio — 2026 · Guangzhou
                   </p>
                   <div data-ui-group="hero-title">
                     <HeroName />
@@ -32,8 +32,8 @@ export default async function Home() {
                     data-ui-group="hero-intro"
                   >
                     <p className={styles.heroIntro}>
-                      嗨，我是伍子荣。同时参与产品、UX/UI
-                      与落地实现，把复杂规则整理成可理解的系统。
+                      嗨，我是伍子荣，一名 UI 设计师。
+                      设计 Web 平台与小程序的界面、组件与数据图表。
                     </p>
                     <div className={styles.heroCtaRow}>
                       <HeroCta />
@@ -44,10 +44,10 @@ export default async function Home() {
                   className={`${styles.heroAside} ${styles.transitionChrome}`}
                   data-ui-group="hero-aside"
                 >
-                  <p className={styles.asideHead}>Build with AI.</p>
+                  <p className={styles.asideHead}>From pixels to screens.</p>
                   <p className={styles.asideBody}>
-                    从需求分析到页面实现，用 AI
-                    辅助推进真实项目落地。
+                    关注排版、层级与状态细节，
+                    跟进每一版界面的实现。
                   </p>
                 </aside>
               </div>
@@ -56,7 +56,7 @@ export default async function Home() {
                 data-ui-group="hero-footer"
               >
                 <p className={styles.footNote}>
-                  从需求分析到上线验收，完整参与产品落地的全过程。
+                  从界面设计、组件规范到研发验收，跟进设计落地。
                 </p>
                 <p className={styles.scrollHint}>
                   <span>Scroll to explore</span>

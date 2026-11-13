@@ -16,9 +16,9 @@ export default function HeroName() {
   return (
     <div className={styles.wrap} id={HERO_NAME_WRAP_ID}>
       <h1 className={styles.title} id={HERO_NAME_ID}>
-        <span className={styles.line}>Making</span>
-        <span className={`${styles.line} ${styles.lineSecond}`}>Complex</span>
-        <span className={`${styles.line} ${styles.lineThird}`}>Clear.</span>
+        <span className={styles.line}>Clear.</span>
+        <span className={`${styles.line} ${styles.lineSecond}`}>Useful.</span>
+        <span className={`${styles.line} ${styles.lineThird}`}>UI.</span>
       </h1>
     </div>
   );

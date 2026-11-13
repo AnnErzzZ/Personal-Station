@@ -4,7 +4,7 @@ export const HOME_SECTIONS = [
     title: "ZIRONG WU",
     // 粒子转场采样用：Hero 大标题是多行堆叠，粒子按这里的显式换行逐行采样，
     // 与 #hero-name 的 DOM 断行保持一致（title 仍是短标签，供页码指示器显示）。
-    dustTitle: "MAKING\nCOMPLEX\nCLEAR.",
+    dustTitle: "CLEAR.\nUSEFUL.\nUI.",
     selector: "#hero-name",
     tone: "#ffffff",
   },
