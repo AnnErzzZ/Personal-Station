@@ -373,6 +373,15 @@ const workCases: WorkCase[] = [
     cover: "/cases/echo/assets/361-3023.png",
     coverAlt: "回声语音社交项目封面，展示紫色语音房手机界面",
   },
+  {
+    title: "产品视觉与 AI",
+    positioning: "华力充电设备 · 视觉与 AI 辅助制作",
+    summary: "安装演示、视频关键画面与标识比例修订，整理可复用的 AI 制作方法。",
+    meta: ["Visual Design", "AI Workflow", "Product", "2026"],
+    href: "/work/product-visual-ai",
+    cover: "/cases/product-visual-ai/installation-video-poster.webp",
+    coverAlt: "华力充电设备安装演示画面，展示停车区域的充电桩",
+  },
 ];
 
 /* 履历左列：以 UI 设计为主，结合真实项目中的交互与落地经验。 */

@@ -21,7 +21,9 @@ export default function WorkProjectBookshelf({ projects, open, onOpenChange }: {
   const items = useMemo(() => projects.map((project) => {
     const id = project.href.split("/").at(-1)!;
     return { ...project, id, date: project.meta.slice(2).join(" / "),
-      jacket: `/lab/project-bookshelf/${id}-jacket.png`,
+      jacket: id === "product-visual-ai"
+        ? "/cases/product-visual-ai/book-jacket.webp"
+        : `/lab/project-bookshelf/${id}-jacket.png`,
       color: "#30343b", foil: "#e4e8ed", tags: project.meta };
   }), [projects]);
 
