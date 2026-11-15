@@ -102,11 +102,11 @@ const answerParts = [
 ];
 const targets = [13.3645, 25.135, 50.524, 75.008, 86.021, 95.347];
 const steps: { title: string; description: string; asset: Asset }[] = [
-  { title: '准备空间底图', description: '上传平面图，输入真实尺寸。', asset: 'step1' },
-  { title: '建立空间结构', description: '划分房间，编辑空间边界。', asset: 'step2' },
-  { title: '配置设备位置', description: '定位设备锚点，设置高度与方向。', asset: 'step3' },
-  { title: '编辑检测范围', description: '配置有效范围、检测区与工位区。', asset: 'step4' },
-  { title: '发布空间地图修改', description: '检查配置，保存草稿后发布修改。', asset: 'step5' },
+  { title: '准备空间底图', description: '上传平面图，输入真实尺寸，建立比例依据。', asset: 'step1' },
+  { title: '建立空间结构', description: '依据底图划分房间，确定后续配置的空间边界。', asset: 'step2' },
+  { title: '配置设备位置', description: '先确定锚点、高度与方向，再配置检测范围。', asset: 'step3' },
+  { title: '编辑检测范围', description: '结合设备位置，划定有效范围、检测区与工位区。', asset: 'step4' },
+  { title: '发布空间地图修改', description: '完成检查后保存草稿，再发布本次修改。', asset: 'step5' },
 ];
 
 export default function EditorialSections() {
@@ -179,21 +179,25 @@ export default function EditorialSections() {
       </div><p className={s.note}>明细与统计口径保留在回答中，便于继续核对。</p>
     </Chapter>
 
-    <Chapter number={8} title="地图编辑器">
-      <Heading en="MAP EDITOR" title="地图编辑器" description="同一个对象，三个位置联动：在列表中选择，在画布核对位置，在属性栏编辑数值。" />
+    <Chapter number={8} title="地图编辑器" className={s.editorDecision}>
+      <Heading en="MAP EDITOR" title="让对象选择、位置核对与参数编辑保持一致" description="原先要先用雷达工具画区域，再到地图工具完成融合。难点是让覆盖连续，并让方向与真实安装一致。" />
+      <p className={s.editorTask}>将雷达区域配置与地图融合放在同一编辑器中。以配置一台设备的位置、方向和范围为例：</p>
       <div className={s.editorStage}><Picture name="editor" frame /></div>
+      <div className={s.objectContinuity}><span>同一对象 · 业务区雷达2</span><p>列表选中 → 画布高亮 → 属性标题</p></div>
       <div className={s.detailGrid}>{([
-        ['editor-detail1', '列表中选择对象', '房间、设备与工位按对象组织。'],
-        ['editor-detail2', '画布中核对位置', '对应对象的位置与范围可见。'],
-        ['editor-detail3', '属性栏编辑数值', '位置、尺寸等属性集中修改。'],
+        ['editor-detail1', '先确认正在改哪台设备', '列表保留网络与分组归属，用选中态区分名称相近的雷达。'],
+        ['editor-detail2', '再核对位置与覆盖关系', '同一台雷达在画布中高亮，对照房间边界检查锚点与范围。'],
+        ['editor-detail3', '用数值完成精确调整', '属性栏保留设备名称，集中编辑 X、Y 坐标与安装方向。'],
       ] as const).map(([asset, title, body], i) => <article key={asset}><Picture name={asset} /><Point number={`0${i + 1}`} title={title}>{body}</Point></article>)}</div>
+      <div className={s.editorTradeoff}><span>收益与代价 · 复盘归纳</span><p>合并工具后，可以在同一界面核对区域与地图。画布用于直观核对，数值输入用于精调；也要求三处始终反馈同一选中对象。</p></div>
+      <p className={s.note}>地图编辑器已进入真实产品，支持工程师完成常规配置。</p>
     </Chapter>
 
     <Chapter number={9} title="地图配置流程" tone>
       <Heading en="CONFIGURATION FLOW" title="地图配置流程" description="从一张底图开始，按五个步骤完成空间地图配置。" />
       <div className={s.stepGrid}>{steps.map(({ title, description, asset }, i) => <article key={asset} className={s.stepCard}>
         <Point number={`0${i + 1}`} title={title}>{description}</Point><div className={s.stepVisual}><Picture name={asset} /></div>
-      </article>)}</div><p className={s.note}>从准备底图到发布入口，按实际配置顺序呈现。</p>
+      </article>)}</div><p className={s.note}>按实际配置顺序呈现；各步为独立界面示例，不作为连续操作录屏。</p>
     </Chapter>
 
     <Chapter number={10} title="空间多视图">

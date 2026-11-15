@@ -81,6 +81,19 @@
 .answerCanvas{position:relative;align-self:start;min-width:0}
 .answerCanvas .figure{overflow:hidden;border-radius:20px}
 .editorStage{padding:40px;background:#e7eff4;border-radius:28px}
+.editorDecision .sectionHead>div{max-width:770px}
+.editorDecision h2{font-size:clamp(30px,2.7vw,43px);text-wrap:pretty}
+.editorDecision .intro{flex:0 1 330px;align-self:flex-end}
+.editorDecision .sectionHead{margin-bottom:32px}
+.editorial .editorTask{font-size:17px;color:var(--muted);max-width:980px;margin-bottom:32px;line-height:1.85}
+.objectContinuity{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:36px;padding:18px 0;border-bottom:1px solid #cadfdd}
+.objectContinuity>span{font-size:17px;font-weight:500;color:var(--accent)}
+.objectContinuity>p{font-size:14px;color:var(--muted)}
+.editorDecision .detailGrid{margin-top:28px}
+.editorTradeoff{display:grid;grid-template-columns:180px minmax(0,1fr);gap:32px;margin-top:40px;padding-top:26px;border-top:1px solid #cadfdd}
+.editorTradeoff>span{font-size:13px;color:var(--accent);line-height:1.85;padding-top:3px}
+.editorTradeoff>p{max-width:880px;font-size:17px;color:var(--muted)}
+.editorDecision .note{margin-top:20px}
 .detailGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px;margin-top:40px}
 .detailGrid>article{min-width:0}
 .detailGrid .figure{background:#f0f5f6;padding:12px;border-radius:14px;overflow:hidden}
@@ -155,6 +168,7 @@
  .anatomy{grid-template-columns:1fr;gap:28px;max-width:700px}.answerCanvas{grid-row:1}.answerNotes{grid-template-columns:1fr 1fr;grid-template-rows:none;gap:16px}.answerNote{min-height:112px}.answerLines{display:none}
 }
 @media(max-width:899px){
+ .editorDecision .intro{flex:auto;align-self:auto;max-width:580px}.objectContinuity{align-items:flex-start;flex-direction:column;gap:5px;margin-top:24px}.editorTradeoff{grid-template-columns:1fr;gap:12px;margin-top:32px}.editorTradeoff>p{font-size:16px}
  .section{padding:64px 0}.inner{width:calc(100% - 48px)}
  .sectionHead{align-items:flex-start;flex-direction:column;gap:22px}.editorial .english{font-size:21px}.intro{max-width:580px;font-size:17px}
  .contextLead{gap:40px}.displayEnglish{font-size:54px}.contextStatement{font-size:22px}.contextCopy>p:last-child{font-size:16px}

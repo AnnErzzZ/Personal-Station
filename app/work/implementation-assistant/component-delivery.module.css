@@ -1,0 +1,65 @@
+.section{padding:clamp(64px,6vw,96px);color:#f5f8f5;font-size:16px;line-height:1.75;position:relative}
+.header{display:grid;grid-template-columns:minmax(240px,.8fr) 2fr;gap:64px;align-items:start;margin-bottom:52px}
+.header h2{font-size:clamp(30px,3vw,44px);font-weight:500;line-height:1.3;margin-top:12px!important;letter-spacing:-.03em}
+.eyebrow{font-size:17px;font-weight:700;letter-spacing:.04em}
+.header>div:last-child{max-width:760px;font-size:18px;padding-top:4px}
+.provenance{font-size:14px;color:#afc1b6;margin-top:16px!important}
+.card{margin:0;min-width:0;border:1px solid #c3e5d02e;border-radius:26px;background:linear-gradient(125deg,#ffffff08,#ffffff02);overflow:hidden;padding:32px;transition:border-color .2s,background-color .2s}
+.card:hover{border-color:#c3e5d05c;background-color:#ffffff04}
+.kicker{font-size:14px;color:#b2ff5b;margin-bottom:10px!important;letter-spacing:.025em}
+.section h3{font-size:26px;font-weight:500;line-height:1.45}
+.section h4{font-size:18px;font-weight:500;line-height:1.5}
+.selectionGrid{display:grid;grid-template-columns:1.15fr .85fr;gap:24px}
+.rowSamples{margin:28px 0;display:grid;gap:16px}
+.rowSamples>div{display:grid;grid-template-columns:100px minmax(0,1fr);align-items:center;gap:12px;font-size:14px;color:#afc1b6}
+.rowSamples img{width:100%;max-width:350px;height:auto;border-radius:10px;background:#fff}
+.anatomy{margin:0;display:grid;gap:16px}
+.anatomy>div{display:grid;grid-template-columns:88px minmax(0,1fr);gap:10px;border-top:1px solid #ffffff16;padding-top:16px}
+.anatomy dt{color:#afc1b6;font-size:14px}
+.anatomy dd{margin:0;font-size:16px}
+.application{display:grid;grid-template-columns:1fr 180px;gap:16px;align-items:start;padding-bottom:0}
+.application h3{font-size:23px}
+.selectionScreen{width:180px;max-height:480px;overflow:hidden;border:5px solid #1c2420;border-bottom:0;border-radius:24px 24px 0 0;align-self:end;background:#f7f8fb;margin-top:12px}
+.selectionScreen img{width:100%;height:auto}
+.selectionRule{display:flex;gap:24px;justify-content:space-between;padding:22px 8px;color:#afc1b6;font-size:14px}
+.tasks{margin-top:12px}
+.taskHeading{display:flex;gap:40px;justify-content:space-between;align-items:start}
+.taskHeading>p{max-width:420px;color:#afc1b6}
+.taskSamples{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 36px;margin:24px 0 28px}
+.taskSamples figure{margin:0;min-width:0}
+.taskSamples figcaption{font-size:14px;color:#afc1b6;margin-bottom:8px}
+.taskSamples img{width:100%;max-width:400px;height:auto;border-radius:12px;background:white}
+.rules{font-size:15px}
+.rules>div{display:grid;grid-template-columns:.6fr 1fr 1.8fr 1.6fr;gap:20px;padding:18px 0;border-top:1px solid #ffffff1f;align-items:start}
+.rules strong{font-weight:500;color:#f5f8f5}
+.rules p{color:#c5d1c9}
+.ruleHead{font-size:13px;color:#91a79a}
+.rules [data-state^="等待"]{color:#a7b8ad}
+.rules [data-state^="等待"] p{color:#a7b8ad}
+.figmaLink{display:inline-flex;gap:24px;margin-top:20px;color:#c4f0d4;text-decoration:none;border-bottom:1px solid #c4f0d473;padding-bottom:5px;font-size:15px}
+.figmaLink:focus-visible{outline:2px solid #b2ff5b;outline-offset:8px;border-radius:3px}
+.mobileLabel{display:none}
+.footnote{font-size:14px;color:#a6b9ad;margin-top:24px!important;max-width:1100px;line-height:1.8}
+.deliveryGrid{display:grid;grid-template-columns:.9fr 1.1fr;gap:24px}
+.saveEvidence{padding-bottom:20px}
+.saveCrop{height:300px;margin-top:24px;overflow:hidden;position:relative;border-radius:16px;background:#f7f8fb}
+.saveCrop img{position:absolute;width:100%;height:auto;top:50%;transform:translateY(-50%)}
+.sourceLabel{font-size:13px;color:#afc1b6;margin-top:12px!important}
+.acceptance ol{margin:24px 0 0;padding:0;list-style:none;display:grid;gap:18px}
+.acceptance li{display:flex;gap:16px}
+.acceptance li>span{color:#b2ff5b;font-size:14px;padding-top:2px}
+.acceptance li p{color:#c5d1c9;margin-top:4px!important}
+.reviewNote{font-size:14px;border-top:1px solid #ffffff1f;padding-top:18px;margin-top:24px!important;color:#afc1b6}
+.manualHeading{display:flex;gap:40px;justify-content:space-between;margin:48px 0 24px}
+.manualHeading>p{max-width:420px;color:#afc1b6}
+.manualGrid{display:grid;grid-template-columns:.8fr 1.4fr 1fr;gap:24px}
+.manualPart{padding:24px;display:flex;flex-direction:column;gap:20px}
+.manualPart figcaption p{font-size:15px;color:#afc1b6;margin-top:8px!important}
+.manualImage{height:240px;overflow:hidden;border-radius:12px;background:#f5f6f7}
+.manualImage img{width:100%;height:100%;object-fit:contain;object-position:center}
+@media(min-width:1700px){.section{padding:96px}}
+@media(max-width:1150px){.header{gap:32px;grid-template-columns:1fr 1.5fr}.application{grid-template-columns:1fr}.application figcaption{max-width:300px}.selectionScreen{justify-self:center;max-height:350px}.taskHeading>p{max-width:320px}.manualGrid{gap:16px}.manualPart{padding:20px}}
+@media(max-width:760px){.section{padding:64px 24px}.header{grid-template-columns:1fr;gap:24px;margin-bottom:32px}.header h2 br{display:none}.header>div:last-child{font-size:16px}.selectionGrid,.deliveryGrid{grid-template-columns:1fr}.card{padding:24px;border-radius:22px}.section h3{font-size:23px}.rowSamples>div{grid-template-columns:1fr;gap:6px}.rowSamples img{max-width:none}.application{grid-template-columns:1fr 170px;padding-bottom:0}.application h3{font-size:21px}.selectionScreen{max-height:390px;width:170px}.selectionRule{flex-direction:column;gap:8px}.taskHeading,.manualHeading{flex-direction:column;gap:16px}.taskHeading>p,.manualHeading>p{max-width:none}.taskSamples{grid-template-columns:1fr;gap:18px}.taskSamples img{max-width:400px}.rules>div{grid-template-columns:1fr;gap:10px;padding:20px 0}.rules>.ruleHead{display:none}.rules strong{font-size:19px}.rules p{font-size:16px}.mobileLabel{display:block;color:#91a79a;font-size:13px;margin-bottom:2px}.manualGrid{grid-template-columns:1fr}.manualImage{height:280px}.manualPart:first-child .manualImage img{max-width:240px;margin:auto}.saveCrop{height:260px}.anatomy>div{grid-template-columns:1fr;gap:4px}.provenance,.footnote{font-size:14px}}
+@media(max-width:380px){.section{padding-inline:18px}.card{padding:18px}.application{grid-template-columns:1fr}.selectionScreen{width:220px;max-height:420px}.taskSamples img{min-height:43px}.saveCrop{height:220px}}
+@media(prefers-reduced-motion:reduce){.card{transition:none}}
+.exceptionChapter{min-height:0!important}
