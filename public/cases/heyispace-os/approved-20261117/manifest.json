@@ -1,0 +1,552 @@
+[
+  {
+    "name": "agent-analysis",
+    "nodeId": "1405:36515",
+    "width": 668,
+    "height": 216,
+    "src": "/cases/heyispace-os/approved-20261117/agent-analysis.webp",
+    "box": {
+      "x": 22216,
+      "y": 5762,
+      "width": 668,
+      "height": 216
+    },
+    "render": {
+      "x": 22216,
+      "y": 5762,
+      "width": 668,
+      "height": 216
+    },
+    "export": "Figma native PNG; transparency preserved; lossless WebP"
+  },
+  {
+    "name": "agent-followup",
+    "nodeId": "1405:36540",
+    "width": 668,
+    "height": 216,
+    "src": "/cases/heyispace-os/approved-20261117/agent-followup.webp",
+    "box": {
+      "x": 22956,
+      "y": 5762,
+      "width": 668,
+      "height": 216
+    },
+    "render": {
+      "x": 22956,
+      "y": 5762,
+      "width": 668,
+      "height": 216
+    },
+    "export": "Figma native PNG; transparency preserved; lossless WebP"
+  },
+  {
+    "name": "answer",
+    "nodeId": "1314:27856",
+    "width": 995,
+    "height": 1027,
+    "src": "/cases/heyispace-os/approved-20261117/answer.webp",
+    "box": {
+      "x": 22672,
+      "y": 6411,
+      "width": 952,
+      "height": 983.04345703125
+    },
+    "render": {
+      "x": 22650.5,
+      "y": 6397.5,
+      "width": 995,
+      "height": 1026.04345703125
+    },
+    "export": "Figma native PNG; transparency preserved; lossless WebP"
+  },
+  {
+    "name": "agent-pad",
+    "nodeId": "1405:36181",
+    "width": 1304,
+    "height": 1042,
+    "src": "/cases/heyispace-os/approved-20261117/agent-pad.webp",
+    "box": {
+      "x": 22300,
+      "y": 4569,
+      "width": 1240,
+      "height": 977.9375
+    },
+    "render": {
+      "x": 22268,
+      "y": 4561,
+      "width": 1304,
+      "height": 1042
+    },
+    "export": "Figma native PNG; transparency preserved; lossless WebP"
+  },
+  {
+    "name": "hero",
+    "nodeId": "1311:27505",
+    "width": 1600,
+    "height": 1100,
+    "src": "/cases/heyispace-os/approved-20261117/hero.webp",
+    "box": {
+      "x": 21960,
+      "y": 96,
+      "width": 1760,
+      "height": 1100.832275390625
+    },
+    "render": {
+      "x": 22120,
+      "y": 96,
+      "width": 1600,
+      "height": 1100
+    }
+  },
+  {
+    "name": "view-desk",
+    "nodeId": "1405:37911",
+    "width": 962,
+    "height": 641,
+    "src": "/cases/heyispace-os/approved-20261117/view-desk.webp",
+    "box": {
+      "x": 22216,
+      "y": 11510.5419921875,
+      "width": 898,
+      "height": 577
+    },
+    "render": {
+      "x": 22184,
+      "y": 11502.5419921875,
+      "width": 962,
+      "height": 641
+    },
+    "export": "Figma native PNG; transparency preserved; lossless WebP"
+  },
+  {
+    "name": "editor",
+    "nodeId": "1318:27671",
+    "width": 1075,
+    "height": 752,
+    "src": "/cases/heyispace-os/approved-20261117/editor.webp",
+    "box": {
+      "x": 22600,
+      "y": 7841.04345703125,
+      "width": 1024,
+      "height": 700.1211547851562
+    },
+    "render": {
+      "x": 22574.5,
+      "y": 7823.54345703125,
+      "width": 1075,
+      "height": 751.12158203125
+    },
+    "export": "Figma native PNG; transparency preserved; lossless WebP"
+  },
+  {
+    "name": "view-device",
+    "nodeId": "1405:37784",
+    "width": 962,
+    "height": 641,
+    "src": "/cases/heyispace-os/approved-20261117/view-device.webp",
+    "box": {
+      "x": 22726,
+      "y": 10997.5419921875,
+      "width": 898,
+      "height": 577
+    },
+    "render": {
+      "x": 22694,
+      "y": 10989.5419921875,
+      "width": 962,
+      "height": 641
+    },
+    "export": "Figma native PNG; transparency preserved; lossless WebP"
+  },
+  {
+    "name": "view-cloud",
+    "nodeId": "1405:37321",
+    "width": 962,
+    "height": 641,
+    "src": "/cases/heyispace-os/approved-20261117/view-cloud.webp",
+    "box": {
+      "x": 22216,
+      "y": 10484.5419921875,
+      "width": 898,
+      "height": 577
+    },
+    "render": {
+      "x": 22184,
+      "y": 10476.5419921875,
+      "width": 962,
+      "height": 641
+    },
+    "export": "Figma native PNG; transparency preserved; lossless WebP"
+  },
+  {
+    "name": "configuration-pad",
+    "nodeId": "1433:49966",
+    "width": 1472,
+    "height": 1077,
+    "src": "/cases/heyispace-os/approved-20261117/configuration-pad.webp",
+    "box": {
+      "x": 22216,
+      "y": 9114.1640625,
+      "width": 1408,
+      "height": 1013.3778076171875
+    },
+    "render": {
+      "x": 22184,
+      "y": 9106.1640625,
+      "width": 1472,
+      "height": 1077
+    },
+    "export": "Figma native PNG; transparency preserved; lossless WebP"
+  },
+  {
+    "name": "view-device-detail",
+    "nodeId": "1405:37661",
+    "width": 340,
+    "height": 156,
+    "src": "/cases/heyispace-os/approved-20261117/view-device-detail.webp",
+    "box": {
+      "x": 22216,
+      "y": 11245.5419921875,
+      "width": 340,
+      "height": 156
+    },
+    "render": {
+      "x": 22216,
+      "y": 11245.5419921875,
+      "width": 340,
+      "height": 156
+    },
+    "export": "Figma native PNG; transparency preserved; lossless WebP"
+  },
+  {
+    "name": "view-playback-detail",
+    "nodeId": "1405:38253",
+    "width": 340,
+    "height": 156,
+    "src": "/cases/heyispace-os/approved-20261117/view-playback-detail.webp",
+    "box": {
+      "x": 22216,
+      "y": 12271.5419921875,
+      "width": 340,
+      "height": 156
+    },
+    "render": {
+      "x": 22216,
+      "y": 12271.5419921875,
+      "width": 340,
+      "height": 156
+    },
+    "export": "Figma native PNG; transparency preserved; lossless WebP"
+  },
+  {
+    "name": "view-playback",
+    "nodeId": "1405:38407",
+    "width": 962,
+    "height": 641,
+    "src": "/cases/heyispace-os/approved-20261117/view-playback.webp",
+    "box": {
+      "x": 22726,
+      "y": 12023.5419921875,
+      "width": 898,
+      "height": 577
+    },
+    "render": {
+      "x": 22694,
+      "y": 12015.5419921875,
+      "width": 962,
+      "height": 641
+    },
+    "export": "Figma native PNG; transparency preserved; lossless WebP"
+  },
+  {
+    "name": "view-desk-detail",
+    "nodeId": "1405:38083",
+    "width": 340,
+    "height": 156,
+    "src": "/cases/heyispace-os/approved-20261117/view-desk-detail.webp",
+    "box": {
+      "x": 23224,
+      "y": 11758.5419921875,
+      "width": 340,
+      "height": 156
+    },
+    "render": {
+      "x": 23224,
+      "y": 11758.5419921875,
+      "width": 340,
+      "height": 156
+    },
+    "export": "Figma native PNG; transparency preserved; lossless WebP"
+  },
+  {
+    "name": "view-cloud-detail",
+    "nodeId": "1405:37492",
+    "width": 340,
+    "height": 156,
+    "src": "/cases/heyispace-os/approved-20261117/view-cloud-detail.webp",
+    "box": {
+      "x": 23224,
+      "y": 10732.5419921875,
+      "width": 340,
+      "height": 156
+    },
+    "render": {
+      "x": 23224,
+      "y": 10732.5419921875,
+      "width": 340,
+      "height": 156
+    },
+    "export": "Figma native PNG; transparency preserved; lossless WebP"
+  },
+  {
+    "name": "charts-2",
+    "nodeId": "1321:31159",
+    "width": 320,
+    "height": 1239,
+    "src": "/cases/heyispace-os/approved-20261117/charts-2.webp",
+    "box": {
+      "x": 22952,
+      "y": 15819.513671875,
+      "width": 320,
+      "height": 1238.10546875
+    },
+    "render": {
+      "x": 22952,
+      "y": 15819.513671875,
+      "width": 320,
+      "height": 1238.10546875
+    },
+    "export": "Figma native PNG; transparency preserved; lossless WebP"
+  },
+  {
+    "name": "statistics-pad",
+    "nodeId": "1320:31073",
+    "width": 1107,
+    "height": 755,
+    "src": "/cases/heyispace-os/approved-20261117/statistics-pad.webp",
+    "box": {
+      "x": 22216,
+      "y": 13541.76953125,
+      "width": 1054.161865234375,
+      "height": 702.96337890625
+    },
+    "render": {
+      "x": 22190,
+      "y": 13527.76953125,
+      "width": 1106.162109375,
+      "height": 754.962890625
+    },
+    "export": "Figma native PNG; transparency preserved; lossless WebP"
+  },
+  {
+    "name": "statistics-overview",
+    "nodeId": "1320:30069",
+    "width": 1067,
+    "height": 466,
+    "src": "/cases/heyispace-os/approved-20261117/statistics-overview.webp",
+    "box": {
+      "x": 22600,
+      "y": 13047.5419921875,
+      "width": 1024,
+      "height": 422.22735595703125
+    },
+    "render": {
+      "x": 22578.5,
+      "y": 13034.0419921875,
+      "width": 1067,
+      "height": 465.2275390625
+    },
+    "export": "Figma native PNG; transparency preserved; lossless WebP"
+  },
+  {
+    "name": "charts-1",
+    "nodeId": "1321:30990",
+    "width": 320,
+    "height": 1292,
+    "src": "/cases/heyispace-os/approved-20261117/charts-1.webp",
+    "box": {
+      "x": 22600,
+      "y": 15819.513671875,
+      "width": 320,
+      "height": 1291.7525634765625
+    },
+    "render": {
+      "x": 22600,
+      "y": 15819.513671875,
+      "width": 320,
+      "height": 1291.7525634765625
+    },
+    "export": "Figma native PNG; transparency preserved; lossless WebP"
+  },
+  {
+    "name": "permissions-pad",
+    "nodeId": "1321:30742",
+    "width": 1106,
+    "height": 823,
+    "src": "/cases/heyispace-os/approved-20261117/permissions-pad.webp",
+    "box": {
+      "x": 22570.0234375,
+      "y": 14691.732421875,
+      "width": 1053.9765625,
+      "height": 770.7810668945312
+    },
+    "render": {
+      "x": 22544.0234375,
+      "y": 14677.732421875,
+      "width": 1105.9765625,
+      "height": 822.78125
+    },
+    "export": "Figma native PNG; transparency preserved; lossless WebP"
+  },
+  {
+    "name": "charts-3",
+    "nodeId": "1321:31347",
+    "width": 320,
+    "height": 1041,
+    "src": "/cases/heyispace-os/approved-20261117/charts-3.webp",
+    "box": {
+      "x": 23304,
+      "y": 15819.513671875,
+      "width": 320,
+      "height": 1040.1085205078125
+    },
+    "render": {
+      "x": 23304,
+      "y": 15819.513671875,
+      "width": 320,
+      "height": 1040.109375
+    },
+    "export": "Figma native PNG; transparency preserved; lossless WebP"
+  },
+  {
+    "name": "contribution-editor",
+    "nodeId": "1322:31394",
+    "width": 483,
+    "height": 347,
+    "src": "/cases/heyispace-os/approved-20261117/contribution-editor.webp",
+    "box": {
+      "x": 22720,
+      "y": 17635.501953125,
+      "width": 440,
+      "height": 300.5208435058594
+    },
+    "render": {
+      "x": 22698.5,
+      "y": 17622.001953125,
+      "width": 483,
+      "height": 346.240234375
+    },
+    "export": "Figma native PNG; transparency preserved; lossless WebP"
+  },
+  {
+    "name": "contribution-agent",
+    "nodeId": "1322:31814",
+    "width": 483,
+    "height": 498,
+    "src": "/cases/heyispace-os/approved-20261117/contribution-agent.webp",
+    "box": {
+      "x": 23184,
+      "y": 17558.265625,
+      "width": 440,
+      "height": 454.9945983886719
+    },
+    "render": {
+      "x": 23162.5,
+      "y": 17544.765625,
+      "width": 483,
+      "height": 497.994140625
+    },
+    "export": "Figma native PNG; transparency preserved; lossless WebP"
+  },
+  {
+    "name": "bg-02",
+    "nodeId": "1310:27509",
+    "width": 1600,
+    "height": 705,
+    "src": "/cases/heyispace-os/approved-20261117/bg-02.webp"
+  },
+  {
+    "name": "bg-03",
+    "nodeId": "1310:27535",
+    "width": 1600,
+    "height": 755,
+    "src": "/cases/heyispace-os/approved-20261117/bg-03.webp"
+  },
+  {
+    "name": "bg-06",
+    "nodeId": "1405:36160",
+    "width": 1600,
+    "height": 1810,
+    "src": "/cases/heyispace-os/approved-20261117/bg-06.webp"
+  },
+  {
+    "name": "bg-05",
+    "nodeId": "1311:28051",
+    "width": 1600,
+    "height": 733,
+    "src": "/cases/heyispace-os/approved-20261117/bg-05.webp"
+  },
+  {
+    "name": "bg-04",
+    "nodeId": "1310:27571",
+    "width": 1600,
+    "height": 775,
+    "src": "/cases/heyispace-os/approved-20261117/bg-04.webp"
+  },
+  {
+    "name": "bg-11",
+    "nodeId": "1320:30061",
+    "width": 1600,
+    "height": 1613,
+    "src": "/cases/heyispace-os/approved-20261117/bg-11.webp"
+  },
+  {
+    "name": "bg-08",
+    "nodeId": "1318:27653",
+    "width": 1600,
+    "height": 1026,
+    "src": "/cases/heyispace-os/approved-20261117/bg-08.webp"
+  },
+  {
+    "name": "bg-10",
+    "nodeId": "1405:36710",
+    "width": 1600,
+    "height": 2531,
+    "src": "/cases/heyispace-os/approved-20261117/bg-10.webp"
+  },
+  {
+    "name": "bg-07",
+    "nodeId": "1314:27852",
+    "width": 1600,
+    "height": 1399,
+    "src": "/cases/heyispace-os/approved-20261117/bg-07.webp"
+  },
+  {
+    "name": "bg-09",
+    "nodeId": "1433:49937",
+    "width": 1600,
+    "height": 1555,
+    "src": "/cases/heyispace-os/approved-20261117/bg-09.webp"
+  },
+  {
+    "name": "bg-13",
+    "nodeId": "1321:30978",
+    "width": 1600,
+    "height": 1707,
+    "src": "/cases/heyispace-os/approved-20261117/bg-13.webp"
+  },
+  {
+    "name": "bg-14",
+    "nodeId": "1322:31379",
+    "width": 1600,
+    "height": 896,
+    "src": "/cases/heyispace-os/approved-20261117/bg-14.webp"
+  },
+  {
+    "name": "bg-12",
+    "nodeId": "1321:30731",
+    "width": 1600,
+    "height": 1096,
+    "src": "/cases/heyispace-os/approved-20261117/bg-12.webp"
+  }
+]
