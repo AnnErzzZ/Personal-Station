@@ -34,15 +34,6 @@ h1.heading{padding-top:0}
 .dialogBar p{margin:0}
 .dialogBar button{background:#e0f2eb;color:#155c53;border:1px solid #b3d8cb;padding:12px 20px;border-radius:20px;cursor:pointer}
 .dialog>img{display:block;width:100%;height:auto}
-.answerButton{display:flex;flex-direction:column;gap:calc(4 * var(--u));padding:20px;background:#fff;cursor:pointer;transition:background .2s,box-shadow .2s}
-.answerButton>.node{position:static;width:100%!important;height:auto!important;flex:none}
-.answerButton:hover,.answerButton[aria-pressed=true]{background:#eaf6f0!important;box-shadow:0 0 0 1px #138c7850}
-.answerFocus{position:absolute;pointer-events:none;border:2px solid #149d7b;background:#12ab8010;left:1%;width:98%;top:8.848%;height:9.033%;border-radius:8px;transition:top .3s,height .3s}
-.experience[data-answer="1"] .answerFocus{top:17.881%;height:14.508%}
-.experience[data-answer="2"] .answerFocus{top:32.389%;height:36.27%}
-.experience[data-answer="3"] .answerFocus{top:68.658%;height:12.7%}
-.experience[data-answer="4"] .answerFocus{top:81.358%;height:9.326%}
-.experience[data-answer="5"] .answerFocus{top:90.684%;height:9.326%}
 .leader{pointer-events:none}
 .brandAccent{color:#29aa8d}
 @media(min-width:1200px){
@@ -73,8 +64,6 @@ h1.heading{padding-top:0}
  .picture{width:100%;height:100%}
  .decor,.leader,.node[data-connection]{display:none!important}
  .card:not(.asset){padding:24px}
- .answerButton{padding:20px!important;border-radius:12px!important}
- .answerButton>.node{margin:0}
  .node[data-name^="完整会话｜"],.node[data-name^="筛选与概览｜"],.node[data-name^="运行与环境｜"],.node[data-name^="真实角色与权限配置"]{padding:6px;gap:0!important}
  .node[data-name="系统根节点与范围"]{padding:28px}
  .node[data-name^="中文主题"],.node[data-heading]{order:-2}

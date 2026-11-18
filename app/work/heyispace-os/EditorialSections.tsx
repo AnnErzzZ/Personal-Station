@@ -11,7 +11,7 @@ type Asset = { name: string; nodeId: string; src: string; width: number; height:
 const assets = manifest as Asset[];
 
 // Keep the native screen and its shadow at their own render bounds.
-function Picture({ name, label, children }: { name: string; label: string; children?: ReactNode }) {
+function Picture({ name, label }: { name: string; label: string }) {
   const asset = assets.find(item => item.name === name)!;
   const box = asset.box!;
   const render = asset.render!;
@@ -24,7 +24,7 @@ function Picture({ name, label, children }: { name: string; label: string; child
     <button className={shared.inspect} data-preview={asset.src} data-preview-label={label} aria-label={`放大查看：${label}`}>
       <img src={asset.src} alt={label} width={asset.width} height={asset.height} loading="lazy" style={imageStyle} />
       <span className={shared.inspectHint} aria-hidden="true">放大查看 ↗</span>
-    </button>{children}
+    </button>
   </figure>;
 }
 
@@ -84,7 +84,27 @@ export default function EditorialSections() {
       <div className={s.agentStage}><Picture name="agent-pad" label="R05 完整 Agent 会话与追问 Pad" /></div>
       <div className={s.agentDetails}><article><Point title="查看完整分析">结论、数字与依据在同一份回答中。</Point><Picture name="agent-analysis" label="查看完整分析：结论、指标与依据" /></article><article><Point title="继续追问">输入框展示按房间对比的追问示例。</Point><Picture name="agent-followup" label="继续追问：按房间对比示例" /></article></div>
     </Chapter>
-    <Chapter number={7} en="ANSWER STRUCTURE"><div className={s.anatomy}><div className={s.answerNotes}>{answerParts.map(([title, text, y], i) => <button className={s.answerNote} key={title} data-answer={i} aria-label={`高亮回答：${title}`} aria-pressed={i === 0} style={{ '--note-y': `${y / 983.043457 * 100}%` } as CSSProperties}><strong>{title}</strong><span>{text}</span></button>)}</div><div className={s.answerCanvas}><Picture name="answer" label="回答中的结论、指标、图表、分析发现、明细与口径"><span className={s.answerFocus} aria-hidden="true" /></Picture><div className={s.answerLeaders} aria-hidden="true">{[[122.7251, 53.9515], [207.2793, 104.5059], [323.0864, 345.7708], [680.1582, 88.4756], [799.2363, 56.253], [886.0918, 56.253]].map(([top, height], i) => <span key={i} style={{ top: `${top / 983.043457 * 100}%`, height: `${height / 983.043457 * 100}%` }} />)}</div></div></div><p className={s.note}>明细与统计口径保留在回答中，便于继续核对。</p></Chapter>
+    <Chapter number={7} en="ANSWER STRUCTURE">
+      <div className={s.anatomy}>
+        <div className={s.answerNotes}>
+          {answerParts.map(([title, text, y]) => (
+            <div className={s.answerNote} key={title} style={{ '--note-y': `${y / 983.043457 * 100}%` } as CSSProperties}>
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </div>
+          ))}
+        </div>
+        <div className={s.answerCanvas}>
+          <Picture name="answer" label="回答中的结论、指标、图表、分析发现、明细与口径" />
+          <div className={s.answerLeaders} aria-hidden="true">
+            {[[122.7251, 53.9515], [207.2793, 104.5059], [323.0864, 345.7708], [680.1582, 88.4756], [799.2363, 56.253], [886.0918, 56.253]].map(([top, height]) => (
+              <span key={top} style={{ top: `${top / 983.043457 * 100}%`, height: `${height / 983.043457 * 100}%` }} />
+            ))}
+          </div>
+        </div>
+      </div>
+      <p className={s.note}>明细与统计口径保留在回答中，便于继续核对。</p>
+    </Chapter>
     <Chapter number={8} en="MAP EDITOR">
       <div className={s.sidebarLayout}><div className={`${s.sideNotes} ${s.editorNotes}`}><Point title="对象选择">按网络与分组排列设备，<br />用选中态标明当前雷达。</Point><Point title="位置核对">查看雷达位置与检测范围，<br />对照房间边界核对覆盖关系。</Point><Point title="参数调整">集中编辑坐标和安装方向，<br />三处界面始终对应同一对象。</Point></div><Picture name="editor" label="地图编辑器：工具栏、对象列表、画布和属性栏" /></div>
       <details className={s.designDecision}><summary>设计判断：将雷达区域配置与地图融合放在一起</summary><div><Point title="让覆盖连续，让方向与真实安装一致">原先先用雷达工具画区域，再到地图工具完成融合。合并到同一编辑器后，可以对照地图核对区域、设备位置与方向。</Point><Point title="收益与代价 · 复盘归纳">画布用于直观核对，坐标和方向数值用于精调；也要求列表、画布和属性栏始终反馈同一选中对象。地图编辑器已进入真实产品，支持工程师完成常规配置。</Point></div></details>

@@ -37,15 +37,15 @@ export default function CaseExperience({ children, chapters }: {
         sections.forEach(s => observer.observe(s));
         const visibility = () => { el.dataset.hidden = String(document.hidden);el.querySelector<HTMLElement>("[data-function-structure]")?.setAttribute("data-motion-paused",String(document.hidden)); };
         document.addEventListener('visibilitychange', visibility);
-        const click = (event: MouseEvent) => { const t = event.target as HTMLElement; const preview = t.closest<HTMLElement>('[data-preview]'); if (preview) {
+        const click = (event: MouseEvent) => {
+            const preview = (event.target as HTMLElement).closest<HTMLElement>('[data-preview]');
+            if (!preview)
+                return;
             opener.current = preview;
             setZoom(false);
             setImage({ src: preview.dataset.preview!, label: preview.dataset.previewLabel! });
             dialog.current?.showModal();
-        } const answer = t.closest<HTMLElement>('button[data-answer]'); if (answer) {
-            el.dataset.answer = answer.dataset.answer;
-            el.querySelectorAll('[data-answer]').forEach(b => b.setAttribute('aria-pressed', String(b === answer)));
-        } };
+        };
         const sync = () => { el.dataset.reduced = String(reduce.matches); };
         sync();
         reduce.addEventListener('change', sync);
@@ -53,6 +53,6 @@ export default function CaseExperience({ children, chapters }: {
         return () => { observer.disconnect(); el.removeEventListener('click', click); reduce.removeEventListener('change', sync); document.removeEventListener('visibilitychange', visibility); };
     }, []);
     const close = () => { dialog.current?.close(); opener.current?.focus(); };
-    return <div ref={root} className={styles.experience} data-answer="0" data-paused={paused}><nav className={styles.readerNav} aria-label="案例章节"><details><summary>{active} / 14　章节目录</summary><div>{chapters.map(c => <a key={c.id} href={`#chapter-${c.id}`} aria-current={active === c.id ? 'location' : undefined} onClick={e => e.currentTarget.closest('details')?.removeAttribute('open')}>{c.id}　{c.title}</a>)}</div></details><button onClick={() => setPaused(!paused)} aria-pressed={paused}>{paused ? '播放微动画' : '暂停微动画'}</button></nav>{children}<dialog ref={dialog} className={styles.dialog} onClick={e => { if (e.target === e.currentTarget)
+    return <div ref={root} className={styles.experience} data-paused={paused}><nav className={styles.readerNav} aria-label="案例章节"><details><summary>{active} / 14　章节目录</summary><div>{chapters.map(c => <a key={c.id} href={`#chapter-${c.id}`} aria-current={active === c.id ? 'location' : undefined} onClick={e => e.currentTarget.closest('details')?.removeAttribute('open')}>{c.id}　{c.title}</a>)}</div></details><button onClick={() => setPaused(!paused)} aria-pressed={paused}>{paused ? '播放微动画' : '暂停微动画'}</button></nav>{children}<dialog ref={dialog} className={styles.dialog} onClick={e => { if (e.target === e.currentTarget)
         close(); }} onClose={() => opener.current?.focus()}><div className={styles.dialogBar}><p>{image.label}</p><button onClick={() => setZoom(!zoom)} aria-pressed={zoom}>{zoom ? '适应窗口' : '原始尺寸'}</button><button onClick={close} aria-label="关闭放大预览">关闭 ×</button></div>{image.src ? <img src={image.src} alt={image.label} style={zoom ? { width: 'auto', maxWidth: 'none' } : undefined} width="1600" height="1200"/> : null}</dialog></div>;
 }
