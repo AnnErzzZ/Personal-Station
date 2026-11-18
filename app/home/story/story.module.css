@@ -126,8 +126,8 @@
    那是抠图模型的产物 —— 全幅帧自身已按构图摆好人物，再改尺寸/透明度只会
    让静态帧与视频帧对不上。整段删除。 */
 
-/* ready 之前全部按住透明：杜绝底色上闪现未对齐的图层。 */
-.stage:not([data-ready="true"]) :is(.video, .heroVideo, .poseLayer) {
+/* 视频尚未就绪时，静态图层仍能按章节接管。 */
+.stage:not([data-ready="true"]) :is(.video, .heroVideo) {
   opacity: 0;
   transition: none;
 }

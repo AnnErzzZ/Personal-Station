@@ -55,6 +55,7 @@ import {
   type StorySectionKey,
 } from "./story-ui-motion";
 import styles from "./story.module.css";
+import { sectionScrollTarget } from "./scroll-to-section";
 import WorkProjectBookshelf from "./WorkProjectBookshelf";
 import DashboardGallery from "./DashboardGallery";
 import { DASHBOARD_HOLD_VH, dashboardStageAt, type DashboardImage } from "./dashboard-gallery";
@@ -83,7 +84,7 @@ type Segment = {
   /** hold 段专属：该段接管的静态图。 */
   image?: Pose;
   /** hold 段专属：对应 Section 的 DOM id（导航锚点 / hash）。 */
-  sectionId?: string;
+  sectionId?: Exclude<StorySectionKey, "hero">;
   /** hold 段专属：时间轴最后一段，静态图与文字保持到页尾，不设退场尾巴。 */
   last?: boolean;
 };
@@ -216,6 +217,7 @@ function buildTimeline(resumeHoldVh: number): Timeline {
 const INITIAL_TIMELINE = buildTimeline(ZONES.resumeHold);
 
 const UI_EXIT_LEAD_VH = 8;
+const POSE_HANDOFF_TIMEOUT_MS = 250;
 
 type StoryPhase =
   | "hero"
@@ -680,6 +682,16 @@ export default function StoryScrolly({ heroCopy, dashboardImages = [] }: { heroC
     // 字体加载会改文本度量 → fonts.ready 后重测；内容/视口尺寸变化由
     // ResizeObserver 兜住（比窗口 resize 更早、更准）。
     rebuildTimeline();
+    const jumpToHash = () => {
+      const id = window.location.hash.slice(1);
+      if (id !== "top" && id !== "about" && id !== "work" && id !== "contact") return;
+      const top = sectionScrollTarget(id);
+      if (top !== null) window.scrollTo({ top, behavior: "instant" });
+    };
+    // 叠放的章节共享原生锚点坐标。直接打开链接时用实测时间轴定位，保留浏览器已恢复的滚动位置。
+    if (progressPx() <= 0) jumpToHash();
+    window.addEventListener("hashchange", jumpToHash);
+
     let rebuildRaf = 0;
     const scheduleRebuild = () => {
       if (rebuildRaf) return;
@@ -792,6 +804,8 @@ export default function StoryScrolly({ heroCopy, dashboardImages = [] }: { heroC
     container.dataset.storyDirection = "idle";
     motion.enter("hero");
     let previousP = progressPx();
+    let lastSegment: Segment | undefined;
+    let segmentEnteredAt = 0;
     let lastStoryPhase: StoryPhase = "hero";
     let travelDirection: "forward" | "backward" = "forward";
     const transitionExit = (
@@ -877,6 +891,10 @@ export default function StoryScrolly({ heroCopy, dashboardImages = [] }: { heroC
       const vh = window.innerHeight;
       const tl = timelineRef.current;
       const { seg, localP } = segmentAt(p);
+      if (seg !== lastSegment) {
+        lastSegment = seg;
+        segmentEnteredAt = now;
+      }
       const pVh = (p / vh) * 100;
       const delta = p - previousP;
       const direction = delta > 0.5 ? "forward" : delta < -0.5 ? "backward" : "idle";
@@ -913,20 +931,22 @@ export default function StoryScrolly({ heroCopy, dashboardImages = [] }: { heroC
         motion.exit("work");
       }
 
-      // ---- 静态图接管 / 退场（只在 hold 区间）----
+      // 视频正常时等关键帧对齐。视频未加载、出错或定位超时时，直接显示本章静态图。
+      const inPoseWindow =
+        seg.kind === "hold" && (seg.last || (1 - localP) * seg.vh > IMAGE_TAIL_VH);
+      const poseReady = inPoseWindow && (
+        reduced ||
+        video.error !== null ||
+        video.readyState === HTMLMediaElement.HAVE_NOTHING ||
+        now - segmentEnteredAt >= POSE_HANDOFF_TIMEOUT_MS ||
+        (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA &&
+          !video.seeking && Math.abs(video.currentTime - seg.t0) <= SETTLE_EPS)
+      );
       for (const pose of POSES) {
-        const holdSeg = tl.segments.find((s) => s.image === pose) as
-          | (Segment & { image: Pose })
-          | undefined;
-        if (!holdSeg) continue;
-        const active =
-          seg === holdSeg &&
-          localP < (holdSeg.last ? 1.01 : 1 - IMAGE_TAIL_VH / holdSeg.vh) &&
-          // 只有视频真的落到关键帧上、且这一帧已经渲染完成（没在 seek）才允许接管；
-          // 反向滚动同样成立。带着中间帧淡入 = 切换瞬间的错位。
-          (reduced ||
-            (Math.abs(video.currentTime - holdSeg.t0) <= SETTLE_EPS && !video.seeking));
-        writeImage(pose, active);
+        // 静态图接管后保持到退场区间，避免缓冲状态变化时闪回视频。
+        writeImage(pose, seg.image === pose && inPoseWindow && (
+          poseReady || lastImageVisible.get(pose) === true
+        ));
       }
 
       // UI motion is event-driven: scroll chooses the story phase, then CSS owns
@@ -945,16 +965,8 @@ export default function StoryScrolly({ heroCopy, dashboardImages = [] }: { heroC
         if (!projectsOpenRef.current) transitionExit("work", "contact");
       }
 
-      let settledSection: StorySectionKey | null = null;
-      if (storyPhase === "hero") {
-        settledSection = "hero";
-      } else if (
-        seg.kind === "hold" &&
-        seg.image &&
-        lastImageVisible.get(seg.image)
-      ) {
-        settledSection = seg.sectionId as StorySectionKey;
-      }
+      // 正文和交互由滚动区间决定，后台视频定位失败也能浏览作品。
+      const settledSection = seg.kind === "hero" ? "hero" : seg.sectionId;
 
       if (settledSection) {
         const nearForwardEdge =
@@ -965,15 +977,9 @@ export default function StoryScrolly({ heroCopy, dashboardImages = [] }: { heroC
           seg.kind !== "hero" &&
           travelDirection === "backward" &&
           localP * seg.vh <= UI_EXIT_LEAD_VH;
-        if (nearForwardEdge || nearBackwardEdge) {
-          // Work 层不吃这 8vh 提前离场：它是文件夹（可交互对象）的载体。
-          // 边缘带内提前 exit 后，用户若停在带内，settled 判定每帧重新指向
-          // work、exit 早退，没有任何路径把它恢复成 entered —— 展开态出现
-          // 「chrome 可见（自身 visibility:visible 逃逸父级 hidden）、文件夹
-          // 与卡片消失」的幽灵层，收起后则整个文件夹消失（用户实测两张截图，
-          // 探针 probe-folder-ghost.mjs 场景 A 复现）。它的离场交给出段后的
-          // transitionExit 与兜底 exit，时机只差 8vh。
-          if (settledSection !== "work") motion.exit(settledSection);
+        // 作品区保持可交互到出段，也允许从下方直接返回到作品区起点。
+        if (settledSection !== "work" && (nearForwardEdge || nearBackwardEdge)) {
+          motion.exit(settledSection);
         } else {
           for (const section of STORY_SECTION_KEYS) {
             if (section !== settledSection) motion.hide(section);
@@ -1264,6 +1270,7 @@ export default function StoryScrolly({ heroCopy, dashboardImages = [] }: { heroC
       document.documentElement.removeEventListener("mouseleave", onLeave);
       window.removeEventListener("blur", onLeave);
       window.removeEventListener("resize", updateChromeContrast);
+      window.removeEventListener("hashchange", jumpToHash);
     };
   }, []);
 
