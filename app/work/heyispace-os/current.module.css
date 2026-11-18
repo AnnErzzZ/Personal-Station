@@ -1,5 +1,6 @@
 .case{position:relative;isolation:isolate;color:#102d2c;padding-top:62px}
-.background{position:fixed;inset:0;z-index:-1;background:#f7fafa;pointer-events:none}
+/* One backdrop spans the whole case, including the spaces between chapters. */
+.background{position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(90deg,#f7fafa max(0px,calc(50% - 200px)),#f7fafa00 calc(50% + 40px)),linear-gradient(#afccd62e 1px,transparent 1px),linear-gradient(90deg,#afccd62e 1px,transparent 1px),linear-gradient(90deg,#f7fafa calc(50% - 128px),#edf7f6 calc(50% + 240px),#e6f2f8 100%);background-size:100% 100%,32px 32px,32px 32px,100% 100%;background-position:center}
 .canvas{position:relative;container-type:inline-size;--u:min(1px,calc(100cqw / 1600))}
 .chapter{position:relative;max-width:1600px;margin-inline:auto;scroll-margin-top:75px;overflow:hidden}
 .fullBleedChapter{max-width:none}

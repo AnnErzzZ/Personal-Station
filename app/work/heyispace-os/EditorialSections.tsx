@@ -28,27 +28,9 @@ function Picture({ name, label, children }: { name: string; label: string; child
   </figure>;
 }
 
-function BackgroundEdges({ id, src, width }: { id: string; src: string; width: number }) {
-  // Repeat one native grid cell outside the fixed canvas. The original image,
-  // gradient, grid spacing and all content inside the canvas stay unchanged.
-  return (['left', 'right'] as const).map(side => {
-    const patternId = `chapter-${id}-background-${side}`;
-    return <svg key={side} className={`${s.backgroundEdge} ${side === 'left' ? s.backgroundEdgeLeft : s.backgroundEdgeRight}`}
-      data-background-edge={side} aria-hidden="true" focusable="false">
-      <defs><pattern id={patternId} width="32" height="100%" patternUnits="userSpaceOnUse">
-        <image href={src} x={side === 'right' ? 32 - width : 0} width={width} height="100%" preserveAspectRatio="none" />
-      </pattern></defs>
-      <rect width="100%" height="100%" fill={`url(#${patternId})`} />
-    </svg>;
-  });
-}
-
 function Chapter({ number, en, children, className = '', description }: { number: number; en: string; children: ReactNode; className?: string; description?: ReactNode }) {
   const id = String(number).padStart(2, '0');
-  const background = assets.find(a => a.name === `bg-${id}`)!;
   return <section id={`chapter-${id}`} data-chapter={id} className={`${s.section} ${className}`} aria-labelledby={`title-${id}`}>
-    <img className={s.chapterBackground} src={background.src} alt="" aria-hidden="true" width={background.width} height={background.height} loading="lazy" />
-    <BackgroundEdges id={id} src={background.src} width={background.width} />
     <div className={s.inner}><header className={s.sectionHead}><div><h2 id={`title-${id}`}>{chapterTitles[number - 1]}<img src={`${base}theme-mark.svg`} width="20" height="20" alt="" aria-hidden="true" /></h2><p className={s.english}>{en}</p></div>{description && <p className={s.headDescription}>{description}</p>}</header>{children}</div>
   </section>;
 }
@@ -84,7 +66,7 @@ const views = [
 ];
 
 export default function EditorialSections() {
-  return <div className={s.editorial} data-design-revision="R04-R05-R08-20261117">
+  return <div className={s.editorial} data-design-revision="R04-R05-R08-20261117" data-background-mode="continuous">
     <section id="chapter-01" data-chapter="01" className={s.hero} aria-labelledby="title-01">
       <div className={s.heroBody}><img className={s.heroScene} src={`${base}hero.webp`} alt="笔记本中的合一空间 Agent 真实界面" width="1600" height="1100" fetchPriority="high" />
         <header className={s.heroInfo}><h1 id="title-01">合一空间</h1><p className={s.heroEnglish}>HEYISPACE OS</p><div className={s.heroDescription}><p className={s.heroTagline}>空间、设备与数据</p><p>面向智能空间管理的 Web 系统。<br />通过地图配置、多视图与 Agent，<br />支持配置、运维和分析。</p></div></header>

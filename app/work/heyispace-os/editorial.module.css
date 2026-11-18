@@ -1,13 +1,9 @@
-.editorial{--ink:#203637;--muted:#5c6b73;--accent:#07887c;--u:min(1px,calc(100cqw / 1600));container-type:inline-size;color:var(--ink);font:400 16px/26px "Noto Sans SC","Microsoft YaHei",sans-serif;background:#f7fafa}
+.editorial{--ink:#203637;--muted:#5c6b73;--accent:#07887c;--u:min(1px,calc(100cqw / 1600));container-type:inline-size;color:var(--ink);font:400 16px/26px "Noto Sans SC","Microsoft YaHei",sans-serif;background:transparent}
 .editorial :is(p,h1,h2,h3,h4,figure,ol,ul){margin:0}
 .editorial :is(h3,h4){font-weight:400}
 .editorial p{color:var(--muted)}
 .editorial h3{font-size:26px;line-height:38px}
 .section{position:relative;isolation:isolate;max-width:1600px;margin:calc(32 * var(--u)) auto 0;padding:calc(80 * var(--u)) 0;scroll-margin-top:78px}
-.chapterBackground{position:absolute;inset:0;z-index:-1;width:100%;height:100%;object-fit:fill;pointer-events:none}
-.backgroundEdge{position:absolute;top:0;bottom:0;z-index:-1;width:max(0px,calc((100cqw - 1600px) / 2));height:100%;pointer-events:none}
-.backgroundEdgeLeft{right:100%}
-.backgroundEdgeRight{left:100%}
 .inner{width:88%;max-width:1408px;margin:auto}
 .sectionHead{display:flex;justify-content:space-between;gap:48px;align-items:flex-start;margin-bottom:calc(64 * var(--u))}
 .sectionHead h2{display:flex;align-items:center;gap:4px;font-size:52px;line-height:68px;font-weight:700;letter-spacing:0}
@@ -19,9 +15,9 @@
 .note{margin-top:calc(64 * var(--u))!important}
 .figure{position:relative;width:100%;min-width:0;isolation:isolate}
 .figure img{position:absolute;display:block;max-width:none;height:auto}
-.hero{position:relative;scroll-margin-top:62px;background:linear-gradient(120deg,#c3e6f6,#f7fcff 60%,#b9e7fc)}
+.hero{position:relative;scroll-margin-top:62px}
 .heroBody{position:relative;max-width:1600px;height:calc(1100 * var(--u));margin:auto}
-.heroScene{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.heroScene{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;mask-image:linear-gradient(90deg,transparent,#000 clamp(12px,4vw,64px),#000 calc(100% - clamp(12px,4vw,64px)),transparent),linear-gradient(0deg,transparent,#000 clamp(24px,7.5vw,120px));mask-composite:intersect}
 .heroInfo{position:absolute;left:6%;top:calc(96 * var(--u));width:32.5%}
 .heroInfo h1{font-size:52px;font-weight:700;line-height:68px}
 .heroEnglish{font-size:26px;line-height:38px;color:#137f76!important;margin-top:32px!important}
@@ -54,8 +50,7 @@
 .agent{padding-bottom:0}
 .agentStage{width:77.5%;margin:auto;position:relative}
 .agentStage:before{content:"";position:absolute;left:4%;right:0;bottom:-8%;height:22%;border-radius:50%;background:radial-gradient(ellipse,#c9dfdd6b,transparent 70%);pointer-events:none}
-.agentDetails{position:relative;isolation:isolate;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:calc(72 * var(--u));margin-top:calc(82.0625 * var(--u));padding:calc(45 * var(--u)) 6% calc(156 * var(--u));background:#fafdfe;border-top:1px solid #e1e9e9}
-.agentDetails:before{content:"";position:absolute;left:50%;transform:translateX(-50%);top:-1px;bottom:0;z-index:-1;width:100cqw;background:#fafdfe;border-top:1px solid #e1e9e9;pointer-events:none}
+.agentDetails{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:calc(72 * var(--u));margin-top:calc(82.0625 * var(--u));padding:calc(45 * var(--u)) 6% calc(156 * var(--u));border-top:1px solid transparent}
 .agentDetails .point{margin-bottom:12px}
 .anatomy{display:grid;grid-template-columns:392fr 952fr;gap:calc(64 * var(--u));align-items:stretch}
 .answerNotes{position:relative}
@@ -118,7 +113,6 @@
 @media(max-width:1199px){
  .editorial{--u:1px}.section{padding:64px 0;margin-top:0}.inner{width:auto;margin-inline:6%}
  .sectionHead{margin-bottom:44px;gap:24px}.sectionHead h2{font-size:40px;line-height:54px}.headDescription{max-width:44%}
- .chapterBackground{object-fit:cover;object-position:75% 0}
  .heroBody{height:auto;display:flex;flex-direction:column}.heroScene{position:relative;order:2;aspect-ratio:16/11;height:auto}
  .heroInfo{position:relative;inset:auto;width:auto;padding:48px 6% 0;order:1}.heroInfo h1{font-size:44px;line-height:58px}
  .heroEnglish{font-size:20px;line-height:30px;margin-top:12px!important}.heroDescription{margin-top:24px}.heroRole{position:static;order:3;padding:0 6% 40px}
